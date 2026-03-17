@@ -32,16 +32,21 @@ function toDbRecord(installation) {
 
   const scope =
     Array.isArray(installation.bot?.scopes) ? installation.bot.scopes.join(",") : null;
+  const userToken = installation.user?.token ?? null;
+  const userScope =
+    Array.isArray(installation.user?.scopes) ? installation.user.scopes.join(",") : null;
 
   return {
     id,
     enterpriseId,
     teamId,
     botToken,
+    userToken,
     botId: installation.bot?.id ?? null,
     botUserId: installation.bot?.userId ?? null,
     installerUser: installation.user?.id ?? null,
     scope,
+    userScope,
     appId: installation.appId ?? null,
     tokenType: installation.tokenType ?? "bot",
   };
@@ -53,8 +58,22 @@ function toDbRecord(installation) {
  */
 function fromDbRecord(row) {
   const scopes = row.scope ? row.scope.split(",").map((s) => s.trim()).filter(Boolean) : [];
+  const userScopes = row.userScope
+    ? row.userScope.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
 
-  const isEnterpriseInstall = !!row.enterpriseId && !row.teamId;
+  const isEnterpriseInstall = !!row.enterpriseId;
+
+  const userPayload =
+    row.userToken || row.installerUser
+      ? {
+          id: row.installerUser ?? "installer",
+          ...(row.userToken && {
+            token: row.userToken,
+            scopes: userScopes.length ? userScopes : undefined,
+          }),
+        }
+      : undefined;
 
   return {
     isEnterpriseInstall,
@@ -62,7 +81,7 @@ function fromDbRecord(row) {
     team: row.teamId ? { id: row.teamId } : undefined,
     appId: row.appId ?? undefined,
     tokenType: row.tokenType ?? "bot",
-    user: row.installerUser ? { id: row.installerUser } : undefined,
+    user: userPayload,
     bot: {
       token: row.botToken,
       id: row.botId ?? undefined,
@@ -123,7 +142,6 @@ function createInstallationStore({ logger } = {}) {
       return null;
     },
 
-
     deleteInstallation: async (installQuery) => {
       const prisma = getPrisma();
 
@@ -145,4 +163,38 @@ function createInstallationStore({ logger } = {}) {
   };
 }
 
-module.exports = { createInstallationStore };
+/**
+ * Fetch installation by query (for use in handlers when you need user token etc.).
+ *
+ * @param {{ teamId?: string, enterpriseId?: string, isEnterpriseInstall?: boolean }} installQuery
+ * @returns {Promise<import('@slack/oauth').Installation | null>}
+ */
+async function getInstallation(installQuery) {
+  const prisma = getPrisma();
+  const enterpriseId = installQuery.enterpriseId ?? null;
+  const teamId = installQuery.teamId ?? null;
+  const isEnterpriseInstall = !!installQuery.isEnterpriseInstall;
+
+  if (isEnterpriseInstall && enterpriseId) {
+    const row = await prisma.installation.findUnique({
+      where: { id: `E:${enterpriseId}` },
+    });
+    if (row) return fromDbRecord(row);
+  }
+  if (teamId) {
+    const row = await prisma.installation.findUnique({
+      where: { id: `T:${teamId}` },
+    });
+    if (row) return fromDbRecord(row);
+    // Enterprise Grid: payload may have team_id but not enterprise_id; find by teamId column
+    if (isEnterpriseInstall) {
+      const byTeam = await prisma.installation.findFirst({
+        where: { teamId },
+      });
+      if (byTeam) return fromDbRecord(byTeam);
+    }
+  }
+  return null;
+}
+
+module.exports = { createInstallationStore, getInstallation };

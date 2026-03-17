@@ -1,15 +1,21 @@
 const { ExpressReceiver, LogLevel } = require("@slack/bolt");
-const { requireEnv, parseScopes } = require("./env");
+const { requireEnv, getBotScopes, getUserScopes } = require("./env");
 const { createInstallationStore } = require("./installationStore");
 
 function createReceiver() {
+  const botScopes = getBotScopes();
+  const userScopes = getUserScopes();
+  if (botScopes.length === 0) {
+    throw new Error("At least SLACK_BOT_SCOPES or SLACK_SCOPES must be set.");
+  }
+
   const receiver = new ExpressReceiver({
     signingSecret: requireEnv("SLACK_SIGNING_SECRET"),
     clientId: requireEnv("SLACK_CLIENT_ID"),
     clientSecret: requireEnv("SLACK_CLIENT_SECRET"),
     stateSecret: requireEnv("SLACK_STATE_SECRET"),
 
-    scopes: parseScopes(requireEnv("SLACK_SCOPES")),
+    scopes: botScopes,
 
     installationStore: createInstallationStore(),
 
@@ -18,6 +24,7 @@ function createReceiver() {
       redirectUriPath: "/slack/oauthcallback",
       directInstall: true,
       stateVerification: false,
+      userScopes: userScopes.length > 0 ? userScopes : undefined,
     },
 
 

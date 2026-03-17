@@ -1,136 +1,153 @@
 require("dotenv").config();
 
-const { App } = require("@slack/bolt");
+// Heroku: if GCP_SERVICE_ACCOUNT_JSON is set (JSON string), write to temp file for Vertex AI
+if (process.env.GCP_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const fs = require("fs");
+  const path = require("path");
+  const tmp = path.join(process.env.TMPDIR || "/tmp", "gcp-sa-" + Date.now() + ".json");
+  fs.writeFileSync(tmp, process.env.GCP_SERVICE_ACCOUNT_JSON);
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = tmp;
+}
+
+const { App, Assistant } = require("@slack/bolt");
 const { receiver } = require("./slack/receiver");
+const { getAiResponse } = require("./assistant/respond");
+const { buildSlackContext } = require("./assistant/slackContext");
+const { getInstallation } = require("./install-kit/installationStore");
 
 const app = new App({
-  receiver
+  receiver,
 });
 
-// functional logic
-async function getDemoUsers(demo_usernames, client) {
-    const remaining = new Set(demo_usernames);
-    const demoUsers = {};
-    let cursor;
-    do {
-        const result = await client.users.list({
-            limit: 1000,
-            cursor,
+// ----- @mentions (channel / thread) -----
+app.event("app_mention", async ({ event, body, client, logger }) => {
+  try {
+    const userMessage = event.text?.replace(/<@[A-Z0-9]+>/g, "").trim() || "";
+    const installation = await getInstallation({
+      teamId: body?.team_id || event?.team,
+      enterpriseId: body?.enterprise_id || event?.enterprise_id,
+      isEnterpriseInstall: !!body?.is_enterprise_install,
+    });
+    const slackContext = await buildSlackContext(client, {
+      userToken: installation?.user?.token,
+      channelId: event.channel,
+      threadTs: event.thread_ts || event.ts,
+      userMessage,
+    });
+    const response = await getAiResponse({ userMessage, slackContext });
+    const threadTs = event.thread_ts || event.ts;
+
+    await client.chat.postMessage({
+      channel: event.channel,
+      thread_ts: threadTs,
+      text: response,
+    });
+  } catch (err) {
+    logger.error("app_mention handler error", err);
+  }
+});
+
+// ----- Assistant thread (side panel / DM) -----
+const assistant = new Assistant({
+  threadStarted: async ({ say, saveThreadContext, setSuggestedPrompts }) => {
+    await say("Hi, I'm LivChat. How can I help?");
+    await saveThreadContext();
+    await setSuggestedPrompts({
+      title: "Try these:",
+      prompts: [
+        { title: "Summarize", message: "Summarize the key points from this channel." },
+        { title: "Ask anything", message: "What can you help me with?" },
+      ],
+    });
+  },
+
+  threadContextChanged: async ({ saveThreadContext }) => {
+    await saveThreadContext();
+  },
+
+  userMessage: async ({ body, client, context, message, getThreadContext, say, setStatus, setTitle, logger }) => {
+    if (!("text" in message) || !message.text?.trim() || !("thread_ts" in message)) return;
+
+    const { channel, thread_ts } = message;
+    const text = message.text.trim();
+    const installation = await getInstallation({
+      teamId: body?.team_id || context?.teamId || context?.team?.id,
+      enterpriseId: body?.enterprise_id || context?.enterpriseId || context?.enterprise?.id,
+      isEnterpriseInstall: !!body?.is_enterprise_install || !!context?.isEnterpriseInstall,
+    });
+
+    try {
+      await setTitle(text.slice(0, 80));
+      await setStatus({
+        status: "Thinking…",
+        loading_messages: ["Reading your message…", "Getting ready to respond…"],
+      });
+
+      let threadHistory = [];
+      try {
+        const replies = await client.conversations.replies({
+          channel,
+          ts: thread_ts,
+          oldest: thread_ts,
         });
-        for (const user of result.members || []) {
-            if (!user?.id || user?.deleted || !remaining.has(user.name)) {
-                continue;
-            }
-            demoUsers[user.name] = {
-                id: user.id,
-                image_512: user.profile?.image_512,
-                display_name:
-                    user.profile?.display_name || user.real_name || user.name,
-            };
-            remaining.delete(user.name);
-        }
-        cursor = result.response_metadata?.next_cursor;
-    } while (cursor && remaining.size > 0);
+        threadHistory = (replies.messages || []).map((m) => ({
+          role: m.bot_id ? "assistant" : "user",
+          text: m.text || "",
+        }));
+      } catch (_) {
+        // no thread history
+      }
 
-    return demoUsers;
-}
+      // Thread context includes channel_id when user opened Assistant from a channel (e.g. "this channel")
+      const threadContext = await getThreadContext?.();
+      const contextChannelId = threadContext?.channel_id || null;
 
+      const userToken = installation?.user?.token;
+      const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
+      const needsUserToken = hasChannelRefs && !userToken;
 
+      if (needsUserToken && process.env.NODE_ENV !== "production") {
+        logger.info("LivChat: No user token for channel access. User may need to reinstall the app.");
+      }
 
-function delay(delay_seconds) {
-    return new Promise((resolve) => setTimeout(resolve, delay_seconds*1000));//convert the delay to milliseconds
-}
+      let slackContext = await buildSlackContext(client, {
+        userToken,
+        channelId: channel,
+        threadTs: thread_ts,
+        userMessage: text,
+        skipChannelAndThread: true, // we already have threadHistory
+        includeSearch: true,
+        contextChannelId, // channel user is viewing when they say "summarize this channel"
+        teamId: body?.team_id || context?.teamId || context?.team?.id,
+      });
 
-app.event("channel_created", async ({ event, client }) => {
-    try {
-        await client.conversations.join({ channel: event.channel.id });
-    } catch (error) {
-        const errorCode = error?.data?.error;
-        if (
-            errorCode !== "already_in_channel" &&
-            errorCode !== "method_not_supported_for_channel_type"
-        ) {
-            throw error;
-        }
+      if (needsUserToken) {
+        const reinstallNote =
+          "[LivChat does not have channel access for this installation. To summarize channels, the user must reinstall LivChat from Slack app settings (Apps → LivChat → Configuration) so the app can request channel permissions.]";
+        slackContext = slackContext
+          ? `${reinstallNote}\n\n${slackContext}`
+          : `\n--- Slack context ---\n${reinstallNote}\n--- End Slack context ---\n`;
+      }
+
+      const response = await getAiResponse({
+        userMessage: text,
+        threadHistory,
+        slackContext,
+      });
+
+      await say({ text: response });
+    } catch (err) {
+      logger.error("Assistant userMessage error", err);
+      await say({ text: "Something went wrong. Please try again." });
     }
+  },
 });
 
-app.message("I need help.", async ({message, client }) => {
-    if (message.subtype || message.bot_id) {
-        return;
-    }
+app.assistant(assistant);
 
-
-    //add Slackbrix to the demo channel
-    try {
-        await client.conversations.join({ channel: message.channel }); //make sure the app is in the channel
-    } catch (error) {
-        const errorCode = error?.data?.error;
-        if (errorCode !== "already_in_channel" && errorCode !== "method_not_supported_for_channel_type") {
-            throw error;
-        }
-    }
-
-    //add demo users to the channel
-
-    const demo_users=["jennifer_hynes","alyssa_buron","amira_valant"];
-
-    const demo_users_data = await getDemoUsers(demo_users, client);
-    const demo_user_ids = Object.values(demo_users_data).map(
-        (demo_user) => demo_user.id
-    );
-
-    try{
-        for(const demo_user_id of demo_user_ids){
-            await client.conversations.invite({channel:message.channel, users:demo_user_id});
-        }
-    }
-    catch(error){
-        const errorCode = error?.data?.error;
-        if (errorCode !== "already_in_channel" && errorCode !== "method_not_supported_for_channel_type" && errorCode !=="cant_invite_self") {
-            throw error;
-        }
-        console.log("Some demo users could not be added to the channel: "+errorCode);
-    }
-
-    //push the messages with delays to simulate a conversation 
-
-    await delay(1); //wait 3 seconds
-
-    await client.chat.postMessage({
-        channel: message.channel,
-        icon_url: demo_users_data["amira_valant"]?.image_512,
-        text: "Applicant has a shut-off notice for today, meets income, but the Lease Agreement is has a missing signature from the landlord. Policy says 'Landlord Agreement required.' Can a Senior Reviewer/Supervisor approve an override with the lease, given the crisis, or do we need to contact the utility company for a hold first?",
-        username:"Amira Valant"
-    });
-
-    await delay(2); 
-
-    const firstMessage = await client.chat.postMessage({
-        channel: message.channel,
-        icon_url: demo_users_data["alyssa_buron"]?.image_512,
-        text: "Can a Senior Reviewer/Supervisor approve an override with the lease, given the crisis, or do we need to contact the utility company for a hold first?",
-        username:"Alyssa Buron"
-    });
-
-    await delay(1); 
-
-    await client.chat.postMessage({
-        channel: message.channel,
-        icon_url: demo_users_data["amira_valant"]?.image_512,
-        text: "Yes, per Sec. 3.4.1 Exception, approve with the lease and a follow-up task to get the agreement by next week. Action must be taken now. I'll flag the utility company for a 2-hour hold.",
-        username:"Amira Valant",
-        thread_ts:firstMessage.ts
-    });
-
-});
-
-
-
-//Start the app
-
+// ----- Start -----
 (async () => {
   const port = process.env.PORT || 3000;
   await app.start(port);
-  console.log(`⚡️ Slackbrix listening on :${port}`);
+  console.log(`⚡️ LivChat listening on :${port}`);
 })();

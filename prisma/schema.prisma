@@ -11,10 +11,12 @@ model Installation {
   enterpriseId  String?
   teamId        String?
   botToken      String
+  userToken     String?  // xoxp- user token when user scopes are requested
   botId         String?
   botUserId     String?
   installerUser String?
-  scope         String?
+  scope         String?  // bot scopes (comma-separated)
+  userScope     String?  // user scopes (comma-separated)
   appId         String?
   tokenType     String?  @default("bot")
   installedAt   DateTime @default(now())
