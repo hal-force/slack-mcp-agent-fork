@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LivChat
 
 ## Overview
@@ -8,8 +9,10 @@ LivChat is a Slack app built with the Bolt framework and Prisma for database man
 - **Environment configuration**: Environment variables via dotenv.
 - **Slack Bolt**: Slack app framework with OAuth install flow and installation store.
 
-## Getting Started
 
+---
+
+<<<<<<< HEAD
 ### Prerequisites
 - Node.js 20.x
 - PostgreSQL (running)
@@ -159,3 +162,33 @@ The `release` phase runs `prisma migrate deploy` before each release. Migrations
 ## References
 - [Slack Bolt](https://slack.dev/bolt)
 - [Prisma](https://www.prisma.io/)
+=======
+## Key Features
+
+- OAuth v2 installation flow using Slack Bolt + ExpressReceiver  
+- Enterprise Grid–ready (supports org-wide installs)  
+- Per-installation token storage (no global bot tokens)  
+- Prisma-backed persistence for install metadata and tokens  
+- Modular “install kit” designed for reuse across apps  
+- One-click install entry point (within Slack’s admin constraints)
+
+---
+
+## Architecture Overview
+
+Slackbrix is intentionally split into two concerns:
+
+### Installation & Auth (`install-kit/`)
+Responsible for:
+- OAuth install and callback handling
+- Installation persistence
+- Token resolution per request
+- Enterprise vs workspace install resolution
+
+### App Logic (`index.js`)
+Responsible for:
+- Slack events, messages, and commands
+- Using the Slack client injected by Bolt
+- Automatically operating with the correct token per install
+
+>>>>>>> parent of e539b6b (Removed references to the source project for easier templating. Updated readme.md to reflect the new project details.)
