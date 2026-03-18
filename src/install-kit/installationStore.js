@@ -158,23 +158,41 @@ function createInstallationStore({ logger } = {}) {
         }
       }
 
-      // 2️⃣ Org/workspace-level fallback (bot only, or legacy single-user)
+      // 2️⃣ Org/workspace-level fallback (bot only)
       if (isEnterpriseInstall && enterpriseId) {
         const row = await prisma.installation.findUnique({
           where: { id: `E:${enterpriseId}` },
         });
-        if (row) return fromDbRecord(row);
+        if (row) {
+          const result = fromDbRecord(row);
+          if (userId && row.installerUser !== userId) {
+            result.user = undefined;
+          }
+          return result;
+        }
       }
       if (teamId) {
         const row = await prisma.installation.findUnique({
           where: { id: `T:${teamId}` },
         });
-        if (row) return fromDbRecord(row);
+        if (row) {
+          const result = fromDbRecord(row);
+          if (userId && row.installerUser !== userId) {
+            result.user = undefined;
+          }
+          return result;
+        }
         if (isEnterpriseInstall) {
           const byTeam = await prisma.installation.findFirst({
             where: { teamId },
           });
-          if (byTeam) return fromDbRecord(byTeam);
+          if (byTeam) {
+            const result = fromDbRecord(byTeam);
+            if (userId && byTeam.installerUser !== userId) {
+              result.user = undefined;
+            }
+            return result;
+          }
         }
       }
 
@@ -235,18 +253,30 @@ async function getInstallation(installQuery) {
     const row = await prisma.installation.findUnique({
       where: { id: `E:${enterpriseId}` },
     });
-    if (row) return fromDbRecord(row);
+    if (row) {
+      const result = fromDbRecord(row);
+      if (userId && row.installerUser !== userId) result.user = undefined;
+      return result;
+    }
   }
   if (teamId) {
     const row = await prisma.installation.findUnique({
       where: { id: `T:${teamId}` },
     });
-    if (row) return fromDbRecord(row);
+    if (row) {
+      const result = fromDbRecord(row);
+      if (userId && row.installerUser !== userId) result.user = undefined;
+      return result;
+    }
     if (isEnterpriseInstall) {
       const byTeam = await prisma.installation.findFirst({
         where: { teamId },
       });
-      if (byTeam) return fromDbRecord(byTeam);
+      if (byTeam) {
+        const result = fromDbRecord(byTeam);
+        if (userId && byTeam.installerUser !== userId) result.user = undefined;
+        return result;
+      }
     }
   }
   return null;
