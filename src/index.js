@@ -14,6 +14,15 @@ const { receiver } = require("./slack/receiver");
 const { getAiResponse } = require("./assistant/respond");
 const { buildSlackContext } = require("./assistant/slackContext");
 const { getInstallation } = require("./install-kit/installationStore");
+const { getInstallUrl } = require("./install-kit/env");
+
+/** Message shown when user has no per-user install; includes install link if PUBLIC_BASE_URL is set. */
+function getAuthorizeMessage() {
+  const url = getInstallUrl();
+  return url
+    ? "To use channel summaries and full features, authorize LivChat: " + url
+    : "To use channel summaries and full features, authorize LivChat from Apps → LivChat → Configuration.";
+}
 
 const app = new App({
   receiver,
@@ -37,11 +46,13 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
     });
     const response = await getAiResponse({ userMessage, slackContext });
     const threadTs = event.thread_ts || event.ts;
+    const replyText =
+      installation?.user?.token ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
 
     await client.chat.postMessage({
       channel: event.channel,
       thread_ts: threadTs,
-      text: response,
+      text: replyText,
     });
   } catch (err) {
     logger.error("app_mention handler error", err);
@@ -50,8 +61,18 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
 
 // ----- Assistant thread (side panel / DM) -----
 const assistant = new Assistant({
-  threadStarted: async ({ say, saveThreadContext, setSuggestedPrompts }) => {
+  threadStarted: async ({ say, saveThreadContext, setSuggestedPrompts, body, context }) => {
     await say("Hi, I'm LivChat. How can I help?");
+    const installQuery = {
+      teamId: body?.team_id || body?.authorizations?.[0]?.team_id || context?.teamId || context?.team?.id,
+      enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || context?.enterpriseId || context?.enterprise?.id,
+      isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install || !!context?.isEnterpriseInstall,
+      userId: body?.user_id || body?.authorizations?.[0]?.user_id || context?.userId,
+    };
+    const installation = await getInstallation(installQuery);
+    if (installation && !installation?.user?.token) {
+      await say(getAuthorizeMessage());
+    }
     await saveThreadContext();
     await setSuggestedPrompts({
       title: "Try these:",
@@ -142,7 +163,9 @@ const assistant = new Assistant({
         slackContext,
       });
 
-      await say({ text: response });
+      const replyText =
+        installation?.user?.token ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
+      await say({ text: replyText });
     } catch (err) {
       logger.error("Assistant userMessage error", err);
       await say({ text: "Something went wrong. Please try again." });

@@ -1,5 +1,7 @@
 const { ExpressReceiver, LogLevel } = require("@slack/bolt");
-const { requireEnv, getBotScopes, getUserScopes } = require("./env");
+const { requireEnv, getBotScopes, getUserScopes, getSlackLogLevel } = require("./env");
+
+const LOG_LEVEL_MAP = { debug: LogLevel.DEBUG, info: LogLevel.INFO, warn: LogLevel.WARN, error: LogLevel.ERROR };
 const { createInstallationStore } = require("./installationStore");
 
 function createReceiver() {
@@ -28,7 +30,7 @@ function createReceiver() {
     },
 
 
-    logLevel: LogLevel.INFO,
+    logLevel: LOG_LEVEL_MAP[getSlackLogLevel()] ?? LogLevel.INFO,
   });
 
   return receiver;

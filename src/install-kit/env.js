@@ -69,4 +69,39 @@ function getInstallScopes() {
   return [...bot, ...user];
 }
 
-module.exports = { requireEnv, envOptional, parseScopes, getInstallScopes, getBotScopes, getUserScopes };
+/**
+ * Slack/Bolt log level for the receiver.
+ * Set SLACK_LOG_LEVEL to debug | info | warn | error to override.
+ * Otherwise: DEBUG when NODE_ENV !== "production", INFO in production.
+ */
+function getSlackLogLevel() {
+  const raw = envOptional("SLACK_LOG_LEVEL", "").trim().toLowerCase();
+  if (raw === "debug" || raw === "info" || raw === "warn" || raw === "error") return raw;
+  return process.env.NODE_ENV === "production" ? "info" : "debug";
+}
+
+/**
+ * Public base URL for the app (e.g. https://livchat-xxx.herokuapp.com).
+ * Used to build the OAuth install link for the "authorize" prompt.
+ */
+function getPublicBaseUrl() {
+  return (envOptional("PUBLIC_BASE_URL", "").trim() || "").replace(/\/$/, "");
+}
+
+/** Full URL to the Slack OAuth install path. Empty if PUBLIC_BASE_URL is not set. */
+function getInstallUrl() {
+  const base = getPublicBaseUrl();
+  return base ? `${base}/slack/install` : "";
+}
+
+module.exports = {
+  requireEnv,
+  envOptional,
+  parseScopes,
+  getInstallScopes,
+  getBotScopes,
+  getUserScopes,
+  getSlackLogLevel,
+  getPublicBaseUrl,
+  getInstallUrl,
+};
