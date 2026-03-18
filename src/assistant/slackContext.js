@@ -125,8 +125,8 @@ async function buildSlackContext(client, opts = {}) {
     } catch (err) {
       const msg = err.data?.error ?? err.message;
       console.warn("[slackContext] addChannelById failed:", cid, msg);
-      if (msg === "not_in_channel" || msg === "channel_not_found") {
-        sectionsArray.push(`[Could not read the channel: the current token's user is not in that channel. Suggest the user open LivChat from the Apps menu to authorize—that will let me use their permissions to read channels they're in.]`);
+      // if (msg === "not_in_channel" || msg === "channel_not_found") {
+      //   sectionsArray.push(`[Could not read the channel: the current token's user is not in that channel. Suggest the user open LivChat from the Apps menu to authorize—that will let me use their permissions to read channels they're in.]`);
       }
     }
   }
