@@ -30,6 +30,13 @@ function parseChannelRefs(text) {
 
 const DEBUG = process.env.SLACK_CONTEXT_DEBUG === "1";
 
+/** Subtypes we include in channel history (user messages + thread_broadcast + app/bot posts). */
+const INCLUDE_SUBTYPES = new Set(["thread_broadcast", "bot_message"]);
+
+function includeMessageInHistory(m) {
+  return !m.subtype || INCLUDE_SUBTYPES.has(m.subtype);
+}
+
 /** Resolve a channel name to channel ID via conversations.list (uses provided client: user or bot). */
 async function resolveChannelByName(client, name, teamId) {
   const tryList = async (tid) => {
@@ -111,16 +118,18 @@ async function buildSlackContext(client, opts = {}) {
         limit: Math.min(maxChannelMessages, 30),
       });
       const messages = (res.messages || [])
-        .filter((m) => !m.subtype || m.subtype === "thread_broadcast")
+        .filter(includeMessageInHistory)
         .slice(0, maxChannelMessages)
         .map((m) => {
-          const user = m.user ? `<@${m.user}>` : "bot";
+          const user = m.user ? `<@${m.user}>` : (m.bot_id ? "bot" : "app");
           const text = (m.text || "").trim();
           return text ? `${user}: ${text}` : null;
         })
         .filter(Boolean);
       if (messages.length > 0) {
         sectionsArray.push(`${label || `Recent messages in ${name}`}:\n${messages.join("\n")}`);
+      } else if (DEBUG) {
+        console.log("[slackContext] addChannelById:", cid, "returned 0 messages (empty or all filtered)");
       }
     } catch (err) {
       const msg = err.data?.error ?? err.message;
@@ -145,10 +154,10 @@ async function buildSlackContext(client, opts = {}) {
             limit: Math.min(maxChannelMessages, 30),
           });
           const messages = (res.messages || [])
-            .filter((m) => !m.subtype || m.subtype === "thread_broadcast")
+            .filter(includeMessageInHistory)
             .slice(0, maxChannelMessages)
             .map((m) => {
-              const user = m.user ? `<@${m.user}>` : "bot";
+              const user = m.user ? `<@${m.user}>` : (m.bot_id ? "bot" : "app");
               const text = (m.text || "").trim();
               return text ? `${user}: ${text}` : null;
             })
@@ -245,10 +254,10 @@ async function buildSlackContext(client, opts = {}) {
       } else {
         const res = await apiClient.conversations.history(historyOpts);
         const messages = (res.messages || [])
-          .filter((m) => !m.subtype || m.subtype === "thread_broadcast")
+          .filter(includeMessageInHistory)
           .slice(0, maxChannelMessages)
           .map((m) => {
-            const user = m.user ? `<@${m.user}>` : "bot";
+            const user = m.user ? `<@${m.user}>` : (m.bot_id ? "bot" : "app");
             const text = (m.text || "").trim();
             return text ? `${user}: ${text}` : null;
           })
