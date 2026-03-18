@@ -2,28 +2,30 @@ const { getPrisma } = require("./prisma");
 
 /**
  * Deterministic ID strategy so upsert works with your schema:
- * - Enterprise install: "E:<enterpriseId>"
- * - Workspace install:  "T:<teamId>"
+ * - Enterprise install: "E:<enterpriseId>" (bot only) or "E:<enterpriseId>:<userId>" (per-user)
+ * - Workspace install:  "T:<teamId>" or "T:<teamId>:<userId>"
  */
-function makeInstallationId({ isEnterpriseInstall, enterpriseId, teamId }) {
-  if (isEnterpriseInstall) {
-    if (!enterpriseId) throw new Error("Enterprise install missing enterpriseId");
-    return `E:${enterpriseId}`;
-  }
-  if (!teamId) throw new Error("Workspace install missing teamId");
-  return `T:${teamId}`;
+function makeInstallationId({ isEnterpriseInstall, enterpriseId, teamId, userId }) {
+  const base = isEnterpriseInstall
+    ? (enterpriseId ? `E:${enterpriseId}` : null)
+    : (teamId ? `T:${teamId}` : null);
+  if (!base) throw new Error("Install missing enterpriseId or teamId");
+  return userId ? `${base}:${userId}` : base;
 }
 
 /**
  * Extract the values we persist in your Installation table.
- * Your schema stores critical values (botToken, ids, scopes, etc.)
+ * @param {object} installation - OAuth installation object
+ * @param {{ userId?: string, userTokenOnly?: boolean }} opts - userId for per-user row; userTokenOnly=true omits user fields (org-level bot only)
  */
-function toDbRecord(installation) {
+function toDbRecord(installation, opts = {}) {
+  const { userId: explicitUserId, userTokenOnly } = opts;
   const isEnterpriseInstall = !!installation.isEnterpriseInstall;
   const enterpriseId = installation.enterprise?.id ?? null;
   const teamId = installation.team?.id ?? null;
+  const uid = explicitUserId ?? installation.user?.id ?? null;
 
-  const id = makeInstallationId({ isEnterpriseInstall, enterpriseId, teamId });
+  const id = makeInstallationId({ isEnterpriseInstall, enterpriseId, teamId, userId: userTokenOnly ? null : uid });
 
   const botToken = installation.bot?.token;
   if (!botToken) {
@@ -32,14 +34,15 @@ function toDbRecord(installation) {
 
   const scope =
     Array.isArray(installation.bot?.scopes) ? installation.bot.scopes.join(",") : null;
-  const userToken = installation.user?.token ?? null;
+  const userToken = userTokenOnly ? null : (installation.user?.token ?? null);
   const userScope =
-    Array.isArray(installation.user?.scopes) ? installation.user.scopes.join(",") : null;
+    userTokenOnly ? null : (Array.isArray(installation.user?.scopes) ? installation.user.scopes.join(",") : null);
 
   return {
     id,
     enterpriseId,
     teamId,
+    userId: userTokenOnly ? null : uid,
     botToken,
     userToken,
     botId: installation.bot?.id ?? null,
@@ -95,19 +98,31 @@ function createInstallationStore({ logger } = {}) {
   return {
     storeInstallation: async (installation) => {
       const prisma = getPrisma();
-      const data = toDbRecord(installation);
 
-      logger?.info?.("[install] storeInstallation", {
-        id: data.id,
-        enterpriseId: data.enterpriseId,
-        teamId: data.teamId,
-      });
-
+      // 1️⃣ Org/workspace-level (bot) – one per enterprise/team; preserve existing userToken for backward compat
+      const orgData = toDbRecord(installation, { userTokenOnly: true });
+      const orgUpdate = { ...orgData };
+      delete orgUpdate.userToken;
+      delete orgUpdate.userScope;
+      delete orgUpdate.installerUser;
+      delete orgUpdate.userId;
       await prisma.installation.upsert({
-        where: { id: data.id },
-        create: data,
-        update: data,
+        where: { id: orgData.id },
+        create: orgData,
+        update: orgUpdate,
       });
+      logger?.info?.("[install] storeInstallation org", { id: orgData.id });
+
+      // 2️⃣ Per-user (bot + user token) – when user scopes were granted
+      if (installation.user?.token && installation.user?.id) {
+        const userData = toDbRecord(installation);
+        await prisma.installation.upsert({
+          where: { id: userData.id },
+          create: userData,
+          update: userData,
+        });
+        logger?.info?.("[install] storeInstallation user", { id: userData.id, userId: userData.userId });
+      }
     },
 
     fetchInstallation: async (installQuery) => {
@@ -115,28 +130,50 @@ function createInstallationStore({ logger } = {}) {
 
       const enterpriseId = installQuery.enterpriseId ?? null;
       const teamId = installQuery.teamId ?? null;
+      const userId = installQuery.userId ?? null;
       const isEnterpriseInstall = !!installQuery.isEnterpriseInstall;
 
       logger?.info?.("[install] fetchInstallation", {
         enterpriseId,
         teamId,
+        userId,
         isEnterpriseInstall,
       });
 
-      // 1️⃣ True enterprise install → enterprise key
+      // 1️⃣ Per-user lookup (preferred when userId present)
+      if (userId) {
+        if (isEnterpriseInstall && enterpriseId) {
+          const row = await prisma.installation.findUnique({
+            where: { id: `E:${enterpriseId}:${userId}` },
+          });
+          if (row) return fromDbRecord(row);
+        }
+        if (teamId) {
+          const row = await prisma.installation.findUnique({
+            where: { id: `T:${teamId}:${userId}` },
+          });
+          if (row) return fromDbRecord(row);
+        }
+      }
+
+      // 2️⃣ Org/workspace-level fallback (bot only, or legacy single-user)
       if (isEnterpriseInstall && enterpriseId) {
         const row = await prisma.installation.findUnique({
           where: { id: `E:${enterpriseId}` },
         });
         if (row) return fromDbRecord(row);
       }
-
-      // 2️⃣ Workspace install (even inside Grid) → team key
       if (teamId) {
         const row = await prisma.installation.findUnique({
           where: { id: `T:${teamId}` },
         });
         if (row) return fromDbRecord(row);
+        if (isEnterpriseInstall) {
+          const byTeam = await prisma.installation.findFirst({
+            where: { teamId },
+          });
+          if (byTeam) return fromDbRecord(byTeam);
+        }
       }
 
       return null;
@@ -165,15 +202,32 @@ function createInstallationStore({ logger } = {}) {
 
 /**
  * Fetch installation by query (for use in handlers when you need user token etc.).
+ * Prefers per-user record when userId is provided.
  *
- * @param {{ teamId?: string, enterpriseId?: string, isEnterpriseInstall?: boolean }} installQuery
+ * @param {{ teamId?: string, enterpriseId?: string, isEnterpriseInstall?: boolean, userId?: string }} installQuery
  * @returns {Promise<import('@slack/oauth').Installation | null>}
  */
 async function getInstallation(installQuery) {
   const prisma = getPrisma();
   const enterpriseId = installQuery.enterpriseId ?? null;
   const teamId = installQuery.teamId ?? null;
+  const userId = installQuery.userId ?? null;
   const isEnterpriseInstall = !!installQuery.isEnterpriseInstall;
+
+  if (userId) {
+    if (isEnterpriseInstall && enterpriseId) {
+      const row = await prisma.installation.findUnique({
+        where: { id: `E:${enterpriseId}:${userId}` },
+      });
+      if (row) return fromDbRecord(row);
+    }
+    if (teamId) {
+      const row = await prisma.installation.findUnique({
+        where: { id: `T:${teamId}:${userId}` },
+      });
+      if (row) return fromDbRecord(row);
+    }
+  }
 
   if (isEnterpriseInstall && enterpriseId) {
     const row = await prisma.installation.findUnique({
@@ -186,7 +240,6 @@ async function getInstallation(installQuery) {
       where: { id: `T:${teamId}` },
     });
     if (row) return fromDbRecord(row);
-    // Enterprise Grid: payload may have team_id but not enterprise_id; find by teamId column
     if (isEnterpriseInstall) {
       const byTeam = await prisma.installation.findFirst({
         where: { teamId },

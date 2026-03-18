@@ -34,6 +34,7 @@ async function main() {
     console.log("\n--- Installation", r.id, "---");
     console.log("  enterpriseId:", r.enterpriseId);
     console.log("  teamId:", r.teamId);
+    console.log("  userId:", r.userId, r.userId ? "(per-user)" : "(org-level)");
     console.log("  botToken:", r.botToken ? `${r.botToken.slice(0, 12)}...` : "(none)");
     console.log("  userToken:", r.userToken ? `${r.userToken.slice(0, 12)}...` : "(none)");
     console.log("  installerUser:", r.installerUser);

@@ -27,6 +27,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       teamId: body?.team_id || body?.authorizations?.[0]?.team_id || event?.team,
       enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || event?.enterprise_id,
       isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install,
+      userId: body?.user_id || event?.user || body?.authorizations?.[0]?.user_id,
     });
     const slackContext = await buildSlackContext(client, {
       userToken: installation?.user?.token,
@@ -74,6 +75,7 @@ const assistant = new Assistant({
       teamId: body?.team_id || body?.authorizations?.[0]?.team_id || context?.teamId || context?.team?.id,
       enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || context?.enterpriseId || context?.enterprise?.id,
       isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install || !!context?.isEnterpriseInstall,
+      userId: body?.user_id || body?.event?.user || body?.authorizations?.[0]?.user_id || context?.userId || message?.user,
     };
     const installation = await getInstallation(installQuery);
 

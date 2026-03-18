@@ -173,6 +173,8 @@ heroku run node scripts/check-installation.js           # list all
 heroku run node scripts/check-installation.js E081KQN1U7N   # by enterprise ID
 ```
 
+**Per-user tokens:** The installation store keeps one org-level record (bot only) and one per-user record per authorizing user (`E:enterpriseId:userId`). Each user who needs channel access must authorize the app (open it or reinstall) so their user token is stored. The installer's token is no longer shared.
+
 ### 7. Google Cloud credentials (Vertex AI)
 
 1. In GCP Console: **IAM & Admin** → **Service Accounts** → create one with **Vertex AI User** role

@@ -10,6 +10,7 @@ model Installation {
   id            String   @id
   enterpriseId  String?
   teamId        String?
+  userId        String?  // for per-user tokens: E:enterpriseId:userId or T:teamId:userId
   botToken      String
   userToken     String?  // xoxp- user token when user scopes are requested
   botId         String?
@@ -24,4 +25,5 @@ model Installation {
 
   @@index([enterpriseId])
   @@index([teamId])
+  @@index([userId])
 }
