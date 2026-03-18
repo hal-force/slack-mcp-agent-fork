@@ -129,6 +129,7 @@ Add these in the dashboard (or via CLI). **Do not commit secrets to git.**
 | `GEMINI_MODEL` | No | Default `gemini-2.5-flash` |
 | `PORT` | No | Heroku sets this automatically |
 | `GCP_SERVICE_ACCOUNT_JSON` | For Vertex AI | Full JSON key content (alternative to `GOOGLE_APPLICATION_CREDENTIALS`) |
+| `SLACK_CONTEXT_DEBUG` | No | Set to `1` to log installation/userToken lookup for channel access debugging |
 
 **Google auth in production:** Add `GCP_SERVICE_ACCOUNT_JSON` with the full contents of your service account JSON key. The app writes it to a temp file at startup. Or set `GOOGLE_APPLICATION_CREDENTIALS` to a file path if using a buildpack.
 
@@ -152,7 +153,18 @@ Update your Slack app to use the Heroku URL:
 
 The `release` phase runs `prisma migrate deploy` before each release. Migrations run automatically.
 
-### 6. Google Cloud credentials (Vertex AI)
+### 6. Debugging channel access on Heroku
+
+If LivChat says it can't access channel messages, add `SLACK_CONTEXT_DEBUG=1` to Heroku Config Vars and redeploy. Check logs for lines like:
+
+```
+[LivChat] installQuery: {"teamId":"T...","enterpriseId":"E...","isEnterpriseInstall":true} found: true userToken: false
+```
+
+- **found: false** → Installation lookup failed (wrong team/enterprise ID in payload)
+- **userToken: false** → Installation has no user token; reinstall the app so OAuth requests user scopes
+
+### 7. Google Cloud credentials (Vertex AI)
 
 1. In GCP Console: **IAM & Admin** → **Service Accounts** → create one with **Vertex AI User** role
 2. Create a JSON key and download it

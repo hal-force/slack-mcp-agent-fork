@@ -24,9 +24,9 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
   try {
     const userMessage = event.text?.replace(/<@[A-Z0-9]+>/g, "").trim() || "";
     const installation = await getInstallation({
-      teamId: body?.team_id || event?.team,
-      enterpriseId: body?.enterprise_id || event?.enterprise_id,
-      isEnterpriseInstall: !!body?.is_enterprise_install,
+      teamId: body?.team_id || body?.authorizations?.[0]?.team_id || event?.team,
+      enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || event?.enterprise_id,
+      isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install,
     });
     const slackContext = await buildSlackContext(client, {
       userToken: installation?.user?.token,
@@ -70,11 +70,17 @@ const assistant = new Assistant({
 
     const { channel, thread_ts } = message;
     const text = message.text.trim();
-    const installation = await getInstallation({
-      teamId: body?.team_id || context?.teamId || context?.team?.id,
-      enterpriseId: body?.enterprise_id || context?.enterpriseId || context?.enterprise?.id,
-      isEnterpriseInstall: !!body?.is_enterprise_install || !!context?.isEnterpriseInstall,
-    });
+    const installQuery = {
+      teamId: body?.team_id || body?.authorizations?.[0]?.team_id || context?.teamId || context?.team?.id,
+      enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || context?.enterpriseId || context?.enterprise?.id,
+      isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install || !!context?.isEnterpriseInstall,
+    };
+    const installation = await getInstallation(installQuery);
+
+    const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
+    if (hasChannelRefs && process.env.SLACK_CONTEXT_DEBUG === "1") {
+      console.log("[LivChat] installQuery:", JSON.stringify(installQuery), "found:", !!installation, "userToken:", !!installation?.user?.token);
+    }
 
     try {
       await setTitle(text.slice(0, 80));
@@ -103,11 +109,10 @@ const assistant = new Assistant({
       const contextChannelId = threadContext?.channel_id || null;
 
       const userToken = installation?.user?.token;
-      const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
       const needsUserToken = hasChannelRefs && !userToken;
 
-      if (needsUserToken && process.env.NODE_ENV !== "production") {
-        logger.info("LivChat: No user token for channel access. User may need to reinstall the app.");
+      if (needsUserToken && process.env.SLACK_CONTEXT_DEBUG === "1") {
+        console.log("[LivChat] No user token for channel access. Reinstall may be needed.");
       }
 
       let slackContext = await buildSlackContext(client, {
