@@ -1,14 +1,31 @@
 const { WebClient } = require("@slack/web-api");
 const { buildContextViaMcp } = require("./slackMcpClient");
 
-/** Parse #channel-name or #channel_name from text; returns unique channel names (without #). */
+/** Slack channel IDs start with C (e.g. C0AL8UCPULW). */
+function isChannelId(s) {
+  return /^C[A-Z0-9]+$/i.test(String(s || ""));
+}
+
+/**
+ * Parse channel refs from text. Returns { ids: string[], names: string[] }.
+ * - Slack links: <#C0AL8UCPULW|facility-reservations> or <#C0AL8UCPULW> → channel ID
+ * - Plain: #facility-reservations → channel name (not ID)
+ */
 function parseChannelRefs(text) {
-  if (!text || typeof text !== "string") return [];
+  if (!text || typeof text !== "string") return { ids: [], names: [] };
+  const ids = new Set();
   const names = new Set();
-  const re = /#([a-z0-9][a-z0-9._-]*)/gi;
+  // Slack link format: <#CHANNEL_ID|channel-name> or <#CHANNEL_ID>
+  const linkRe = /<#(C[A-Z0-9]+)(?:\|[^>]*)?>/gi;
   let m;
-  while ((m = re.exec(text)) !== null) names.add(m[1].toLowerCase());
-  return [...names];
+  while ((m = linkRe.exec(text)) !== null) ids.add(m[1].toUpperCase());
+  // Plain #channel-name (exclude channel IDs - they look like #C0AL8UCPULW)
+  const plainRe = /#([a-z0-9][a-z0-9._-]*)/gi;
+  while ((m = plainRe.exec(text)) !== null) {
+    const s = m[1];
+    if (!isChannelId(s)) names.add(s.toLowerCase());
+  }
+  return { ids: [...ids], names: [...names] };
 }
 
 const DEBUG = process.env.SLACK_CONTEXT_DEBUG === "1";
@@ -78,9 +95,9 @@ async function buildSlackContext(client, opts = {}) {
     ? new WebClient(userToken)
     : client;
 
-  const requestedNames = parseChannelRefs(userMessage);
+  const { ids: requestedIds, names: requestedNames } = parseChannelRefs(userMessage);
   if (DEBUG) {
-    console.log("[slackContext] userToken:", !!userToken, "contextChannelId:", contextChannelId, "requestedNames:", requestedNames, "teamId:", teamId);
+    console.log("[slackContext] userToken:", !!userToken, "contextChannelId:", contextChannelId, "requestedIds:", requestedIds, "requestedNames:", requestedNames, "teamId:", teamId);
   }
 
   /** Fetch history for a channel by ID (e.g. context channel from "this channel"). */
@@ -108,8 +125,11 @@ async function buildSlackContext(client, opts = {}) {
     } catch (_) {}
   }
 
-  /** Fetch history for channels mentioned in the message (e.g. #alerts-nws). */
+  /** Fetch history for channels mentioned in the message (IDs from <#C...|name>, names from #channel-name). */
   async function addRequestedChannels(sectionsArray) {
+    for (const cid of requestedIds) {
+      await addChannelById(sectionsArray, cid, null);
+    }
     for (const name of requestedNames) {
       let cid = await resolveChannelByName(apiClient, name, teamId);
       if (cid) {
