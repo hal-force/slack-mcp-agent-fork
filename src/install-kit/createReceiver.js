@@ -28,7 +28,7 @@ function createReceiver() {
     },
 
 
-    logLevel: LogLevel.DEBUG,
+    logLevel: LogLevel.INFO,
   });
 
   return receiver;
