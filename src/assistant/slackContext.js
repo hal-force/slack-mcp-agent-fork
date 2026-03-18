@@ -122,7 +122,9 @@ async function buildSlackContext(client, opts = {}) {
       if (messages.length > 0) {
         sectionsArray.push(`${label || `Recent messages in ${name}`}:\n${messages.join("\n")}`);
       }
-    } catch (_) {}
+    } catch (err) {
+      if (DEBUG) console.error("[slackContext] addChannelById error:", cid, err.message);
+    }
   }
 
   /** Fetch history for channels mentioned in the message (IDs from <#C...|name>, names from #channel-name). */

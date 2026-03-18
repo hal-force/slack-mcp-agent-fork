@@ -155,14 +155,23 @@ The `release` phase runs `prisma migrate deploy` before each release. Migrations
 
 ### 6. Debugging channel access on Heroku
 
-If LivChat says it can't access channel messages, add `SLACK_CONTEXT_DEBUG=1` to Heroku Config Vars and redeploy. Check logs for lines like:
+If LivChat says it can't access channel messages, add `SLACK_CONTEXT_DEBUG=1` to Heroku Config Vars and redeploy. Check logs for:
 
 ```
-[LivChat] installQuery: {"teamId":"T...","enterpriseId":"E...","isEnterpriseInstall":true} found: true userToken: false
+[LivChat] installQuery: {...} found: true userToken: true
+[slackContext] userToken: true requestedIds: ['C...'] ...
+[slackContext] addChannelById error: C... not_in_channel
 ```
 
 - **found: false** → Installation lookup failed (wrong team/enterprise ID in payload)
-- **userToken: false** → Installation has no user token; reinstall the app so OAuth requests user scopes
+- **userToken: false** → Reinstall the app so OAuth requests user scopes
+- **addChannelById error: not_in_channel** → The user who installed (owns the token) is not in that channel. Have them join the channel, or reinstall from an account that is.
+
+**Inspect the installation store:**
+```bash
+heroku run node scripts/check-installation.js           # list all
+heroku run node scripts/check-installation.js E081KQN1U7N   # by enterprise ID
+```
 
 ### 7. Google Cloud credentials (Vertex AI)
 
