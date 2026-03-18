@@ -122,6 +122,8 @@ function createInstallationStore({ logger } = {}) {
           update: userData,
         });
         logger?.info?.("[install] storeInstallation user", { id: userData.id, userId: userData.userId });
+      } else if (process.env.SLACK_CONTEXT_DEBUG === "1") {
+        console.log("[install] storeInstallation: no per-user record (missing installation.user.token or .id)");
       }
     },
 
