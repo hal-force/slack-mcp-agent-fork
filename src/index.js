@@ -16,7 +16,7 @@ const { buildSlackContext } = require("./assistant/slackContext");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
 
-/** Message shown when user has no per-user install; includes install link if PUBLIC_BASE_URL is set. */
+/** Shown when the workspace has no matching installation in our store; includes install link if PUBLIC_BASE_URL is set. */
 function getAuthorizeMessage() {
   const url = getInstallUrl();
   return url
@@ -47,7 +47,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
     const response = await getAiResponse({ userMessage, slackContext });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
-      installation?.user?.token ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
+      installation ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
 
     await client.chat.postMessage({
       channel: event.channel,
@@ -70,7 +70,7 @@ const assistant = new Assistant({
       userId: body?.user_id || body?.authorizations?.[0]?.user_id || context?.userId,
     };
     const installation = await getInstallation(installQuery);
-    if (installation && !installation?.user?.token) {
+    if (!installation) {
       await say(getAuthorizeMessage());
     }
     await saveThreadContext();
@@ -164,7 +164,7 @@ const assistant = new Assistant({
       });
 
       const replyText =
-        installation?.user?.token ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
+        installation ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
       await say({ text: replyText });
     } catch (err) {
       logger.error("Assistant userMessage error", err);

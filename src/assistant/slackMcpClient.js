@@ -146,7 +146,7 @@ async function buildContextViaMcp(userToken, opts = {}) {
   }
 
   if (sections.length === 0) return "";
-  return `\n--- Slack context (from Slack MCP server) ---\n${sections.join("\n\n")}\n--- End Slack context ---\n`;
+  return `\n--- Slack context (internal workspace via MCP—prioritize this over general knowledge) ---\n${sections.join("\n\n")}\n--- End Slack context ---\n`;
 }
 
 module.exports = { mcpRequest, listTools, callTool, buildContextViaMcp };

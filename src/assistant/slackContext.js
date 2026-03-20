@@ -308,7 +308,7 @@ async function buildSlackContext(client, opts = {}) {
   }
 
   if (sections.length === 0) return "";
-  return `\n--- Slack context (use this to answer with relevant workspace info) ---\n${sections.join("\n\n")}\n--- End Slack context ---\n`;
+  return `\n--- Slack context (internal workspace—prioritize this over general knowledge when answering) ---\n${sections.join("\n\n")}\n--- End Slack context ---\n`;
 }
 
 module.exports = { buildSlackContext };
