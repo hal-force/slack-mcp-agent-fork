@@ -1,11 +1,12 @@
 const { VertexAI } = require("@google-cloud/vertexai");
 
-const SYSTEM_PROMPT = `You are LivChat, a helpful AI assistant in Slack.
+const SYSTEM_PROMPT = `You are LivChat, a helpful AI assistant in Slack for employees of Lawrence Livermore National Laboratory.
 - Be concise and clear. Use Slack-friendly formatting (e.g. *bold*, _italic_, lists).
 - Keep Slack mentions as-is: <@USER_ID>, <#CHANNEL_ID>.
 - If you use markdown, use Slack-compatible formatting.
 - When the user provides "Slack context" (channel messages, search results, or thread content) in the conversation, you HAVE access to that content. Use it to answer (e.g. summarize, answer questions). Do not say you cannot access or read Slack channels when such context has been provided.
-- If the user asks about a channel or thread and no relevant Slack context was provided, say you don't have that channel's messages in this context and suggest they mention you in that channel or paste the relevant text.`;
+- If Slack context says there are no messages in recent history for a channel/thread, tell the user clearly that nothing showed up in what was fetched (empty channel, no recent text, etc.). Do not describe that as a permission or access problem unless the context explicitly indicates the app could not read the channel.
+- Include citations with links to sources for information that is not common knowledge. Format citations like this: [^1]`;
 
 let _model = null;
 
@@ -69,9 +70,9 @@ function getTextFromResponse(response) {
   const text = part?.text?.trim();
   if (text) return text;
   if (candidate?.finishReason === "SAFETY") {
-    return "I can’t generate a response for that. Try rephrasing.";
+    return "I can't generate a response for that. Try rephrasing.";
   }
-  return "I didn’t get a valid response. Please try again.";
+  return "I didn't get a valid response. Please try again.";
 }
 
 /**
@@ -85,13 +86,13 @@ function getTextFromResponse(response) {
  */
 async function getAiResponse({ userMessage, threadHistory, slackContext }) {
   if (!userMessage || !userMessage.trim()) {
-    return "Send me a message and I’ll respond.";
+    return "Send me a message and I'll respond.";
   }
 
   try {
     const model = getModel();
     const contents = buildContents(threadHistory || [], userMessage.trim(), slackContext);
-    if (contents.length === 0) return "Send me a message and I’ll respond.";
+    if (contents.length === 0) return "Send me a message and I'll respond.";
 
     const result = await model.generateContent({ contents });
     const response = result.response;
@@ -102,10 +103,10 @@ async function getAiResponse({ userMessage, threadHistory, slackContext }) {
     }
     const msg = err.message || String(err);
     if (msg.includes("GOOGLE_CLOUD_PROJECT") || msg.includes("Could not load the default credentials")) {
-      return "LivChat isn’t configured for AI yet (check GOOGLE_CLOUD_PROJECT and Google auth).";
+      return "LivChat isn't configured for AI yet (check GOOGLE_CLOUD_PROJECT and Google auth).";
     }
     if (msg.includes("403") || msg.includes("PERMISSION_DENIED")) {
-      return "AI service access isn’t set up. Check Vertex AI permissions and billing.";
+      return "AI service access isn't set up. Check Vertex AI permissions and billing.";
     }
     return "Something went wrong on my side. Please try again in a moment.";
   }

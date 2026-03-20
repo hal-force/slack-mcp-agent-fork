@@ -30,6 +30,10 @@ function parseChannelRefs(text) {
 
 const DEBUG = process.env.SLACK_CONTEXT_DEBUG === "1";
 
+/** Shown when history/replies succeed but there is nothing to list (so the model does not assume an access error). */
+const NO_MESSAGES_IN_HISTORY =
+  "No messages were found in the recent history we fetched—the channel may be empty, or recent activity had no text we could include.";
+
 /** Subtypes we include in channel history (user messages + thread_broadcast + app/bot posts). */
 const INCLUDE_SUBTYPES = new Set(["thread_broadcast", "bot_message"]);
 
@@ -128,8 +132,11 @@ async function buildSlackContext(client, opts = {}) {
         .filter(Boolean);
       if (messages.length > 0) {
         sectionsArray.push(`${label || `Recent messages in ${name}`}:\n${messages.join("\n")}`);
-      } else if (DEBUG) {
-        console.log("[slackContext] addChannelById:", cid, "returned 0 messages (empty or all filtered)");
+      } else {
+        sectionsArray.push(`${label || `Recent messages in ${name}`}:\n${NO_MESSAGES_IN_HISTORY}`);
+        if (DEBUG) {
+          console.log("[slackContext] addChannelById:", cid, "returned 0 messages (empty or all filtered)");
+        }
       }
     } catch (err) {
       const msg = err.data?.error ?? err.message;
@@ -164,6 +171,8 @@ async function buildSlackContext(client, opts = {}) {
             .filter(Boolean);
           if (messages.length > 0) {
             sectionsArray.push(`Recent messages in #${name}:\n${messages.join("\n")}`);
+          } else {
+            sectionsArray.push(`Recent messages in #${name}:\n${NO_MESSAGES_IN_HISTORY}`);
           }
         } catch (err) {
           if (DEBUG) console.error("[slackContext] conversations.history error:", err.message);
@@ -250,6 +259,10 @@ async function buildSlackContext(client, opts = {}) {
         }).filter(Boolean);
         if (messages.length > 0) {
           sections.push(`Recent messages in this thread (${channelName}):\n${messages.join("\n")}`);
+        } else {
+          sections.push(
+            `Recent messages in this thread (${channelName}):\nNo replies were found in this thread yet, or none had text we could include.`
+          );
         }
       } else {
         const res = await apiClient.conversations.history(historyOpts);
@@ -264,6 +277,8 @@ async function buildSlackContext(client, opts = {}) {
           .filter(Boolean);
         if (messages.length > 0) {
           sections.push(`Recent messages in ${channelName}:\n${messages.join("\n")}`);
+        } else {
+          sections.push(`Recent messages in ${channelName}:\n${NO_MESSAGES_IN_HISTORY}`);
         }
       }
     }
