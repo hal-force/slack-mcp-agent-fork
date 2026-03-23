@@ -13,6 +13,7 @@ const { App, Assistant } = require("@slack/bolt");
 const { receiver } = require("./slack/receiver");
 const { getAiResponse } = require("./assistant/respond");
 const { buildSlackContext } = require("./assistant/slackContext");
+const { buildTableauContext } = require("./assistant/tableauMcpClient");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
 
@@ -20,8 +21,8 @@ const { getInstallUrl } = require("./install-kit/env");
 function getAuthorizeMessage() {
   const url = getInstallUrl();
   return url
-    ? "To use channel summaries and full features, authorize LivChat: " + url
-    : "To use channel summaries and full features, authorize LivChat from Apps → LivChat → Configuration.";
+    ? "To use channel summaries and full features, authorize slack-mcp-agent: " + url
+    : "To use channel summaries and full features, authorize slack-mcp-agent from Apps → slack-mcp-agent → Configuration.";
 }
 
 const app = new App({
@@ -44,7 +45,17 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       threadTs: event.thread_ts || event.ts,
       userMessage,
     });
-    const response = await getAiResponse({ userMessage, slackContext });
+    const tableauContext = await buildTableauContext(userMessage);
+    const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
+    const teamId =
+      body?.team_id || body?.authorizations?.[0]?.team_id || event?.team || event?.team_id || null;
+    const response = await getAiResponse({
+      userMessage,
+      slackContext: contextForAi || undefined,
+      userToken: installation?.user?.token,
+      defaultCanvasChannelId: event.channel,
+      teamId,
+    });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
       installation ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
@@ -62,7 +73,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
 // ----- Assistant thread (side panel / DM) -----
 const assistant = new Assistant({
   threadStarted: async ({ say, saveThreadContext, setSuggestedPrompts, body, context }) => {
-    await say("Hi, I'm LivChat. How can I help?");
+    await say("Hi, I'm slack-mcp-agent. How can I help?");
     const installQuery = {
       teamId: body?.team_id || body?.authorizations?.[0]?.team_id || context?.teamId || context?.team?.id,
       enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || context?.enterpriseId || context?.enterprise?.id,
@@ -102,7 +113,7 @@ const assistant = new Assistant({
 
     const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
     if (hasChannelRefs && process.env.SLACK_CONTEXT_DEBUG === "1") {
-      console.log("[LivChat] installQuery:", JSON.stringify(installQuery), "found:", !!installation, "userToken:", !!installation?.user?.token);
+      console.log("[slack-mcp-agent] installQuery:", JSON.stringify(installQuery), "found:", !!installation, "userToken:", !!installation?.user?.token);
     }
 
     try {
@@ -135,7 +146,7 @@ const assistant = new Assistant({
       const needsUserToken = hasChannelRefs && !userToken;
 
       if (needsUserToken && process.env.SLACK_CONTEXT_DEBUG === "1") {
-        console.log("[LivChat] No user token for channel access. Reinstall may be needed.");
+        console.log("[slack-mcp-agent] No user token for channel access. Reinstall may be needed.");
       }
 
       let slackContext = await buildSlackContext(client, {
@@ -151,16 +162,30 @@ const assistant = new Assistant({
 
       if (needsUserToken) {
         const reinstallNote =
-          "[LivChat does not have channel access for this installation. To summarize channels, the user must reinstall LivChat from Slack app settings (Apps → LivChat → Configuration) so the app can request channel permissions.]";
+          "[slack-mcp-agent does not have channel access for this installation. To summarize channels, the user must reinstall slack-mcp-agent from Slack app settings (Apps → slack-mcp-agent → Configuration) so the app can request channel permissions.]";
         slackContext = slackContext
           ? `${reinstallNote}\n\n${slackContext}`
           : `\n--- Slack context ---\n${reinstallNote}\n--- End Slack context ---\n`;
       }
 
+      const threadHint = threadHistory.map((m) => m.text || "").join("\n");
+      const tableauContext = await buildTableauContext(text, { threadHint });
+
+      const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
+
+      const teamId =
+        body?.team_id ||
+        body?.authorizations?.[0]?.team_id ||
+        context?.teamId ||
+        context?.team?.id ||
+        null;
       const response = await getAiResponse({
         userMessage: text,
         threadHistory,
-        slackContext,
+        slackContext: contextForAi || undefined,
+        userToken: installation?.user?.token,
+        defaultCanvasChannelId: contextChannelId || channel,
+        teamId,
       });
 
       const replyText =
@@ -179,5 +204,5 @@ app.assistant(assistant);
 (async () => {
   const port = process.env.PORT || 3000;
   await app.start(port);
-  console.log(`⚡️ LivChat listening on :${port}`);
+  console.log(`⚡️ slack-mcp-agent listening on :${port}`);
 })();

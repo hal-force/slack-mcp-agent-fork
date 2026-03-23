@@ -1,73 +1,168 @@
 /**
- * Minimal MCP client for the Slack MCP server (https://mcp.slack.com/mcp).
- * Sends JSON-RPC 2.0 requests over HTTP with Bearer token (user token).
+ * Slack MCP server — Streamable HTTP (initialize, Mcp-Session-Id, SSE or JSON bodies).
  *
  * @see https://docs.slack.dev/ai/mcp-server
  */
 
+const { parseMcpResponse, streamableMcpPost } = require("./mcpHttpTransport");
+
 const SLACK_MCP_URL = "https://mcp.slack.com/mcp";
+const SESSION_TTL_MS = 25 * 60 * 1000;
+
+/** @type {Map<string, { id: string, createdAt: number }>} */
+const sessions = new Map();
+
+let slackMcpNotEnabledWarned = false;
 
 /**
- * Send a single JSON-RPC request to the Slack MCP server.
- *
- * @param {string} userToken - Slack user token (xoxp-...); required for MCP
- * @param {string} method - JSON-RPC method (e.g. "tools/list", "tools/call")
- * @param {Object} [params] - Method params
- * @returns {Promise<Object>} JSON-RPC result (or throws on error/result.error)
+ * Slack returns HTTP 400 when the app has not turned on MCP under Agents & AI Apps.
+ * Log once with the dashboard link from the error body so it is obvious in dev.
  */
-async function mcpRequest(userToken, method, params = {}) {
-  const id = `mcp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  const body = JSON.stringify({
-    jsonrpc: "2.0",
-    id,
-    method,
-    params: typeof params === "object" && params !== null ? params : {},
-  });
+function warnIfSlackMcpNotEnabled(raw) {
+  if (!raw || slackMcpNotEnabledWarned) return;
+  const s = typeof raw === "string" ? raw : JSON.stringify(raw);
+  if (!/not enabled for Slack MCP|app-assistant/i.test(s)) return;
+  slackMcpNotEnabledWarned = true;
+  const m = s.match(/https:\/\/api\.slack\.com\/apps\/[^"\\\s]+\/app-assistant/);
+  console.warn(
+    "[slack-mcp-agent] Slack MCP is disabled for this app. Enable *Model Context Protocol* under " +
+      "Slack app settings → Agents & AI Apps (Assistant)." +
+      (m ? ` Open: ${m[0]}` : " Use your app’s Assistant / Agents settings page on api.slack.com.")
+  );
+}
 
-  const res = await fetch(SLACK_MCP_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${userToken}`,
-    },
-    body,
-  });
+function slackMcpDebug() {
+  return process.env.SLACK_CONTEXT_DEBUG === "1" || process.env.SLACK_MCP_DEBUG === "1";
+}
 
-  if (!res.ok) {
-    throw new Error(`Slack MCP HTTP ${res.status}: ${res.statusText}`);
+function clearSession(userToken) {
+  sessions.delete(userToken);
+}
+
+function getSession(userToken) {
+  const e = sessions.get(userToken);
+  if (!e) return null;
+  if (Date.now() - e.createdAt > SESSION_TTL_MS) {
+    sessions.delete(userToken);
+    return null;
   }
+  return e;
+}
 
-  const data = await res.json();
-  if (data.error) {
-    const err = new Error(data.error.message || JSON.stringify(data.error));
-    err.code = data.error.code;
+async function ensureSession(userToken) {
+  const existing = getSession(userToken);
+  if (existing) return existing.id;
+
+  const initId = 1;
+  const { ok, status, text, headers } = await streamableMcpPost(
+    SLACK_MCP_URL,
+    { Authorization: `Bearer ${userToken}` },
+    {
+      jsonrpc: "2.0",
+      id: initId,
+      method: "initialize",
+      params: {
+        protocolVersion: "2024-11-05",
+        capabilities: {},
+        clientInfo: { name: "slack-mcp-agent", version: "1.0.0" },
+      },
+    }
+  );
+
+  if (!ok) {
+    warnIfSlackMcpNotEnabled(text);
+    const err = new Error(`Slack MCP HTTP ${status}: ${text.slice(0, 280)}`);
+    err.status = status;
     throw err;
   }
-  if (data.id !== id) {
-    throw new Error("Slack MCP response id mismatch");
+
+  const sid = headers.get("mcp-session-id") || headers.get("Mcp-Session-Id");
+  if (!sid) {
+    throw new Error("Slack MCP initialize: missing Mcp-Session-Id header");
   }
-  return data.result;
+
+  const initMsg = parseMcpResponse(text, initId);
+  if (!initMsg || initMsg.error) {
+    if (initMsg?.error) warnIfSlackMcpNotEnabled(initMsg.error.message || JSON.stringify(initMsg.error));
+    throw new Error(initMsg?.error?.message || "Slack MCP initialize failed");
+  }
+
+  await streamableMcpPost(
+    SLACK_MCP_URL,
+    {
+      Authorization: `Bearer ${userToken}`,
+      "Mcp-Session-Id": sid,
+    },
+    { jsonrpc: "2.0", method: "notifications/initialized" }
+  );
+
+  sessions.set(userToken, { id: sid, createdAt: Date.now() });
+  return sid;
 }
 
 /**
- * List tools offered by the Slack MCP server.
- *
- * @param {string} userToken - Slack user token
- * @returns {Promise<Array<{name: string, description?: string, inputSchema?: object}>>}
+ * JSON-RPC to Slack MCP with session recovery on 401/404/invalid session.
  */
+async function mcpRequest(userToken, method, params = {}) {
+  const run = async () => {
+    const rpcId = Math.floor(Math.random() * 1e9);
+    const sessionId = await ensureSession(userToken);
+    const { ok, status, text } = await streamableMcpPost(
+      SLACK_MCP_URL,
+      {
+        Authorization: `Bearer ${userToken}`,
+        "Mcp-Session-Id": sessionId,
+      },
+      {
+        jsonrpc: "2.0",
+        id: rpcId,
+        method,
+        params: params && typeof params === "object" ? params : {},
+      }
+    );
+
+    if (!ok) {
+      warnIfSlackMcpNotEnabled(text);
+      const err = new Error(`Slack MCP HTTP ${status}: ${text.slice(0, 280)}`);
+      err.status = status;
+      throw err;
+    }
+
+    const msg = parseMcpResponse(text, rpcId);
+    if (!msg) {
+      const err = new Error(`Slack MCP: no JSON-RPC result for ${method}`);
+      err.status = status;
+      throw err;
+    }
+    if (msg.error) {
+      const err = new Error(msg.error.message || JSON.stringify(msg.error));
+      err.code = msg.error.code;
+      throw err;
+    }
+    return msg.result;
+  };
+
+  try {
+    return await run();
+  } catch (e) {
+    const st = e.status;
+    const retry =
+      st === 401 ||
+      st === 404 ||
+      /session|invalid session|unauthorized|401|404/i.test(e.message || "");
+    if (retry) {
+      clearSession(userToken);
+      return await run();
+    }
+    throw e;
+  }
+}
+
 async function listTools(userToken) {
   const result = await mcpRequest(userToken, "tools/list", {});
   return result?.tools ?? [];
 }
 
-/**
- * Call a Slack MCP tool.
- *
- * @param {string} userToken - Slack user token
- * @param {string} name - Tool name (from tools/list)
- * @param {Object} [args] - Tool arguments
- * @returns {Promise<Array<{type: string, text?: string, ...}>} Tool result content (e.g. [{ type: "text", text: "..." }])
- */
 async function callTool(userToken, name, args = {}) {
   const result = await mcpRequest(userToken, "tools/call", {
     name,
@@ -76,7 +171,6 @@ async function callTool(userToken, name, args = {}) {
   return result?.content ?? [];
 }
 
-/** Try calling a tool with different argument shapes; return concatenated text content. */
 async function tryCallTool(userToken, toolName, attempts) {
   for (const args of attempts) {
     try {
@@ -92,12 +186,7 @@ async function tryCallTool(userToken, toolName, attempts) {
 }
 
 /**
- * Build Slack context by calling the Slack MCP server (read channel/thread, search).
- * Discovers tool names via tools/list, then calls the appropriate tools.
- *
- * @param {string} userToken - Slack user token (xoxp-...)
- * @param {Object} opts - channelId, threadTs, userMessage, etc.
- * @returns {Promise<string>} Formatted context string or empty on failure
+ * Build Slack context via MCP (channel/thread/search).
  */
 async function buildContextViaMcp(userToken, opts = {}) {
   const { channelId, threadTs, userMessage = "" } = opts;
@@ -108,7 +197,6 @@ async function buildContextViaMcp(userToken, opts = {}) {
     const toolList = Array.isArray(tools) ? tools : [];
     const byName = Object.fromEntries(toolList.map((t) => [t.name, t]));
 
-    // Possible Slack MCP tool names (discovered from tools/list if different)
     const readChannelName =
       toolList.find((t) => /read.*channel|channel.*history|conversations_history/i.test(t.name))?.name ||
       "read_channel";
@@ -139,8 +227,9 @@ async function buildContextViaMcp(userToken, opts = {}) {
       if (text) sections.push(`Search results:\n${text}`);
     }
   } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Slack MCP buildContext error:", err.message);
+    warnIfSlackMcpNotEnabled(err.message || "");
+    if (slackMcpDebug()) {
+      console.error("[slackMcpClient]", err.message || err);
     }
     return "";
   }
@@ -149,4 +238,4 @@ async function buildContextViaMcp(userToken, opts = {}) {
   return `\n--- Slack context (internal workspace via MCP—prioritize this over general knowledge) ---\n${sections.join("\n\n")}\n--- End Slack context ---\n`;
 }
 
-module.exports = { mcpRequest, listTools, callTool, buildContextViaMcp };
+module.exports = { mcpRequest, listTools, callTool, buildContextViaMcp, clearSession };

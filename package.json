@@ -1,5 +1,5 @@
 {
-  "name": "livchat",
+  "name": "slack-mcp-agent",
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
@@ -18,11 +18,12 @@
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "@slack/bolt": "^4.6.0",
+    "@slack/web-api": "^7.15.0",
     "dotenv": "^17.2.3",
     "pg": "^8.16.3",
     "prisma": "^7.2.0"
   },
-  "description": "LivChat – Slack app with installation store",
+  "description": "Slack MCP Agent: A Slack agent with installation store and context from Slack and Tableau MCP",
   "devDependencies": {
     "nodemon": "^3.1.11"
   },

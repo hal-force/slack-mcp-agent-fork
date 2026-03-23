@@ -81,7 +81,7 @@ function getSlackLogLevel() {
 }
 
 /**
- * Public base URL for the app (e.g. https://livchat-xxx.herokuapp.com).
+ * Public base URL for the app (e.g. https://slack-mcp-agent-xxx.herokuapp.com).
  * Used to build the OAuth install link for the "authorize" prompt.
  */
 function getPublicBaseUrl() {

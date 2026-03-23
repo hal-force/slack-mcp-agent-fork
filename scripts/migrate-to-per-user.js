@@ -4,7 +4,7 @@
  * Run once after deploying per-user support.
  *
  *   node scripts/migrate-to-per-user.js
- *   heroku run node scripts/migrate-to-per-user.js -a livchat
+ *   heroku run node scripts/migrate-to-per-user.js -a slack-mcp-agent
  */
 require("dotenv").config();
 const { getPrisma } = require("../src/install-kit/prisma");
