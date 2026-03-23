@@ -6,10 +6,13 @@ slack-mcp-agent is a Slack app built with the Bolt framework and Prisma for data
 
 ## Features
 
-- **Prisma + PostgreSQL**: Database interactions with the Prisma PostgreSQL adapter.
-- **Environment configuration**: Environment variables via dotenv.
-- **Slack Bolt**: Slack app framework with OAuth install flow and installation store.
-- **Tableau MCP**: When `TABLEAU_MCP_SERVER` is set, each AI turn can include tool catalog text and (for Tableau-related prompts or when `TABLEAU_MCP_LIST_DATASOURCES=1`) a sample list of published data sources from the MCP server.
+- **Prisma + PostgreSQL**: Installations and tokens persisted with the Prisma PostgreSQL adapter.
+- **Configuration**: Environment variables via dotenv (local) and config vars (e.g. Heroku).
+- **Slack Bolt**: OAuth v2 install flow, installation store, **@mentions** in channels and **Assistant** threads (side panel / DM).
+- **Vertex AI (Gemini)**: Replies generated with configurable model (`GEMINI_MODEL`); system prompt tuned for Slack mrkdwn, Slack/Tableau context, and canvas behavior.
+- **Slack context**: Builds grounding context from the **Slack MCP** server (`mcp.slack.com`, Streamable HTTP + session) when a **user token** is present, with **Web API** fallback for channel/thread history and search. Requires MCP enabled for the Slack app under Agents & AI Apps when using MCP.
+- **Tableau MCP** (optional): When `TABLEAU_MCP_SERVER` is set, injects compact tool names, can call `list-datasources`, matches user/thread intent for analytics, fetches **`get-datasource-metadata`** when a published source matches, and respects `TABLEAU_MCP_LIST_DATASOURCES` / `TABLEAU_MCP_VERBOSE_TOOLS`.
+- **Slack canvases** (user token): Gemini **function calling** drives `slack_canvas_create`, `slack_canvas_read`, and `slack_canvas_update` using the installing user’s **`xoxp`** token (`canvases:read` / `canvases:write`). Supports **create**, **read** (section outline via `canvases.sections.lookup`), and **update** modes: append end, insert start, replace whole document, and **section-targeted** `insert_after` / `insert_before` / `replace_section` using `section_id` from read. Tool results include **`canvas_url`** and **`slack_mrkdwn_link_example`** (`https://app.slack.com/client/{team}/{canvas}`) so replies can use `<URL|label>` links. Canvas **delete** is not exposed.
 
 ---
 
