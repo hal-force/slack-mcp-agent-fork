@@ -1,5 +1,11 @@
 const { VertexAI, FunctionCallingMode, FunctionDeclarationSchemaType } = require("@google-cloud/vertexai");
 const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
+const {
+  TABLEAU_FUNCTION_DECLARATIONS,
+  isTableauGeminiTool,
+  dispatchTableauTool,
+  tableauQueryToolsEnabled,
+} = require("./tableauGeminiTools");
 
 const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a high-utility AI assistant.
 
@@ -13,7 +19,7 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 2. Handling Context (Slack & Tableau)
 - Slack Context: Prioritize provided channel messages/threads over general knowledge. If context is empty, state: "I don't see any recent messages for this."
 - Citations: Use <URL|[1]> for external links.
-- Tableau: Use exact field names from metadata. If metadata is present, explain it immediately—do not ask the user for permission to "fetch" it. If data is missing, suggest specific metrics they should ask for.
+- Tableau: Use exact field names from metadata. If metadata is present, explain it immediately—do not ask the user for permission to "fetch" it. If the context includes *Closest published data sources* with scores, map the user’s wording to the best LUID or confirm with them before calling metadata/query tools. If data is missing, suggest specific metrics they should ask for.
 
 3. Slack Canvas Operations
 - Update strategy: Prefer *targeted* edits when the user wants to change one part: call slack_canvas_read to get section id values from each sections[] entry, then slack_canvas_update with insert_after, insert_before, or replace_section plus that section_id. Use insert_start / append_end for adding at top or bottom without a section anchor. Use replace_all only when the user wants the *entire* document rewritten from scratch.
@@ -21,7 +27,12 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 - Reading canvases: Tool results list section IDs (not full body text). Use those IDs for partial updates. Never guess body text that is not in the tool response.
 - Safety: Do not delete canvases (no delete operation).
 
-4. Error Handling
+4. Tableau data (when tools are available)
+- Same flow as Claude + Tableau MCP: list → metadata → **query-datasource** via tableau_query_datasource. Always use **fieldCaption** strings exactly from metadata; for measures add **function** (e.g. SUM, AVG). Pass optional **limit** on queries that could return many rows.
+- If a query fails for format reasons, simplify: fewer fields, check captions, then retry. Quote the server error briefly when explaining to the user.
+- Ground numeric answers in tool output only. If a query errors or returns empty, say so—do not invent figures.
+
+5. Error Handling
 - If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.`;
 
 const T = FunctionDeclarationSchemaType;
@@ -176,10 +187,16 @@ async function getAiResponse({ userMessage, threadHistory, slackContext, userTok
   if (contents.length === 0) return "Send me a message and I'll respond.";
 
   const useCanvasTools = !!(userToken && String(userToken).trim());
-  const tools = useCanvasTools ? CANVAS_TOOLS : undefined;
-  const toolConfig = useCanvasTools
-    ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
-    : undefined;
+  const useTableauTools = tableauQueryToolsEnabled();
+  const mergedDeclarations = [];
+  if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
+  if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
+  const tools =
+    mergedDeclarations.length > 0 ? [{ functionDeclarations: mergedDeclarations }] : undefined;
+  const toolConfig =
+    mergedDeclarations.length > 0
+      ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
+      : undefined;
 
   let working = contents;
 
@@ -217,10 +234,17 @@ async function getAiResponse({ userMessage, threadHistory, slackContext, userTok
         const fc = p.functionCall;
         const name = fc.name;
         const args = fc.args && typeof fc.args === "object" ? { ...fc.args } : {};
-        const toolResult = await dispatchCanvasTool(userToken, name, args, {
-          defaultChannelId: defaultCanvasChannelId || null,
-          teamId: teamId || null,
-        });
+        let toolResult;
+        if (isTableauGeminiTool(name)) {
+          toolResult = await dispatchTableauTool(name, args);
+        } else if (useCanvasTools) {
+          toolResult = await dispatchCanvasTool(userToken, name, args, {
+            defaultChannelId: defaultCanvasChannelId || null,
+            teamId: teamId || null,
+          });
+        } else {
+          toolResult = { ok: false, error: "No handler for this tool in the current session." };
+        }
         responseParts.push({
           functionResponse: {
             name,
@@ -232,7 +256,7 @@ async function getAiResponse({ userMessage, threadHistory, slackContext, userTok
       working.push({ role: "user", parts: responseParts });
     }
 
-    return "I hit the limit for canvas tool steps in one turn. Please narrow your request.";
+    return "I hit the limit for tool steps in one turn. Please narrow your request.";
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
       console.error("Vertex/Gemini error:", err.message || err);
