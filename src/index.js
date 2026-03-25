@@ -73,7 +73,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
 // ----- Assistant thread (side panel / DM) -----
 const assistant = new Assistant({
   threadStarted: async ({ say, saveThreadContext, setSuggestedPrompts, body, context }) => {
-    await say("Hi, I'm slack-mcp-agent. How can I help?");
+    await say("Hey! I'm Prism. I can search your Slack workspace, pull in context from recent conversations, and connect to Tableau data to help you get real answers — fast. What's on your mind?");
     const installQuery = {
       teamId: body?.team_id || body?.authorizations?.[0]?.team_id || context?.teamId || context?.team?.id,
       enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || context?.enterpriseId || context?.enterprise?.id,
