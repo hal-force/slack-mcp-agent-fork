@@ -3,7 +3,7 @@
  */
 
 const { FunctionDeclarationSchemaType } = require("@google-cloud/vertexai");
-const { callTableauTool, getTableauMcpUrl, getDatasourceListLimit } = require("./tableauMcpClient");
+const { callTableauTool, resolveTableauMcpUrl, getDatasourceListLimit } = require("./tableauMcpClient");
 const { coerceTableauMcpQueryInput, normalizeVizqlQueryObject } = require("./vizqlNormalize");
 
 const T = FunctionDeclarationSchemaType;
@@ -106,14 +106,16 @@ function parseQueryJson(args) {
 /**
  * @param {string} name - Gemini function name
  * @param {Record<string, unknown>} args
+ * @param {{ tableauMcpBaseUrl?: string }} [toolOpts] - per-user MCP base URL (optional)
  * @returns {Promise<Record<string, unknown>>}
  */
-async function dispatchTableauTool(name, args) {
-  if (!getTableauMcpUrl()) {
+async function dispatchTableauTool(name, args, toolOpts = {}) {
+  if (!resolveTableauMcpUrl(toolOpts.tableauMcpBaseUrl)) {
     return { ok: false, error: "TABLEAU_MCP_SERVER is not configured." };
   }
 
   const a = args && typeof args === "object" ? args : {};
+  const mcpOpts = { tableauMcpBaseUrl: toolOpts.tableauMcpBaseUrl };
 
   try {
     if (name === "tableau_list_datasources") {
@@ -121,14 +123,14 @@ async function dispatchTableauTool(name, args) {
       const configured = getDatasourceListLimit();
       if (!Number.isFinite(limit) || limit < 1) limit = configured;
       limit = Math.max(1, Math.floor(limit));
-      const { text } = await callTableauTool("list-datasources", { limit });
+      const { text } = await callTableauTool("list-datasources", { limit }, mcpOpts);
       return { ok: true, content: truncateToolText(text || "(empty response)") };
     }
 
     if (name === "tableau_get_datasource_metadata") {
       const luid = String(a.datasource_luid || a.datasourceLuid || "").trim();
       if (!luid) return { ok: false, error: "datasource_luid is required." };
-      const { text } = await callTableauTool("get-datasource-metadata", { datasourceLuid: luid });
+      const { text } = await callTableauTool("get-datasource-metadata", { datasourceLuid: luid }, mcpOpts);
       return { ok: true, content: truncateToolText(text || "(empty response)") };
     }
 
@@ -150,7 +152,7 @@ async function dispatchTableauTool(name, args) {
       const mcpArgs = { datasourceLuid: luid, query };
       const lim = Number(a.limit);
       if (Number.isFinite(lim) && lim > 0) mcpArgs.limit = Math.floor(lim);
-      const { text } = await callTableauTool("query-datasource", mcpArgs);
+      const { text } = await callTableauTool("query-datasource", mcpArgs, mcpOpts);
       return { ok: true, content: truncateToolText(text || "(empty response)") };
     }
 
@@ -161,9 +163,9 @@ async function dispatchTableauTool(name, args) {
   }
 }
 
-function tableauQueryToolsEnabled() {
+function tableauQueryToolsEnabled(toolOpts = {}) {
   if (process.env.TABLEAU_MCP_QUERY_TOOLS === "0") return false;
-  return !!getTableauMcpUrl();
+  return !!resolveTableauMcpUrl(toolOpts.tableauMcpBaseUrl);
 }
 
 module.exports = {

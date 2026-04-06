@@ -97,7 +97,9 @@ slack-mcp-agent is a Slack app built with the Bolt framework and Prisma for data
 - **Assistant thread**: When users open the app in the Assistant (side panel / DM), slack-mcp-agent greets them and responds to messages in the thread.
 
 Required **OAuth scopes** include at least: `app_mentions:read`, `chat:write`, `im:history`, `assistant:write`.  
-For **Event Subscriptions**, subscribe to: `app_mention`, `message.im`, `assistant_thread_started`, `assistant_thread_context_changed`.  
+For **Event Subscriptions**, subscribe to: `app_mention`, `message.im`, `assistant_thread_started`, `assistant_thread_context_changed`, `app_home_opened`.  
+**App Home (Tableau MCP settings):** In the Slack app config, open **App Home** and enable the **Home Tab**. Per Slack’s docs, `app_home_opened` requires no additional OAuth scopes, and `views.publish` for the home tab uses your existing bot token—no `app_home:*` scopes exist.  
+Under **Interactivity & Shortcuts**, turn **Interactivity** on and set the **Request URL** to the same base URL as Event Subscriptions — for this app, `https://<PUBLIC_HOST>/slack/events` (Bolt’s default). If this is missing or wrong, Home tab buttons will not reach the server and modals will never open.  
 In Slack **App Settings**, enable **Agents & AI Apps** for the Assistant UI.
 
 **Slack MCP must be turned on for your app** (separate from the Assistant UI toggle): open [Your Apps](https://api.slack.com/apps) → select this app → **Agents & AI Apps** (or **Assistant**) → enable **Model Context Protocol** / Slack MCP server access. If MCP is off, `mcp.slack.com` returns HTTP 400 with *“App is not enabled for Slack MCP server access”* and the app falls back to the Web API only for Slack context. The error response includes a direct link to `https://api.slack.com/apps/YOUR_APP_ID/app-assistant`.
@@ -106,7 +108,7 @@ AI is powered by **Vertex AI (Gemini)**. Configure `GOOGLE_CLOUD_PROJECT`, `VERT
 
 **Slack context (Slack MCP server):** The assistant uses Slack as context when answering. For @mentions it fetches recent channel/thread messages and optional search results; for Assistant threads it runs search from the user’s message. This is implemented in `src/assistant/slackContext.js` using the Slack MCP server at `https://mcp.slack.com/mcp` when a user token is present (Streamable HTTP: initialize, `Mcp-Session-Id`, then `tools/list` / `tools/call`), else the Slack Web API ([Slack MCP server](https://docs.slack.dev/ai/mcp-server)). Ensure the app has scopes such as `channels:history`, `groups:history`, `im:history`, `mpim:history`, and `search:read.public` (and other `search:read.*`) for full context. Set `SLACK_MCP_DEBUG=1` (or `SLACK_CONTEXT_DEBUG=1`) to log Slack MCP failures instead of failing silently.
 
-**Tableau context:** Implemented in `src/assistant/tableauMcpClient.js` — same Streamable HTTP pattern. It injects a compact tool name list, calls `list-datasources` when the message (or recent Assistant thread) looks analytics-related, and when a published source name matches the user text it calls `get-datasource-metadata` so the model sees real field captions. Set `TABLEAU_MCP_SERVER` to your MCP base URL (example: `https://federal-tableau-mcp-81e8ca899174.herokuapp.com/tableau-mcp`). Optional: `TABLEAU_MCP_VERBOSE_TOOLS=1` for long per-tool descriptions in context. Leave `TABLEAU_MCP_SERVER` unset to disable Tableau context entirely.
+**Tableau context:** Implemented in `src/assistant/tableauMcpClient.js` — same Streamable HTTP pattern. It injects a compact tool name list, calls `list-datasources` when the message (or recent Assistant thread) looks analytics-related, and when a published source name matches the user text it calls `get-datasource-metadata` so the model sees real field captions. Set `TABLEAU_MCP_SERVER` to your deployment’s default MCP base URL (example: `https://federal-tableau-mcp-81e8ca899174.herokuapp.com/tableau-mcp`). Each user can override that default from the app **Home** → **Settings** → **Set URL**; overrides are stored in Postgres (`UserPreference`). Optional: `TABLEAU_MCP_VERBOSE_TOOLS=1` for long per-tool descriptions in context. If neither the host default nor a user override is set, Tableau context and Tableau Gemini tools are disabled for that user.
 
 **Slack canvases (create / read / update):** Gemini function calling in `src/assistant/respond.js` can invoke `slack_canvas_create`, `slack_canvas_read`, and `slack_canvas_update` in `src/canvas/userCanvasActions.js`. All canvas calls use the **installing user’s OAuth token** (`xoxp-`), not the bot token. The model decides when to call tools from the user’s message. **User token scopes** must include `canvases:read` and `canvases:write`. Default `channel_id` for new canvases is the current conversation (channel @mention or Assistant channel/DM). Tool results include `canvas_url` (`https://app.slack.com/client/{team_id}/{canvas_id}`) and `slack_mrkdwn_link_example`; the system prompt instructs the model to share canvases as Slack mrkdwn `<URL|label>` links, not raw `<F…>` IDs. Slack’s read API returns **section outlines** (heading section IDs), not a full markdown export; updates support **append end**, **insert start**, **replace entire document**, and **section-scoped** edits (**insert_after**, **insert_before**, **replace_section** using `section_id` from read) — no canvas delete.
 
@@ -164,6 +166,7 @@ Add these in the dashboard (or via CLI). **Do not commit secrets to git.**
 | `PORT` | No | Heroku sets this automatically |
 | `GCP_SERVICE_ACCOUNT_JSON` | For Vertex AI | Full JSON key content (alternative to `GOOGLE_APPLICATION_CREDENTIALS`) |
 | `SLACK_CONTEXT_DEBUG` | No | Set to `1` to log installation/userToken lookup for channel access debugging |
+| `PUBLIC_BASE_URL` | No | `https://<your-app>.herokuapp.com` (no trailing slash). Used for OAuth install links in prompts and the App Home **Re-install** button. |
 
 **Google auth in production:** Add `GCP_SERVICE_ACCOUNT_JSON` with the full contents of your service account JSON key. The app writes it to a temp file at startup. Or set `GOOGLE_APPLICATION_CREDENTIALS` to a file path if using a buildpack.
 
@@ -185,7 +188,7 @@ Update your Slack app to use the Heroku URL:
 - **Automatic:** Push to the connected branch; Heroku builds and deploys.
 - **Manual:** **Deploy** tab → **Deploy Branch**.
 
-The `release` phase runs `prisma migrate deploy` before each release. Migrations run automatically.
+The `release` phase runs `npm run deploy:migrate` (`prisma migrate deploy`) **before** the new `web` dyno starts. If a migration fails, the release fails and the previous release keeps running—fix the migration or DB, then redeploy. **Commit every file under `prisma/migrations/`** so production applies the same schema as your repo.
 
 ### 6. Debugging channel access on Heroku
 

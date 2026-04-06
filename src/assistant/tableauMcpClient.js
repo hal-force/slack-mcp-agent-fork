@@ -8,33 +8,79 @@ const { parseMcpResponse, streamableMcpPost } = require("./mcpHttpTransport");
 
 const SESSION_TTL_MS = 25 * 60 * 1000;
 
-let _session = { id: null, createdAt: 0 };
+/** @type {Map<string, { id: string, createdAt: number }>} */
+const _sessionsByBaseUrl = new Map();
 
+function normalizeTableauBaseUrl(raw) {
+  return (raw || "").trim().replace(/\/$/, "");
+}
+
+/** Deployment default from env (no per-user override). */
+function getDefaultTableauMcpUrl() {
+  return normalizeTableauBaseUrl(process.env.TABLEAU_MCP_SERVER || "");
+}
+
+/**
+ * Effective base URL for MCP HTTP calls: user override when set, otherwise env default.
+ * @param {string} [override] - optional per-user base URL
+ */
+function resolveTableauMcpUrl(override) {
+  const o = normalizeTableauBaseUrl(override);
+  if (o) return o;
+  return getDefaultTableauMcpUrl();
+}
+
+/** @deprecated use getDefaultTableauMcpUrl */
 function getTableauMcpUrl() {
-  return (process.env.TABLEAU_MCP_SERVER || "").trim().replace(/\/$/, "");
+  return getDefaultTableauMcpUrl();
 }
 
-function sessionValid() {
-  return _session.id && Date.now() - _session.createdAt < SESSION_TTL_MS;
+/**
+ * Validate a user-supplied MCP base URL (App Home settings).
+ * @returns {{ ok: true, url: string | null } | { ok: false, error: string }}
+ */
+function validateTableauMcpUserUrl(raw) {
+  const s = (raw || "").trim();
+  if (!s) return { ok: true, url: null };
+  try {
+    const u = new URL(s);
+    if (u.protocol !== "https:") {
+      return { ok: false, error: "URL must use https://" };
+    }
+    return { ok: true, url: normalizeTableauBaseUrl(s) };
+  } catch {
+    return { ok: false, error: "Invalid URL" };
+  }
 }
 
-function clearSession() {
-  _session = { id: null, createdAt: 0 };
+function sessionValid(entry) {
+  return entry?.id && Date.now() - entry.createdAt < SESSION_TTL_MS;
 }
 
-async function postMcp(sessionId, bodyObj) {
-  const url = getTableauMcpUrl();
+/** Clear cached MCP session for one base URL, or all URLs if omitted. */
+function clearSession(baseUrl) {
+  const key = normalizeTableauBaseUrl(baseUrl);
+  if (key) _sessionsByBaseUrl.delete(key);
+  else _sessionsByBaseUrl.clear();
+}
+
+async function postMcp(baseUrl, sessionId, bodyObj) {
+  const url = normalizeTableauBaseUrl(baseUrl);
   if (!url) throw new Error("TABLEAU_MCP_SERVER is not set");
   const headers = {};
   if (sessionId) headers["Mcp-Session-Id"] = sessionId;
   return streamableMcpPost(url, headers, bodyObj);
 }
 
-async function ensureSession() {
-  if (sessionValid()) return _session.id;
+async function ensureSession(baseUrl) {
+  const key = normalizeTableauBaseUrl(baseUrl);
+  if (!key) throw new Error("TABLEAU_MCP_SERVER is not set");
+
+  const existing = _sessionsByBaseUrl.get(key);
+  if (sessionValid(existing)) return existing.id;
 
   const initId = 1;
-  const { ok, status, text, headers } = await postMcp(null, {
+  const { ok, status, text, headers } = await postMcp(key, null, {
     jsonrpc: "2.0",
     id: initId,
     method: "initialize",
@@ -59,16 +105,17 @@ async function ensureSession() {
     throw new Error(initMsg?.error?.message || "Tableau MCP initialize failed");
   }
 
-  _session = { id: sid, createdAt: Date.now() };
+  _sessionsByBaseUrl.set(key, { id: sid, createdAt: Date.now() });
 
-  await postMcp(_session.id, { jsonrpc: "2.0", method: "notifications/initialized" });
+  await postMcp(key, sid, { jsonrpc: "2.0", method: "notifications/initialized" });
 
-  return _session.id;
+  return sid;
 }
 
-async function mcpRequest(sessionId, method, params = {}) {
+async function mcpRequest(baseUrl, sessionId, method, params = {}) {
+  const key = normalizeTableauBaseUrl(baseUrl);
   const id = Math.floor(Math.random() * 1e9);
-  const { ok, text, status } = await postMcp(sessionId, {
+  const { ok, text, status } = await postMcp(key, sessionId, {
     jsonrpc: "2.0",
     id,
     method,
@@ -76,7 +123,7 @@ async function mcpRequest(sessionId, method, params = {}) {
   });
 
   if (!ok && status === 401) {
-    clearSession();
+    clearSession(key);
   }
 
   const msg = parseMcpResponse(text, id);
@@ -97,9 +144,15 @@ async function mcpRequest(sessionId, method, params = {}) {
  * @param {Record<string, unknown>} toolArgs - arguments object for the tool
  * @returns {Promise<{ result: unknown, text: string }>}
  */
-async function callTableauTool(toolName, toolArgs) {
-  const sessionId = await ensureSession();
-  const result = await mcpRequest(sessionId, "tools/call", {
+/**
+ * @param {string} toolName
+ * @param {Record<string, unknown>} toolArgs
+ * @param {{ tableauMcpBaseUrl?: string }} [opts]
+ */
+async function callTableauTool(toolName, toolArgs, opts = {}) {
+  const baseUrl = resolveTableauMcpUrl(opts.tableauMcpBaseUrl);
+  const sessionId = await ensureSession(baseUrl);
+  const result = await mcpRequest(baseUrl, sessionId, "tools/call", {
     name: toolName,
     arguments: toolArgs && typeof toolArgs === "object" ? toolArgs : {},
   });
@@ -548,9 +601,9 @@ function getDatasourceListLimit() {
   return Math.floor(n);
 }
 
-async function tryListDatasources(sessionId) {
+async function tryListDatasources(baseUrl, sessionId) {
   try {
-    const result = await mcpRequest(sessionId, "tools/call", {
+    const result = await mcpRequest(baseUrl, sessionId, "tools/call", {
       name: "list-datasources",
       arguments: { limit: getDatasourceListLimit() },
     });
@@ -561,9 +614,9 @@ async function tryListDatasources(sessionId) {
   }
 }
 
-async function tryDatasourceMetadata(sessionId, datasourceLuid) {
+async function tryDatasourceMetadata(baseUrl, sessionId, datasourceLuid) {
   try {
-    const result = await mcpRequest(sessionId, "tools/call", {
+    const result = await mcpRequest(baseUrl, sessionId, "tools/call", {
       name: "get-datasource-metadata",
       arguments: { datasourceLuid },
     });
@@ -576,22 +629,23 @@ async function tryDatasourceMetadata(sessionId, datasourceLuid) {
 /**
  * Build Tableau MCP context: compact tool list, datasource catalog, optional field metadata.
  * @param {string} userMessage
- * @param {{ threadHint?: string }} [opts] - recent thread text so follow-up questions keep Tableau context
+ * @param {{ threadHint?: string, tableauMcpBaseUrl?: string }} [opts] - recent thread text; optional per-user MCP base URL
  */
 async function buildTableauContext(userMessage = "", opts = {}) {
-  if (!getTableauMcpUrl()) return "";
+  const baseUrl = resolveTableauMcpUrl(opts.tableauMcpBaseUrl);
+  if (!baseUrl) return "";
 
   const threadHint = (opts.threadHint || "").slice(-4000);
   const lexical = `${userMessage}\n${threadHint}`;
 
   try {
-    const sessionId = await ensureSession();
-    const toolsResult = await mcpRequest(sessionId, "tools/list", {});
+    const sessionId = await ensureSession(baseUrl);
+    const toolsResult = await mcpRequest(baseUrl, sessionId, "tools/list", {});
     const tools = toolsResult?.tools ?? [];
     const toolSummary = summarizeTools(tools);
 
     const parts = [
-      `Tableau MCP: ${getTableauMcpUrl()}`,
+      `Tableau MCP: ${baseUrl}`,
       "Ground answers in the sections below. Do not invent field captions, LUIDs, or numbers that are not shown. If the user names a data source that appears in the catalog, use the metadata section for exact fields.",
     ];
 
@@ -610,7 +664,7 @@ async function buildTableauContext(userMessage = "", opts = {}) {
 
     let dsBlock = "";
     if (wantDs) {
-      dsBlock = await tryListDatasources(sessionId);
+      dsBlock = await tryListDatasources(baseUrl, sessionId);
       if (dsBlock) parts.push(dsBlock);
     }
 
@@ -632,7 +686,7 @@ async function buildTableauContext(userMessage = "", opts = {}) {
       }
     }
     if (metaTarget) {
-      const meta = await tryDatasourceMetadata(sessionId, metaTarget.luid);
+      const meta = await tryDatasourceMetadata(baseUrl, sessionId, metaTarget.luid);
       if (meta) {
         parts.push(
           `Datasource field metadata for *${metaTarget.name}* (luid \`${metaTarget.luid}\`) — use these field captions/parameters for breakdowns and filters:\n${meta}`
@@ -666,7 +720,7 @@ async function buildTableauContext(userMessage = "", opts = {}) {
     if (process.env.NODE_ENV !== "production") {
       console.error("Tableau MCP context error:", err.message || err);
     }
-    clearSession();
+    clearSession(baseUrl);
     return "";
   }
 }
@@ -674,6 +728,9 @@ async function buildTableauContext(userMessage = "", opts = {}) {
 module.exports = {
   buildTableauContext,
   getTableauMcpUrl,
+  getDefaultTableauMcpUrl,
+  resolveTableauMcpUrl,
+  validateTableauMcpUserUrl,
   clearSession,
   callTableauTool,
   getDatasourceListLimit,

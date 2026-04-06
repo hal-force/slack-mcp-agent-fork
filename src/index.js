@@ -16,6 +16,8 @@ const { buildSlackContext } = require("./assistant/slackContext");
 const { buildTableauContext } = require("./assistant/tableauMcpClient");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
+const { getTableauMcpUrlOverride } = require("./preferences/userPreferences");
+const { registerAppHome } = require("./slack/appHome");
 
 /** Shown when the workspace has no matching installation in our store; includes install link if PUBLIC_BASE_URL is set. */
 function getAuthorizeMessage() {
@@ -29,23 +31,29 @@ const app = new App({
   receiver,
 });
 
+registerAppHome(app);
+
 // ----- @mentions (channel / thread) -----
 app.event("app_mention", async ({ event, body, client, logger }) => {
   try {
     const userMessage = event.text?.replace(/<@[A-Z0-9]+>/g, "").trim() || "";
-    const installation = await getInstallation({
+    const installQuery = {
       teamId: body?.team_id || body?.authorizations?.[0]?.team_id || event?.team,
       enterpriseId: body?.enterprise_id || body?.authorizations?.[0]?.enterprise_id || event?.enterprise_id,
       isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install,
       userId: body?.user_id || event?.user || body?.authorizations?.[0]?.user_id,
-    });
+    };
+    const [installation, tableauMcpBaseUrl] = await Promise.all([
+      getInstallation(installQuery),
+      getTableauMcpUrlOverride(installQuery),
+    ]);
     const slackContext = await buildSlackContext(client, {
       userToken: installation?.user?.token,
       channelId: event.channel,
       threadTs: event.thread_ts || event.ts,
       userMessage,
     });
-    const tableauContext = await buildTableauContext(userMessage);
+    const tableauContext = await buildTableauContext(userMessage, { tableauMcpBaseUrl });
     const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
     const teamId =
       body?.team_id || body?.authorizations?.[0]?.team_id || event?.team || event?.team_id || null;
@@ -55,6 +63,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       userToken: installation?.user?.token,
       defaultCanvasChannelId: event.channel,
       teamId,
+      tableauMcpBaseUrl,
     });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
@@ -109,7 +118,10 @@ const assistant = new Assistant({
       isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install || !!context?.isEnterpriseInstall,
       userId: body?.user_id || body?.event?.user || body?.authorizations?.[0]?.user_id || context?.userId || message?.user,
     };
-    const installation = await getInstallation(installQuery);
+    const [installation, tableauMcpBaseUrl] = await Promise.all([
+      getInstallation(installQuery),
+      getTableauMcpUrlOverride(installQuery),
+    ]);
 
     const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
     if (hasChannelRefs && process.env.SLACK_CONTEXT_DEBUG === "1") {
@@ -169,7 +181,7 @@ const assistant = new Assistant({
       }
 
       const threadHint = threadHistory.map((m) => m.text || "").join("\n");
-      const tableauContext = await buildTableauContext(text, { threadHint });
+      const tableauContext = await buildTableauContext(text, { threadHint, tableauMcpBaseUrl });
 
       const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
 
@@ -186,6 +198,7 @@ const assistant = new Assistant({
         userToken: installation?.user?.token,
         defaultCanvasChannelId: contextChannelId || channel,
         teamId,
+        tableauMcpBaseUrl,
       });
 
       const replyText =

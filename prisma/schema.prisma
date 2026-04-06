@@ -27,3 +27,17 @@ model Installation {
   @@index([teamId])
   @@index([userId])
 }
+
+/// Per-user settings (same id scheme as per-user Installation rows: E:enterpriseId:userId or T:teamId:userId).
+model UserPreference {
+  id            String   @id
+  enterpriseId  String?
+  teamId        String?
+  userId        String
+  tableauMcpUrl String? // null = use host default TABLEAU_MCP_SERVER
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([teamId, userId])
+  @@index([enterpriseId, userId])
+}

@@ -176,8 +176,17 @@ function getFunctionCallParts(parts) {
  * @param {string} [opts.userToken] - xoxp- for canvas tools
  * @param {string|null} [opts.defaultCanvasChannelId] - C… for default canvas tab
  * @param {string|null} [opts.teamId] - T… workspace team id for building canvas client URLs
+ * @param {string} [opts.tableauMcpBaseUrl] - optional per-user Tableau MCP base URL override
  */
-async function getAiResponse({ userMessage, threadHistory, slackContext, userToken, defaultCanvasChannelId, teamId }) {
+async function getAiResponse({
+  userMessage,
+  threadHistory,
+  slackContext,
+  userToken,
+  defaultCanvasChannelId,
+  teamId,
+  tableauMcpBaseUrl,
+}) {
   if (!userMessage || !userMessage.trim()) {
     return "Send me a message and I'll respond.";
   }
@@ -187,7 +196,7 @@ async function getAiResponse({ userMessage, threadHistory, slackContext, userTok
   if (contents.length === 0) return "Send me a message and I'll respond.";
 
   const useCanvasTools = !!(userToken && String(userToken).trim());
-  const useTableauTools = tableauQueryToolsEnabled();
+  const useTableauTools = tableauQueryToolsEnabled({ tableauMcpBaseUrl });
   const mergedDeclarations = [];
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
@@ -236,7 +245,7 @@ async function getAiResponse({ userMessage, threadHistory, slackContext, userTok
         const args = fc.args && typeof fc.args === "object" ? { ...fc.args } : {};
         let toolResult;
         if (isTableauGeminiTool(name)) {
-          toolResult = await dispatchTableauTool(name, args);
+          toolResult = await dispatchTableauTool(name, args, { tableauMcpBaseUrl });
         } else if (useCanvasTools) {
           toolResult = await dispatchCanvasTool(userToken, name, args, {
             defaultChannelId: defaultCanvasChannelId || null,

@@ -1,8 +1,11 @@
 .env
 .env.dev
-.ds_store
+.env.*.local
+.DS_Store
 node_modules/
 .venv
-package-lock.json
 .data/
 .cursor/
+
+# Salesforce DX / CLI cache (not part of this app — created if SF extensions or sf/sfdx run against this folder)
+.sfdx/
