@@ -54,10 +54,10 @@ function buildTableauMcpModalIntroMrkdwn(opts) {
     currentLine = `*Current personal URL:* \`${truncateUrl(current, 72)}\``;
   } else if (hostDefault) {
     currentLine =
-      `*Current personal URL:* _No override._ You’re using the host default: \`${truncateUrl(hostDefault, 72)}\`.`;
+      `*Current personal URL:* You're using the default server: \`${truncateUrl(hostDefault, 72)}\`.`;
   } else {
     currentLine =
-      "*Current personal URL:* _No override and no host default — Tableau MCP isn’t configured until you set a URL here or on the server._";
+      "*Current personal URL:* _No override and no host default — Tableau MCP isn't configured until you set a URL here or on the server._";
   }
 
   let blankLine;
