@@ -1,0 +1,37 @@
+{
+  "settings": {
+    "function_runtime": "remote"
+  },
+  "functions": {
+    "9dec78": {
+      "title": "Ask AI (slack-mcp-agent)",
+      "description": "Run the same Prism / slack-mcp-agent AI as @mentions and Assistant: Slack + Tableau context, Tableau MCP tools, and canvas tools when the installing user authorized user scopes. Primary output is a Slack mrkdwn string. Optionally pick a channel to also receive the reply as Block Kit section+mrkdwn. Rich-text Send message steps may show markup literally—use the optional channel or mrkdwn send. See readme: Workflow Builder (Ask AI step).",
+      "input_parameters": {
+        "afd46a": {
+          "type": "slack#/types/expanded_rich_text",
+          "name": "afd46a",
+          "title": "Prompt",
+          "description": "Long rich-text instructions and/or data for the model (formatting is converted to Slack mrkdwn for the AI). Use “Insert variable” to pull in values from triggers or previous steps. Example: a short instruction line, then a bullet list or pasted customer message.",
+          "hint": "Summarize the following for Slack (bullets + one follow-up):\\n\\n(insert variables or paste text here)",
+          "is_required": true
+        },
+        "b504c1": {
+          "type": "slack#/types/channel",
+          "name": "b504c1",
+          "title": "Optional: post formatted reply here",
+          "description": "If you choose a channel, the app posts the AI reply with Block Kit section blocks and mrkdwn text objects so bold, links, and channel mentions render. Leave empty if you only use the string output in a Send a message step (rich-text composers show asterisks and channel tokens literally unless that step uses mrkdwn).",
+          "is_required": false
+        }
+      },
+      "output_parameters": {
+        "8f09f2": {
+          "type": "string",
+          "name": "8f09f2",
+          "title": "AI response",
+          "description": "Model reply as a single string in Slack mrkdwn (*bold*, lists, <https://example.com|label> links)—not Block Kit and not generic Markdown. Downstream steps that only support plain text may show some markup characters literally.",
+          "is_required": true
+        }
+      }
+    }
+  }
+}

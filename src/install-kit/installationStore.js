@@ -1,6 +1,34 @@
 const { getPrisma } = require("./prisma");
 
 /**
+ * Slack sometimes sends an enterprise ID (prefix E…) in `team_id` with `is_enterprise_install` false,
+ * e.g. for `function_executed` on Enterprise Grid. Our store keys enterprise bots as `E:<id>`, not `T:<id>`.
+ *
+ * @param {{ teamId?: string|null, enterpriseId?: string|null, isEnterpriseInstall?: boolean, userId?: string|null }} q
+ */
+function normalizeInstallQuery(q) {
+  if (!q || typeof q !== "object") return q;
+  const teamId = q.teamId ?? null;
+  const enterpriseId = q.enterpriseId ?? null;
+  const isEnterpriseInstall = !!q.isEnterpriseInstall;
+
+  if (
+    teamId &&
+    !enterpriseId &&
+    !isEnterpriseInstall &&
+    /^E[A-Z0-9]+$/i.test(String(teamId))
+  ) {
+    return {
+      ...q,
+      teamId: null,
+      enterpriseId: teamId,
+      isEnterpriseInstall: true,
+    };
+  }
+  return q;
+}
+
+/**
  * Deterministic ID strategy so upsert works with your schema:
  * - Enterprise install: "E:<enterpriseId>" (bot only) or "E:<enterpriseId>:<userId>" (per-user)
  * - Workspace install:  "T:<teamId>" or "T:<teamId>:<userId>"
@@ -127,8 +155,17 @@ function createInstallationStore({ logger } = {}) {
       }
     },
 
-    fetchInstallation: async (installQuery) => {
+    fetchInstallation: async (installQuery, log) => {
       const prisma = getPrisma();
+
+      const raw = installQuery;
+      installQuery = normalizeInstallQuery(installQuery);
+      if (raw !== installQuery && process.env.SLACK_CONTEXT_DEBUG === "1") {
+        (log || logger)?.info?.("[install] fetchInstallation normalized E… team_id → enterprise", {
+          before: raw,
+          after: installQuery,
+        });
+      }
 
       const enterpriseId = installQuery.enterpriseId ?? null;
       const teamId = installQuery.teamId ?? null;
@@ -229,6 +266,7 @@ function createInstallationStore({ logger } = {}) {
  */
 async function getInstallation(installQuery) {
   const prisma = getPrisma();
+  installQuery = normalizeInstallQuery(installQuery);
   const enterpriseId = installQuery.enterpriseId ?? null;
   const teamId = installQuery.teamId ?? null;
   const userId = installQuery.userId ?? null;

@@ -34,6 +34,24 @@ const DEBUG = process.env.SLACK_CONTEXT_DEBUG === "1";
 const NO_MESSAGES_IN_HISTORY =
   "No messages were found in the recent history we fetched—the channel may be empty, or recent activity had no text we could include.";
 
+/**
+ * @param {{ channelId?: string, channelLabel?: string, error: string }[]|null|undefined} errors
+ */
+function formatChannelAccessProblems(errors) {
+  if (!errors || errors.length === 0) return "";
+  const lines = errors.map((e) => {
+    const ref = e.channelId ? `<#${e.channelId}>` : e.channelLabel || "channel";
+    return `- ${ref}: \`${e.error}\``;
+  });
+  return [
+    "Could not load message history for some channel(s):",
+    ...lines,
+    "",
+    "If you see `missing_scope`, a workspace admin should add **bot** scopes `channels:history` and `groups:history` (and usually `channels:read`, `groups:read`), update the Slack app manifest, then **reinstall** the app so the bot token is reissued.",
+    "For **private** channels, invite the app to the channel (or rely on a user install with user token + user scopes so reads use the member’s token).",
+  ].join("\n");
+}
+
 /** Subtypes we include in channel history (user messages + thread_broadcast + app/bot posts). */
 const INCLUDE_SUBTYPES = new Set(["thread_broadcast", "bot_message"]);
 
@@ -86,6 +104,7 @@ async function resolveChannelByName(client, name, teamId) {
  * @param {boolean} [opts.skipChannelAndThread] - Skip channel/thread fetch (e.g. when caller already has full thread history)
  * @param {string} [opts.contextChannelId] - Channel ID from Assistant thread context ("this channel" when user opened from a channel)
  * @param {string} [opts.teamId] - Team ID for Enterprise Grid channel resolution
+ * @param {{ channelId?: string, channelLabel?: string, error: string }[]} [opts.channelAccessErrors] - when provided, failed channel reads are recorded here for callers / prompt text
  * @returns {Promise<string>} Formatted context string for the prompt, or empty string
  */
 async function buildSlackContext(client, opts = {}) {
@@ -99,6 +118,7 @@ async function buildSlackContext(client, opts = {}) {
     skipChannelAndThread = false,
     contextChannelId = null,
     teamId = null,
+    channelAccessErrors = null,
   } = opts;
 
   // Use user token (xoxp) for all Slack data reads when available; else bot (xoxb)
@@ -141,9 +161,9 @@ async function buildSlackContext(client, opts = {}) {
     } catch (err) {
       const msg = err.data?.error ?? err.message;
       console.warn("[slackContext] addChannelById failed:", cid, msg);
-      // if (msg === "not_in_channel" || msg === "channel_not_found") {
-      //   sectionsArray.push(`[Could not read the channel: the current token's user is not in that channel. Suggest the user open slack-mcp-agent from the Apps menu to authorize—that will let me use their permissions to read channels they're in.]`);
-      // }
+      if (Array.isArray(channelAccessErrors)) {
+        channelAccessErrors.push({ channelId: cid, error: String(msg) });
+      }
     }
   }
 
@@ -175,7 +195,15 @@ async function buildSlackContext(client, opts = {}) {
             sectionsArray.push(`Recent messages in #${name}:\n${NO_MESSAGES_IN_HISTORY}`);
           }
         } catch (err) {
+          const apiErr = err.data?.error ?? err.message;
           if (DEBUG) console.error("[slackContext] conversations.history error:", err.message);
+          if (Array.isArray(channelAccessErrors)) {
+            channelAccessErrors.push({
+              channelLabel: `#${name}`,
+              channelId: cid,
+              error: String(apiErr),
+            });
+          }
         }
         continue;
       }
@@ -217,8 +245,12 @@ async function buildSlackContext(client, opts = {}) {
       const extra = [];
       await addChannelById(extra, contextChannelId, "Recent messages in this channel (from context):");
       await addRequestedChannels(extra);
-      if (extra.length > 0) {
-        return mcpContext.replace("--- End Slack context ---", `${extra.join("\n\n")}\n--- End Slack context ---`);
+      const problems = formatChannelAccessProblems(
+        Array.isArray(channelAccessErrors) ? channelAccessErrors : null,
+      );
+      const tail = [extra.length > 0 ? extra.join("\n\n") : "", problems].filter(Boolean).join("\n\n");
+      if (tail) {
+        return mcpContext.replace("--- End Slack context ---", `${tail}\n--- End Slack context ---`);
       }
       return mcpContext;
     }
@@ -307,8 +339,16 @@ async function buildSlackContext(client, opts = {}) {
     }
   }
 
-  if (sections.length === 0) return "";
-  return `\n--- Slack context (internal workspace—prioritize this over general knowledge when answering) ---\n${sections.join("\n\n")}\n--- End Slack context ---\n`;
+  const accessProblems =
+    Array.isArray(channelAccessErrors) && channelAccessErrors.length > 0
+      ? formatChannelAccessProblems(channelAccessErrors)
+      : "";
+
+  if (sections.length === 0 && !accessProblems) return "";
+  const header =
+    "\n--- Slack context (internal workspace—prioritize this over general knowledge when answering) ---\n";
+  const body = [sections.join("\n\n"), accessProblems].filter(Boolean).join("\n\n");
+  return `${header}${body}\n--- End Slack context ---\n`;
 }
 
-module.exports = { buildSlackContext };
+module.exports = { buildSlackContext, parseChannelRefs };

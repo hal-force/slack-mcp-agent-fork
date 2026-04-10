@@ -6,6 +6,7 @@ node_modules/
 .venv
 .data/
 .cursor/
+.tmp-mcp/
 
 # Salesforce DX / CLI cache (not part of this app — created if SF extensions or sf/sfdx run against this folder)
 .sfdx/

@@ -18,6 +18,9 @@ const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
 const { getTableauMcpUrlOverride } = require("./preferences/userPreferences");
 const { registerAppHome } = require("./slack/appHome");
+const { registerAskAiWorkflowStep } = require("./slack/workflowAskAi");
+const { mrkdwnStringToBlocks } = require("./slack/mrkdwnToBlocks");
+const { postThreadFileUploads } = require("./slack/postThreadFileUploads");
 
 /** Shown when the workspace has no matching installation in our store; includes install link if PUBLIC_BASE_URL is set. */
 function getAuthorizeMessage() {
@@ -31,7 +34,18 @@ const app = new App({
   receiver,
 });
 
+// function_executed: Bolt skips the immediate Events API ack and relies on app.function's autoAcknowledge,
+// which runs after other global middleware. That can exceed Slack's HTTP ack window while Vertex runs.
+// Ack here first, then disable duplicate ack on the Ask AI step (see workflowAskAi.js).
+app.use(async ({ body, next, ack }) => {
+  if (body?.event?.type === "function_executed" && typeof ack === "function") {
+    await ack();
+  }
+  await next();
+});
+
 registerAppHome(app);
+registerAskAiWorkflowStep(app, { getAiResponse });
 
 // ----- @mentions (channel / thread) -----
 app.event("app_mention", async ({ event, body, client, logger }) => {
@@ -53,7 +67,8 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       threadTs: event.thread_ts || event.ts,
       userMessage,
     });
-    const tableauContext = await buildTableauContext(userMessage, { tableauMcpBaseUrl });
+    const tableauBlock = await buildTableauContext(userMessage, { tableauMcpBaseUrl });
+    const tableauContext = tableauBlock.context;
     const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
     const teamId =
       body?.team_id || body?.authorizations?.[0]?.team_id || event?.team || event?.team_id || null;
@@ -64,16 +79,30 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       defaultCanvasChannelId: event.channel,
       teamId,
       tableauMcpBaseUrl,
+      datasourceUrls: tableauBlock.datasourceUrls,
     });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
-      installation ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
+      installation ? response.text : `${response.text}\n\n---\n${getAuthorizeMessage()}`;
 
+    const { text: notifyText, blocks } = mrkdwnStringToBlocks(replyText);
     await client.chat.postMessage({
       channel: event.channel,
       thread_ts: threadTs,
-      text: replyText,
+      text: notifyText,
+      blocks,
     });
+    if (response.uploads?.length) {
+      try {
+        await postThreadFileUploads(client, {
+          channelId: event.channel,
+          threadTs,
+          uploads: response.uploads,
+        });
+      } catch (uploadErr) {
+        logger.error("app_mention Tableau file upload error", uploadErr);
+      }
+    }
   } catch (err) {
     logger.error("app_mention handler error", err);
   }
@@ -181,7 +210,8 @@ const assistant = new Assistant({
       }
 
       const threadHint = threadHistory.map((m) => m.text || "").join("\n");
-      const tableauContext = await buildTableauContext(text, { threadHint, tableauMcpBaseUrl });
+      const tableauBlock = await buildTableauContext(text, { threadHint, tableauMcpBaseUrl });
+      const tableauContext = tableauBlock.context;
 
       const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
 
@@ -199,11 +229,24 @@ const assistant = new Assistant({
         defaultCanvasChannelId: contextChannelId || channel,
         teamId,
         tableauMcpBaseUrl,
+        datasourceUrls: tableauBlock.datasourceUrls,
       });
 
       const replyText =
-        installation ? response : `${response}\n\n---\n${getAuthorizeMessage()}`;
-      await say({ text: replyText });
+        installation ? response.text : `${response.text}\n\n---\n${getAuthorizeMessage()}`;
+      const { text: notifyText, blocks } = mrkdwnStringToBlocks(replyText);
+      await say({ text: notifyText, blocks });
+      if (response.uploads?.length) {
+        try {
+          await postThreadFileUploads(client, {
+            channelId: channel,
+            threadTs: thread_ts,
+            uploads: response.uploads,
+          });
+        } catch (uploadErr) {
+          logger.error("Assistant Tableau file upload error", uploadErr);
+        }
+      }
     } catch (err) {
       logger.error("Assistant userMessage error", err);
       await say({ text: "Something went wrong. Please try again." });

@@ -168,7 +168,8 @@ function looksTableauRelated(text) {
     /\bdatasource\b/.test(t) ||
     /\bdata source\b/.test(t) ||
     /\bworkbook\b/.test(t) ||
-    (/\bview\b/.test(t) && /\b(published|dashboard|sheet)\b/.test(t)) ||
+    (/\bview\b/.test(t) &&
+      /\b(published|dashboard|sheet|screenshot|snapshot|thumbnail|image)\b/.test(t)) ||
     /\bhyper\b/.test(t) ||
     /\bextract\b/.test(t) ||
     /\bpulse\b/.test(t) ||
@@ -275,16 +276,133 @@ function textFromToolResult(result) {
 }
 
 /**
+ * Tableau MCP `get-view-image` returns tools/call content with image parts shaped like:
+ * `{ type: "image", data: "<base64>", mimeType: "image/png" }` (or `image/svg+xml` on supported servers).
+ * @param {unknown} result - MCP tools/call result
+ * @returns {{ buffer: Buffer, mimeType: string }[]}
+ */
+function extractImageBuffersFromMcpToolResult(result) {
+  const content = result?.content;
+  if (!Array.isArray(content)) return [];
+  const out = [];
+  for (const c of content) {
+    if (!c || c.type !== "image") continue;
+    const mimeType = typeof c.mimeType === "string" && c.mimeType.trim() ? c.mimeType.trim() : "image/png";
+    const data = c.data;
+    if (typeof data !== "string" || !data) continue;
+    try {
+      const buffer = Buffer.from(data, "base64");
+      if (buffer.length) out.push({ buffer, mimeType });
+    } catch (_) {
+      // skip invalid base64
+    }
+  }
+  return out;
+}
+
+function pickFirstHttpUrl(obj) {
+  if (!obj || typeof obj !== "object") return "";
+  for (const k of ["webpageUrl", "contentUrl", "url", "uri"]) {
+    const v = obj[k];
+    if (typeof v === "string" && /^https?:\/\//i.test(v.trim())) return v.trim();
+  }
+  return "";
+}
+
+/** Strip "Published data sources …" header so JSON.parse works on list-datasources tool text. */
+function stripDatasourceListProsePrefix(raw) {
+  let t = String(raw || "").trim();
+  const lines = t.split("\n");
+  if (lines[0] && /published data sources/i.test(lines[0])) {
+    return lines.slice(1).join("\n").trim();
+  }
+  return t;
+}
+
+/**
+ * Merge datasource LUID → browse URL from list-datasources JSON into an existing map (mutates).
+ * @param {string} listText
+ * @param {Record<string, string>} intoMap - keys are lowercased LUIDs
+ */
+function mergeDatasourceUrlsFromListText(listText, intoMap) {
+  if (!intoMap || typeof intoMap !== "object") return;
+  const catalog = parseDatasourceCatalog(listText);
+  for (const row of catalog) {
+    if (row.sourceUrl && row.luid) intoMap[String(row.luid).toLowerCase()] = row.sourceUrl;
+  }
+}
+
+function normalizeViewListArray(j) {
+  const arr = Array.isArray(j) ? j : j?.views || j?.data?.views;
+  if (!Array.isArray(arr)) return [];
+  const out = [];
+  for (const v of arr) {
+    if (!v || typeof v !== "object") continue;
+    const id = v.id || v.viewId || v.luid;
+    const name = v.name || v.viewName || "View";
+    if (!id) continue;
+    let sourceUrl = pickFirstHttpUrl(v);
+    if (!sourceUrl && v.workbook && typeof v.workbook === "object") {
+      sourceUrl = pickFirstHttpUrl(v.workbook);
+    }
+    out.push({ id: String(id), name: String(name), sourceUrl });
+  }
+  return out;
+}
+
+/**
+ * Parse list-views tool JSON (array or wrapped) for id + optional Tableau browse URL.
+ * @param {string} listText
+ * @returns {{ id: string, name: string, sourceUrl: string }[]}
+ */
+function parseViewListEntries(listText) {
+  let t = String(listText || "").trim();
+  try {
+    return normalizeViewListArray(JSON.parse(t));
+  } catch (_) {
+    const start = t.search(/[\[{]/);
+    if (start > 0) {
+      t = t.slice(start);
+      try {
+        return normalizeViewListArray(JSON.parse(t));
+      } catch (_) {
+        return [];
+      }
+    }
+  }
+  return [];
+}
+
+/**
+ * @param {string} listText
+ * @param {Record<string, string>} intoMap - keys are lowercased view ids
+ */
+function mergeViewUrlsFromListText(listText, intoMap) {
+  if (!intoMap || typeof intoMap !== "object") return;
+  for (const v of parseViewListEntries(listText)) {
+    if (v.id && v.sourceUrl) intoMap[String(v.id).toLowerCase()] = v.sourceUrl;
+  }
+}
+
+function extensionForMime(mimeType) {
+  const m = String(mimeType || "").toLowerCase();
+  if (m.includes("svg")) return "svg";
+  if (m.includes("jpeg") || m.includes("jpg")) return "jpg";
+  return "png";
+}
+
+/**
  * Pull (luid, name) pairs from list-datasources tool text (JSON or line-oriented).
  */
 function parseDatasourceCatalog(listText) {
   if (!listText || typeof listText !== "string") return [];
-  const trimmed = listText.trim();
+  const trimmed = stripDatasourceListProsePrefix(listText);
   const out = [];
 
   const pushPair = (luid, name, project = "", hintObj = null) => {
     if (!luid || !name) return;
     const matchHints = new Set();
+    const sourceUrl = hintObj && typeof hintObj === "object" ? pickFirstHttpUrl(hintObj) : "";
     if (hintObj && typeof hintObj === "object") {
       const urls = [hintObj.contentUrl, hintObj.webpageUrl, hintObj.uri, hintObj.url].filter(Boolean);
       for (const u of urls) {
@@ -296,6 +414,7 @@ function parseDatasourceCatalog(listText) {
       name: String(name).trim(),
       project: project ? String(project).trim() : "",
       matchHints: [...matchHints],
+      sourceUrl,
     });
   };
 
@@ -626,14 +745,25 @@ async function tryDatasourceMetadata(baseUrl, sessionId, datasourceLuid) {
   }
 }
 
+function datasourceUrlMapFromCatalog(catalog) {
+  /** @type {Record<string, string>} */
+  const m = {};
+  if (!Array.isArray(catalog)) return m;
+  for (const row of catalog) {
+    if (row?.luid && row.sourceUrl) m[String(row.luid).toLowerCase()] = row.sourceUrl;
+  }
+  return m;
+}
+
 /**
  * Build Tableau MCP context: compact tool list, datasource catalog, optional field metadata.
  * @param {string} userMessage
  * @param {{ threadHint?: string, tableauMcpBaseUrl?: string }} [opts] - recent thread text; optional per-user MCP base URL
+ * @returns {Promise<{ context: string, datasourceUrls: Record<string, string> }>}
  */
 async function buildTableauContext(userMessage = "", opts = {}) {
   const baseUrl = resolveTableauMcpUrl(opts.tableauMcpBaseUrl);
-  if (!baseUrl) return "";
+  if (!baseUrl) return { context: "", datasourceUrls: {} };
 
   const threadHint = (opts.threadHint || "").slice(-4000);
   const lexical = `${userMessage}\n${threadHint}`;
@@ -653,7 +783,7 @@ async function buildTableauContext(userMessage = "", opts = {}) {
       parts.push(
         process.env.TABLEAU_MCP_VERBOSE_TOOLS === "1"
           ? `Available Tableau tools:\n${toolSummary}`
-          : `MCP server tools (this agent can call list/metadata/query via Gemini when TABLEAU_MCP_QUERY_TOOLS is not 0): ${toolSummary}`
+          : `MCP server tools (this agent can call list/metadata/query/list-views/view-image via Gemini when TABLEAU_MCP_QUERY_TOOLS is not 0): ${toolSummary}`
       );
     }
 
@@ -709,19 +839,22 @@ async function buildTableauContext(userMessage = "", opts = {}) {
     }
 
     const body = parts.filter(Boolean).join("\n\n");
-    if (!body) return "";
+    if (!body) return { context: "", datasourceUrls: {} };
 
-    return (
-      `\n--- Tableau context (from MCP endpoint) ---\n` +
-      `${body}\n` +
-      `--- End Tableau context ---\n`
-    );
+    const datasourceUrls = datasourceUrlMapFromCatalog(catalog);
+    return {
+      context:
+        `\n--- Tableau context (from MCP endpoint) ---\n` +
+        `${body}\n` +
+        `--- End Tableau context ---\n`,
+      datasourceUrls,
+    };
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
       console.error("Tableau MCP context error:", err.message || err);
     }
     clearSession(baseUrl);
-    return "";
+    return { context: "", datasourceUrls: {} };
   }
 }
 
@@ -734,4 +867,8 @@ module.exports = {
   clearSession,
   callTableauTool,
   getDatasourceListLimit,
+  extractImageBuffersFromMcpToolResult,
+  mergeDatasourceUrlsFromListText,
+  mergeViewUrlsFromListText,
+  extensionForMime,
 };
