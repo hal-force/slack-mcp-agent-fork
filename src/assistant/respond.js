@@ -144,6 +144,36 @@ const CANVAS_TOOLS = [
 
 const MAX_TOOL_ROUNDS = 5;
 
+/** Nudge when Gemini ends a turn with no text after tools—avoids showing a false “try again” to users. */
+const EMPTY_FINAL_RECOVERY_USER_TEXT =
+  "Your previous assistant turn had no user-visible text. Write the **final** Slack mrkdwn answer now: use the user's question, the conversation, and any tool/function results above—especially numbers and breakdowns. Follow the system Slack formatting rules. Do **not** call tools; only output the reply the user should read.";
+
+/**
+ * One follow-up generateContent without tools when the model stops with empty text (common after tool rounds).
+ * @param {*} model - Vertex GenerativeModel
+ * @param {Array<{ role: string, parts: unknown[] }>} workingContents
+ * @param {unknown[]} emptyTurnModelParts from the empty final candidate
+ * @returns {Promise<string|null>}
+ */
+async function recoverEmptyFinalText(model, workingContents, emptyTurnModelParts) {
+  const modelTurn =
+    Array.isArray(emptyTurnModelParts) && emptyTurnModelParts.length > 0
+      ? { role: "model", parts: emptyTurnModelParts }
+      : { role: "model", parts: [{ text: "" }] };
+  const recoveryContents = [
+    ...workingContents,
+    modelTurn,
+    { role: "user", parts: [{ text: EMPTY_FINAL_RECOVERY_USER_TEXT }] },
+  ];
+  const result = await model.generateContent({ contents: recoveryContents });
+  const candidate = result.response?.candidates?.[0];
+  if (!candidate || candidate.finishReason === "SAFETY") return null;
+  const parts = getModelParts(candidate);
+  if (getFunctionCallParts(parts).length > 0) return null;
+  const t = getTextFromCandidate(candidate);
+  return t.trim() ? t : null;
+}
+
 /**
  * @param {string} text
  * @param {Array<{ buffer: Buffer, filename: string, title?: string }>} [uploads]
@@ -314,7 +344,17 @@ async function getAiResponse({
       const modelParts = getModelParts(candidate);
       const fcParts = getFunctionCallParts(modelParts);
       if (fcParts.length === 0) {
-        const text = getTextFromCandidate(candidate);
+        let text = getTextFromCandidate(candidate);
+        if (!text.trim() && uploadQueue.length === 0) {
+          try {
+            const recovered = await recoverEmptyFinalText(model, working, modelParts);
+            if (recovered) text = recovered;
+          } catch (recoveryErr) {
+            if (process.env.NODE_ENV !== "production") {
+              console.error("Empty-final recovery generateContent failed:", recoveryErr?.message || recoveryErr);
+            }
+          }
+        }
         return aiReply(resolveFinalAssistantText(text, uploadQueue), uploadQueue);
       }
 
