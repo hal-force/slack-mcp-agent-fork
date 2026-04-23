@@ -21,13 +21,15 @@ const { registerAppHome } = require("./slack/appHome");
 const { registerAskAiWorkflowStep } = require("./slack/workflowAskAi");
 const { mrkdwnStringToBlocks } = require("./slack/mrkdwnToBlocks");
 const { postThreadFileUploads } = require("./slack/postThreadFileUploads");
+const {
+  authorizeMessageWithOptionalInstallUrl,
+  modelContextChannelAccessReinstallNote,
+  postFileUploadReinstallHintIfNeeded,
+} = require("./slack/reinstallPrompt");
 
 /** Shown when the workspace has no matching installation in our store; includes install link if PUBLIC_BASE_URL is set. */
 function getAuthorizeMessage() {
-  const url = getInstallUrl();
-  return url
-    ? "To use channel summaries and full features, authorize slack-mcp-agent: " + url
-    : "To use channel summaries and full features, authorize slack-mcp-agent from Apps → slack-mcp-agent → Configuration.";
+  return authorizeMessageWithOptionalInstallUrl(getInstallUrl());
 }
 
 const app = new App({
@@ -101,6 +103,13 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
         });
       } catch (uploadErr) {
         logger.error("app_mention Tableau file upload error", uploadErr);
+        await postFileUploadReinstallHintIfNeeded({
+          client,
+          channelId: event.channel,
+          threadTs,
+          err: uploadErr,
+          logger,
+        });
       }
     }
   } catch (err) {
@@ -202,8 +211,7 @@ const assistant = new Assistant({
       });
 
       if (needsUserToken) {
-        const reinstallNote =
-          "[slack-mcp-agent does not have channel access for this installation. To summarize channels, the user must reinstall slack-mcp-agent from Slack app settings (Apps → slack-mcp-agent → Configuration) so the app can request channel permissions.]";
+        const reinstallNote = modelContextChannelAccessReinstallNote();
         slackContext = slackContext
           ? `${reinstallNote}\n\n${slackContext}`
           : `\n--- Slack context ---\n${reinstallNote}\n--- End Slack context ---\n`;
@@ -245,6 +253,14 @@ const assistant = new Assistant({
           });
         } catch (uploadErr) {
           logger.error("Assistant Tableau file upload error", uploadErr);
+          await postFileUploadReinstallHintIfNeeded({
+            client,
+            channelId: channel,
+            threadTs: thread_ts,
+            err: uploadErr,
+            logger,
+            say,
+          });
         }
       }
     } catch (err) {

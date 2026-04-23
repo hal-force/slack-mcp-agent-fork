@@ -34,12 +34,14 @@ const { getTableauMcpUrlOverride } = require("../preferences/userPreferences");
 const { resolveSlackMrkdwnEntities } = require("./resolveSlackMrkdwnEntities");
 const { mrkdwnStringToBlocks } = require("./mrkdwnToBlocks");
 const { postThreadFileUploads } = require("./postThreadFileUploads");
+const {
+  authorizeMessageWithOptionalInstallUrl,
+  modelContextChannelAccessReinstallNote,
+  postFileUploadReinstallHintIfNeeded,
+} = require("./reinstallPrompt");
 
 function workflowAuthorizeMessage() {
-  const url = getInstallUrl();
-  return url
-    ? `To use channel summaries, canvas, Tableau tools, and full features, authorize slack-mcp-agent: ${url}`
-    : "To use channel summaries, canvas, Tableau tools, and full features, authorize slack-mcp-agent from Apps → slack-mcp-agent → Configuration.";
+  return authorizeMessageWithOptionalInstallUrl(getInstallUrl());
 }
 
 /** @deprecated Use WORKFLOW_FUNCTION_CALLBACK_ID; kept for callers that imported the old export. */
@@ -361,8 +363,7 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
             });
             const needsUserToken = hasChannelRefs && !installation?.user?.token;
             if (needsUserToken) {
-              const reinstallNote =
-                "[slack-mcp-agent does not have channel access for this installation. To summarize channels, the user must reinstall slack-mcp-agent from Slack app settings (Apps → slack-mcp-agent → Configuration) so the app can request channel permissions.]";
+              const reinstallNote = modelContextChannelAccessReinstallNote();
               built = built
                 ? `${reinstallNote}\n\n${built}`
                 : `\n--- Slack context ---\n${reinstallNote}\n--- End Slack context ---\n`;
@@ -464,6 +465,13 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
             logger.warn(
               `[workflow_ask_ai] files.uploadV2 failed: ${uploadErr?.message || uploadErr}`,
             );
+            await postFileUploadReinstallHintIfNeeded({
+              client,
+              channelId: postChannelId,
+              threadTs: null,
+              err: uploadErr,
+              logger,
+            });
           }
         }
 

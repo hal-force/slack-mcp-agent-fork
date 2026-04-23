@@ -1,5 +1,6 @@
 const { WebClient } = require("@slack/web-api");
 const { buildContextViaMcp } = require("./slackMcpClient");
+const { channelAccessMissingScopeHintLines } = require("../slack/reinstallPrompt");
 
 /** Slack channel IDs start with C (e.g. C0AL8UCPULW). */
 function isChannelId(s) {
@@ -47,8 +48,7 @@ function formatChannelAccessProblems(errors) {
     "Could not load message history for some channel(s):",
     ...lines,
     "",
-    "If you see `missing_scope`, a workspace admin should add **bot** scopes `channels:history` and `groups:history` (and usually `channels:read`, `groups:read`), update the Slack app manifest, then **reinstall** the app so the bot token is reissued.",
-    "For **private** channels, invite the app to the channel (or rely on a user install with user token + user scopes so reads use the member’s token).",
+    ...channelAccessMissingScopeHintLines(),
   ].join("\n");
 }
 
