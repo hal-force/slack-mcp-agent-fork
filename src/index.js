@@ -63,13 +63,15 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       getInstallation(installQuery),
       getTableauMcpUrlOverride(installQuery),
     ]);
-    const slackContext = await buildSlackContext(client, {
-      userToken: installation?.user?.token,
-      channelId: event.channel,
-      threadTs: event.thread_ts || event.ts,
-      userMessage,
-    });
-    const tableauBlock = await buildTableauContext(userMessage, { tableauMcpBaseUrl });
+    const [slackContext, tableauBlock] = await Promise.all([
+      buildSlackContext(client, {
+        userToken: installation?.user?.token,
+        channelId: event.channel,
+        threadTs: event.thread_ts || event.ts,
+        userMessage,
+      }),
+      buildTableauContext(userMessage, { tableauMcpBaseUrl }),
+    ]);
     const tableauContext = tableauBlock.context;
     const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
     const teamId =
@@ -173,21 +175,6 @@ const assistant = new Assistant({
         loading_messages: ["Reading your message…", "Getting ready to respond…"],
       });
 
-      let threadHistory = [];
-      try {
-        const replies = await client.conversations.replies({
-          channel,
-          ts: thread_ts,
-          oldest: thread_ts,
-        });
-        threadHistory = (replies.messages || []).map((m) => ({
-          role: m.bot_id ? "assistant" : "user",
-          text: m.text || "",
-        }));
-      } catch (_) {
-        // no thread history
-      }
-
       // Thread context includes channel_id when user opened Assistant from a channel (e.g. "this channel")
       const threadContext = await getThreadContext?.();
       const contextChannelId = threadContext?.channel_id || null;
@@ -199,26 +186,32 @@ const assistant = new Assistant({
         console.log("[slack-mcp-agent] No user token for channel access. Reinstall may be needed.");
       }
 
-      let slackContext = await buildSlackContext(client, {
-        userToken,
-        channelId: channel,
-        threadTs: thread_ts,
-        userMessage: text,
-        skipChannelAndThread: true, // we already have threadHistory
-        includeSearch: true,
-        contextChannelId, // channel user is viewing when they say "summarize this channel"
-        teamId: body?.team_id || context?.teamId || context?.team?.id,
-      });
+      const teamIdForContext = body?.team_id || context?.teamId || context?.team?.id;
 
-      if (needsUserToken) {
-        const reinstallNote = modelContextChannelAccessReinstallNote();
-        slackContext = slackContext
-          ? `${reinstallNote}\n\n${slackContext}`
-          : `\n--- Slack context ---\n${reinstallNote}\n--- End Slack context ---\n`;
-      }
+      // Fetch thread history, slack context, and tableau context concurrently.
+      // buildSlackContext uses skipChannelAndThread so it doesn't need the replies.
+      // buildTableauContext uses text as its primary signal; threadHint is supplemental.
+      const [repliesRes, slackContextResult, tableauBlock] = await Promise.all([
+        client.conversations.replies({ channel, ts: thread_ts, oldest: thread_ts }).catch(() => ({ messages: [] })),
+        buildSlackContext(client, {
+          userToken,
+          channelId: channel,
+          threadTs: thread_ts,
+          userMessage: text,
+          skipChannelAndThread: true,
+          includeSearch: true,
+          contextChannelId,
+          teamId: teamIdForContext,
+        }),
+        buildTableauContext(text, { tableauMcpBaseUrl }),
+      ]);
 
-      const threadHint = threadHistory.map((m) => m.text || "").join("\n");
-      const tableauBlock = await buildTableauContext(text, { threadHint, tableauMcpBaseUrl });
+      let threadHistory = (repliesRes.messages || []).map((m) => ({
+        role: m.bot_id ? "assistant" : "user",
+        text: m.text || "",
+      }));
+
+      let slackContext = slackContextResult;
       const tableauContext = tableauBlock.context;
 
       const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
@@ -226,8 +219,7 @@ const assistant = new Assistant({
       const teamId =
         body?.team_id ||
         body?.authorizations?.[0]?.team_id ||
-        context?.teamId ||
-        context?.team?.id ||
+        teamIdForContext ||
         null;
       const response = await getAiResponse({
         userMessage: text,
