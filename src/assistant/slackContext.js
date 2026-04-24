@@ -113,7 +113,7 @@ async function buildSlackContext(client, opts = {}) {
     channelId,
     threadTs,
     userMessage = "",
-    maxChannelMessages = 15,
+    maxChannelMessages = Number(process.env.SLACK_MAX_CHANNEL_MESSAGES) || 8,
     includeSearch = true,
     skipChannelAndThread = false,
     contextChannelId = null,

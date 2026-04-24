@@ -203,15 +203,18 @@ function resolveFinalAssistantText(text, uploadQueue) {
 }
 
 let _chatModel = null;
+let _fastChatModel = null;
 let _workflowModel = null;
 
-function createGenerativeModel(systemPromptText) {
+const TOOL_SIGNAL_RE = /tableau|canvas|datasource|dashboard|query|viz|view|workbook/i;
+
+function createGenerativeModel(systemPromptText, modelIdOverride) {
   const project = process.env.GOOGLE_CLOUD_PROJECT;
   const location =
     process.env.VERTEX_LOCATION ||
     process.env.GOOGLE_CLOUD_LOCATION ||
     "us-central1";
-  const modelId = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const modelId = modelIdOverride || process.env.GEMINI_MODEL || "gemini-2.5-flash";
   if (!project) {
     throw new Error("Missing GOOGLE_CLOUD_PROJECT. Set it in .env for Vertex/Gemini.");
   }
@@ -223,7 +226,7 @@ function createGenerativeModel(systemPromptText) {
       parts: [{ text: systemPromptText }],
     },
     generationConfig: {
-      maxOutputTokens: 2048,
+      maxOutputTokens: Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 1024,
       temperature: 0.7,
     },
   });
@@ -234,9 +237,26 @@ function getChatModel() {
   return _chatModel;
 }
 
+function getFastChatModel() {
+  const fastModelId = process.env.GEMINI_FAST_MODEL;
+  if (!fastModelId) return getChatModel();
+  if (!_fastChatModel) _fastChatModel = createGenerativeModel(SYSTEM_PROMPT, fastModelId);
+  return _fastChatModel;
+}
+
 function getWorkflowModel() {
   if (!_workflowModel) _workflowModel = createGenerativeModel(WORKFLOW_SYSTEM_PROMPT);
   return _workflowModel;
+}
+
+/**
+ * Select the appropriate model based on query complexity signals.
+ * Routes to a fast model (GEMINI_FAST_MODEL) for conversational queries with no tool indicators.
+ */
+function selectChatModel(userMessage) {
+  if (!process.env.GEMINI_FAST_MODEL) return getChatModel();
+  if (TOOL_SIGNAL_RE.test(userMessage)) return getChatModel();
+  return getFastChatModel();
 }
 
 function buildContents(threadHistory, userMessage, slackContext) {
@@ -298,7 +318,7 @@ async function getAiResponse({
     return aiReply("Send me a message and I'll respond.");
   }
 
-  const model = workflowStep ? getWorkflowModel() : getChatModel();
+  const model = workflowStep ? getWorkflowModel() : selectChatModel(userMessage);
   const contents = buildContents(threadHistory || [], userMessage.trim(), slackContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
@@ -363,34 +383,37 @@ async function getAiResponse({
         parts: modelParts,
       });
 
-      const responseParts = [];
-      for (const p of fcParts) {
-        const fc = p.functionCall;
-        const name = fc.name;
-        const args = fc.args && typeof fc.args === "object" ? { ...fc.args } : {};
-        let toolResult;
-        if (isTableauGeminiTool(name)) {
-          toolResult = await dispatchTableauTool(name, args, {
-            tableauMcpBaseUrl,
-            uploadQueue,
-            datasourceUrlByLuid,
-            viewUrlById,
-          });
-        } else if (useCanvasTools) {
-          toolResult = await dispatchCanvasTool(userToken, name, args, {
-            defaultChannelId: defaultCanvasChannelId || null,
-            teamId: teamId || null,
-          });
-        } else {
-          toolResult = { ok: false, error: "No handler for this tool in the current session." };
-        }
-        responseParts.push({
-          functionResponse: {
-            name,
-            response: { name, content: toolResult },
-          },
-        });
-      }
+      // Dispatch all tool calls in this round concurrently. JS is single-threaded so
+      // mutations to uploadQueue/datasourceUrlByLuid/viewUrlById are safe — only I/O overlaps.
+      const responseParts = await Promise.all(
+        fcParts.map(async (p) => {
+          const fc = p.functionCall;
+          const name = fc.name;
+          const args = fc.args && typeof fc.args === "object" ? { ...fc.args } : {};
+          let toolResult;
+          if (isTableauGeminiTool(name)) {
+            toolResult = await dispatchTableauTool(name, args, {
+              tableauMcpBaseUrl,
+              uploadQueue,
+              datasourceUrlByLuid,
+              viewUrlById,
+            });
+          } else if (useCanvasTools) {
+            toolResult = await dispatchCanvasTool(userToken, name, args, {
+              defaultChannelId: defaultCanvasChannelId || null,
+              teamId: teamId || null,
+            });
+          } else {
+            toolResult = { ok: false, error: "No handler for this tool in the current session." };
+          }
+          return {
+            functionResponse: {
+              name,
+              response: { name, content: toolResult },
+            },
+          };
+        })
+      );
 
       working.push({ role: "user", parts: responseParts });
     }
