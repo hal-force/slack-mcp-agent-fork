@@ -188,10 +188,9 @@ const assistant = new Assistant({
 
       const teamIdForContext = body?.team_id || context?.teamId || context?.team?.id;
 
-      // Fetch thread history, slack context, and tableau context concurrently.
-      // buildSlackContext uses skipChannelAndThread so it doesn't need the replies.
-      // buildTableauContext uses text as its primary signal; threadHint is supplemental.
-      const [repliesRes, slackContextResult, tableauBlock] = await Promise.all([
+      // Fetch thread history and slack context concurrently — buildSlackContext uses
+      // skipChannelAndThread so it doesn't depend on the replies result.
+      const [repliesRes, slackContextResult] = await Promise.all([
         client.conversations.replies({ channel, ts: thread_ts, oldest: thread_ts }).catch(() => ({ messages: [] })),
         buildSlackContext(client, {
           userToken,
@@ -203,7 +202,6 @@ const assistant = new Assistant({
           contextChannelId,
           teamId: teamIdForContext,
         }),
-        buildTableauContext(text, { tableauMcpBaseUrl }),
       ]);
 
       let threadHistory = (repliesRes.messages || []).map((m) => ({
@@ -212,6 +210,11 @@ const assistant = new Assistant({
       }));
 
       let slackContext = slackContextResult;
+
+      // threadHint lets buildTableauContext match datasource names from prior thread messages
+      // to LUIDs for metadata pre-fetch — must come after replies are resolved.
+      const threadHint = threadHistory.map((m) => m.text || "").join("\n");
+      const tableauBlock = await buildTableauContext(text, { threadHint, tableauMcpBaseUrl });
       const tableauContext = tableauBlock.context;
 
       const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
