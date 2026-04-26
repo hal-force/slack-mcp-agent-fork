@@ -13,6 +13,24 @@ slack-mcp-agent is a Slack app built with the Bolt framework and Prisma for data
 - **Slack context**: Builds grounding context from the **Slack MCP** server (`mcp.slack.com`, Streamable HTTP + session) when a **user token** is present, with **Web API** fallback for channel/thread history and search. Requires MCP enabled for the Slack app under Agents & AI Apps when using MCP.
 - **Tableau MCP** (optional): When `TABLEAU_MCP_SERVER` is set, injects compact tool names, can call `list-datasources`, matches user/thread intent for analytics, fetches **`get-datasource-metadata`** when a published source matches, and respects `TABLEAU_MCP_LIST_DATASOURCES` / `TABLEAU_MCP_VERBOSE_TOOLS`.
 - **Slack canvases** (user token): Gemini **function calling** drives `slack_canvas_create`, `slack_canvas_read`, and `slack_canvas_update` using the installing user’s **`xoxp`** token (`canvases:read` / `canvases:write`). Supports **create**, **read** (section outline via `canvases.sections.lookup`), and **update** modes: append end, insert start, replace whole document, and **section-targeted** `insert_after` / `insert_before` / `replace_section` using `section_id` from read. Tool results include **`canvas_url`** and **`slack_mrkdwn_link_example`** (`https://app.slack.com/client/{team}/{canvas}`) so replies can use `<URL|label>` links. Canvas **delete** is not exposed.
+- **Model routing**: Routes conversational queries to a faster model (`GEMINI_FAST_MODEL`) and tool-heavy or analytics queries to the full model (`GEMINI_MODEL`), balancing speed and reasoning quality per request.
+
+### Agent Skills
+
+The assistant exposes the following skills via Gemini function calling:
+
+| Skill | Tools | When used |
+|---|---|---|
+| **Slack canvas — create** | `slack_canvas_create` | User asks to create a new canvas or doc |
+| **Slack canvas — read** | `slack_canvas_read` | User asks to inspect, list sections, or locate a canvas |
+| **Slack canvas — update** | `slack_canvas_update` | User asks to edit, append, or rewrite a canvas section |
+| **Tableau datasource list** | `tableau_list_datasources` | Message or thread looks analytics-related; returns published source names and LUIDs |
+| **Tableau datasource metadata** | `tableau_get_datasource_metadata` | A datasource name matches the user’s message; returns exact field captions for queries |
+| **Tableau view list** | `tableau_list_views` | User asks for a dashboard, chart, or visual; supports REST filter on name/workbook |
+| **Tableau view image** | `tableau_get_view_image` | After locating a view; renders a PNG/SVG snapshot uploaded to the Slack thread |
+| **Tableau data query** | `tableau_query_datasource` | User asks for precise numbers; executes a VizQL query with aggregations and filters |
+
+Canvas skills require a user OAuth token (`xoxp`). Tableau skills require `TABLEAU_MCP_SERVER` to be configured. The model selects and chains tools automatically across up to five rounds per message.
 
 ---
 
