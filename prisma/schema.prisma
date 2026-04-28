@@ -34,8 +34,9 @@ model UserPreference {
   enterpriseId  String?
   teamId        String?
   userId        String
-  tableauMcpUrl String? // null = use host default TABLEAU_MCP_SERVER
-  createdAt     DateTime @default(now())
+  tableauMcpUrl  String?  // null = use host default TABLEAU_MCP_SERVER
+  internetSearch Boolean  @default(false)
+  createdAt      DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([teamId, userId])

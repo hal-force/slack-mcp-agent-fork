@@ -305,6 +305,7 @@ function getFunctionCallParts(parts) {
  * @param {string} [opts.tableauMcpBaseUrl] - optional per-user Tableau MCP base URL override
  * @param {Record<string, string>} [opts.datasourceUrls] - LUID (lowercase) → Tableau browse URL from buildTableauContext
  * @param {boolean} [opts.workflowStep] - if true, use workflow-only system prompt and disable all tools
+ * @param {boolean} [opts.useInternetSearch] - if true, enable Gemini Google Search grounding
  * @returns {Promise<{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }> }>}
  */
 async function getAiResponse({
@@ -317,6 +318,7 @@ async function getAiResponse({
   tableauMcpBaseUrl,
   datasourceUrls,
   workflowStep = false,
+  useInternetSearch = false,
 }) {
   if (!userMessage || !userMessage.trim()) {
     return aiReply("Send me a message and I'll respond.");
@@ -331,8 +333,12 @@ async function getAiResponse({
   const mergedDeclarations = [];
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
-  const tools =
-    mergedDeclarations.length > 0 ? [{ functionDeclarations: mergedDeclarations }] : undefined;
+
+  // Build tools list: Google Search grounding (when enabled) + function declarations
+  const toolsList = [];
+  if (useInternetSearch && !workflowStep) toolsList.push({ googleSearch: {} });
+  if (mergedDeclarations.length > 0) toolsList.push({ functionDeclarations: mergedDeclarations });
+  const tools = toolsList.length > 0 ? toolsList : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }

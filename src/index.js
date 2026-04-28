@@ -16,7 +16,7 @@ const { buildSlackContext } = require("./assistant/slackContext");
 const { buildTableauContext } = require("./assistant/tableauMcpClient");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
-const { getTableauMcpUrlOverride } = require("./preferences/userPreferences");
+const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("./preferences/userPreferences");
 const { registerAppHome } = require("./slack/appHome");
 const { registerAskAiWorkflowStep } = require("./slack/workflowAskAi");
 const { getUserLocaleContext } = require("./assistant/userLocale");
@@ -60,9 +60,10 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install,
       userId: body?.user_id || event?.user || body?.authorizations?.[0]?.user_id,
     };
-    const [installation, tableauMcpBaseUrl] = await Promise.all([
+    const [installation, tableauMcpBaseUrl, useInternetSearch] = await Promise.all([
       getInstallation(installQuery),
       getTableauMcpUrlOverride(installQuery),
+      getInternetSearchEnabled(installQuery),
     ]);
     const [slackContext, tableauBlock, localeContext] = await Promise.all([
       buildSlackContext(client, {
@@ -86,6 +87,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       teamId,
       tableauMcpBaseUrl,
       datasourceUrls: tableauBlock.datasourceUrls,
+      useInternetSearch,
     });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
@@ -160,9 +162,10 @@ const assistant = new Assistant({
       isEnterpriseInstall: !!body?.is_enterprise_install || !!body?.authorizations?.[0]?.is_enterprise_install || !!context?.isEnterpriseInstall,
       userId: body?.user_id || body?.event?.user || body?.authorizations?.[0]?.user_id || context?.userId || message?.user,
     };
-    const [installation, tableauMcpBaseUrl] = await Promise.all([
+    const [installation, tableauMcpBaseUrl, useInternetSearch] = await Promise.all([
       getInstallation(installQuery),
       getTableauMcpUrlOverride(installQuery),
+      getInternetSearchEnabled(installQuery),
     ]);
 
     const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
@@ -236,6 +239,7 @@ const assistant = new Assistant({
         teamId,
         tableauMcpBaseUrl,
         datasourceUrls: tableauBlock.datasourceUrls,
+        useInternetSearch,
       });
 
       const replyText =
