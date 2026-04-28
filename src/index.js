@@ -19,6 +19,7 @@ const { getInstallUrl } = require("./install-kit/env");
 const { getTableauMcpUrlOverride } = require("./preferences/userPreferences");
 const { registerAppHome } = require("./slack/appHome");
 const { registerAskAiWorkflowStep } = require("./slack/workflowAskAi");
+const { getUserLocaleContext } = require("./assistant/userLocale");
 const { mrkdwnStringToBlocks } = require("./slack/mrkdwnToBlocks");
 const { postThreadFileUploads } = require("./slack/postThreadFileUploads");
 const {
@@ -63,7 +64,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       getInstallation(installQuery),
       getTableauMcpUrlOverride(installQuery),
     ]);
-    const [slackContext, tableauBlock] = await Promise.all([
+    const [slackContext, tableauBlock, localeContext] = await Promise.all([
       buildSlackContext(client, {
         userToken: installation?.user?.token,
         channelId: event.channel,
@@ -71,9 +72,10 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
         userMessage,
       }),
       buildTableauContext(userMessage, { tableauMcpBaseUrl }),
+      getUserLocaleContext(client, installQuery.userId),
     ]);
     const tableauContext = tableauBlock.context;
-    const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
+    const contextForAi = [localeContext, slackContext, tableauContext].filter(Boolean).join("\n");
     const teamId =
       body?.team_id || body?.authorizations?.[0]?.team_id || event?.team || event?.team_id || null;
     const response = await getAiResponse({
@@ -190,7 +192,7 @@ const assistant = new Assistant({
 
       // Fetch thread history and slack context concurrently — buildSlackContext uses
       // skipChannelAndThread so it doesn't depend on the replies result.
-      const [repliesRes, slackContextResult] = await Promise.all([
+      const [repliesRes, slackContextResult, localeContext] = await Promise.all([
         client.conversations.replies({ channel, ts: thread_ts, oldest: thread_ts }).catch(() => ({ messages: [] })),
         buildSlackContext(client, {
           userToken,
@@ -202,6 +204,7 @@ const assistant = new Assistant({
           contextChannelId,
           teamId: teamIdForContext,
         }),
+        getUserLocaleContext(client, installQuery.userId),
       ]);
 
       let threadHistory = (repliesRes.messages || []).map((m) => ({
@@ -217,7 +220,7 @@ const assistant = new Assistant({
       const tableauBlock = await buildTableauContext(text, { threadHint, tableauMcpBaseUrl });
       const tableauContext = tableauBlock.context;
 
-      const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
+      const contextForAi = [localeContext, slackContext, tableauContext].filter(Boolean).join("\n");
 
       const teamId =
         body?.team_id ||

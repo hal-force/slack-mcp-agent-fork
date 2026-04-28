@@ -27,6 +27,7 @@ const WORKFLOW_POST_CHANNEL_INPUT_NAME =
   process.env.SLACK_WORKFLOW_ASK_AI_POST_CHANNEL_INPUT || "b504c1";
 
 const { buildSlackContext, parseChannelRefs } = require("../assistant/slackContext");
+const { getUserLocaleContext } = require("../assistant/userLocale");
 const { buildTableauContext } = require("../assistant/tableauMcpClient");
 const { getInstallation } = require("../install-kit/installationStore");
 const { getInstallUrl } = require("../install-kit/env");
@@ -319,9 +320,10 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
         }
 
         const installQuery = workflowInstallQuery(body, event);
-        const [installation, tableauMcpBaseUrl] = await Promise.all([
+        const [installation, tableauMcpBaseUrl, localeContext] = await Promise.all([
           getInstallation(installQuery),
           getTableauMcpUrlOverride(installQuery),
+          getUserLocaleContext(client, installQuery.userId),
         ]);
 
         const teamId =
@@ -377,7 +379,7 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
 
         const tableauBlock = await buildTableauContext(userMessage, { tableauMcpBaseUrl });
         const tableauContext = tableauBlock.context;
-        const contextForAi = [slackContext, tableauContext].filter(Boolean).join("\n");
+        const contextForAi = [localeContext, slackContext, tableauContext].filter(Boolean).join("\n");
 
         const logPayload = {
           tag: "workflow_ask_ai",
