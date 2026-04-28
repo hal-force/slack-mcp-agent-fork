@@ -75,7 +75,12 @@ async function getInternetSearchEnabled(installQuery) {
     teamId: installQuery.teamId ?? null,
     userId: installQuery.userId ?? null,
   });
-  if (!id) return false;
+  if (!id) {
+    if (process.env.SLACK_CONTEXT_DEBUG === "1") {
+      console.warn("[userPreferences] getInternetSearchEnabled: no userId — returning false");
+    }
+    return false;
+  }
   const row = await getPrisma().userPreference.findUnique({ where: { id } });
   return row?.internetSearch === true;
 }
