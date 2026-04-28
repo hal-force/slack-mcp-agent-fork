@@ -3,10 +3,13 @@ const { getInstallUrl } = require("../install-kit/env");
 const {
   getTableauMcpUrlOverride,
   setTableauMcpUrlOverride,
+  getInternetSearchEnabled,
+  setInternetSearchEnabled,
   installQueryFromInteractiveBody,
 } = require("../preferences/userPreferences");
 
 const ACTION_OPEN_TABLEAU_SETTINGS = "open_tableau_mcp_settings";
+const ACTION_TOGGLE_INTERNET_SEARCH = "toggle_internet_search";
 const ACTION_NAV_HOME = "prism_app_home_nav_home";
 const ACTION_NAV_SETTINGS = "prism_app_home_nav_settings";
 const VIEW_TABLEAU_MCP_MODAL = "tableau_mcp_url_modal";
@@ -139,7 +142,10 @@ async function buildWelcomeBlocks(installQuery, installUrl) {
 }
 
 async function buildSettingsBlocks(installQuery, installUrl) {
-  const override = await getTableauMcpUrlOverride(installQuery);
+  const [override, internetSearchEnabled] = await Promise.all([
+    getTableauMcpUrlOverride(installQuery),
+    getInternetSearchEnabled(installQuery),
+  ]);
 
   return [
     {
@@ -169,6 +175,29 @@ async function buildSettingsBlocks(installQuery, installUrl) {
         text: { type: "plain_text", text: "Set URL", emoji: true },
         action_id: ACTION_OPEN_TABLEAU_SETTINGS,
         value: encodeTableauUrlForButtonValue(override || ""),
+      },
+    },
+    { type: "divider" },
+    {
+      type: "header",
+      text: { type: "plain_text", text: "Search Settings", emoji: true },
+      level: 2,
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*Internet Search* — ${internetSearchEnabled ? ":white_check_mark: Enabled" : ":white_circle: Disabled"}\nAllow the assistant to supplement answers with live web results when Slack and Tableau context isn't sufficient.`,
+      },
+      accessory: {
+        type: "button",
+        text: {
+          type: "plain_text",
+          text: internetSearchEnabled ? "Disable" : "Enable",
+          emoji: true,
+        },
+        action_id: ACTION_TOGGLE_INTERNET_SEARCH,
+        style: internetSearchEnabled ? "danger" : "primary",
       },
     },
     { type: "divider" },
@@ -249,6 +278,18 @@ function registerAppHome(app) {
       await publishAppHome(client, body.user.id, teamCtxFromInteractiveBody(body), "settings");
     } catch (err) {
       logger.error("prism_nav_settings error", err);
+    }
+  });
+
+  app.action(ACTION_TOGGLE_INTERNET_SEARCH, async ({ ack, body, client, logger }) => {
+    await ack();
+    try {
+      const iq = installQueryFromInteractiveBody(body);
+      const current = await getInternetSearchEnabled(iq);
+      await setInternetSearchEnabled(iq, !current);
+      await publishAppHome(client, body.user.id, teamCtxFromInteractiveBody(body), "settings");
+    } catch (err) {
+      logger.error("toggle internet search error", err);
     }
   });
 

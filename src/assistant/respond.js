@@ -38,7 +38,11 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 - Ground numbers in tool output only. If tools error or return empty, say so—do not invent figures.
 
 5. Error Handling
-- If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.`;
+- If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.
+
+6. Locale & Units
+- When the context includes a *User locale* block, always use the unit system it specifies for all measurements (Celsius vs Fahrenheit, km vs miles, kg vs pounds, etc.).
+- If no locale block is present, default to metric units unless the user explicitly asks otherwise.`;
 
 /** Reserved for a restricted workflow mode; the live Ask AI step uses the main chat system prompt and tools. */
 const WORKFLOW_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, answering a task from Slack Workflow Builder.
@@ -301,6 +305,7 @@ function getFunctionCallParts(parts) {
  * @param {string} [opts.tableauMcpBaseUrl] - optional per-user Tableau MCP base URL override
  * @param {Record<string, string>} [opts.datasourceUrls] - LUID (lowercase) → Tableau browse URL from buildTableauContext
  * @param {boolean} [opts.workflowStep] - if true, use workflow-only system prompt and disable all tools
+ * @param {boolean} [opts.useInternetSearch] - if true, enable Gemini Google Search grounding
  * @returns {Promise<{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }> }>}
  */
 async function getAiResponse({
@@ -313,6 +318,7 @@ async function getAiResponse({
   tableauMcpBaseUrl,
   datasourceUrls,
   workflowStep = false,
+  useInternetSearch = false,
 }) {
   if (!userMessage || !userMessage.trim()) {
     return aiReply("Send me a message and I'll respond.");
@@ -327,8 +333,12 @@ async function getAiResponse({
   const mergedDeclarations = [];
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
-  const tools =
-    mergedDeclarations.length > 0 ? [{ functionDeclarations: mergedDeclarations }] : undefined;
+
+  // Build tools list: Google Search grounding (when enabled) + function declarations
+  const toolsList = [];
+  if (useInternetSearch && !workflowStep) toolsList.push({ googleSearch: {} });
+  if (mergedDeclarations.length > 0) toolsList.push({ functionDeclarations: mergedDeclarations });
+  const tools = toolsList.length > 0 ? toolsList : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }

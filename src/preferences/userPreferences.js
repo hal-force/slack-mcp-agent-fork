@@ -65,6 +65,43 @@ async function setTableauMcpUrlOverride(installQuery, url) {
 }
 
 /**
+ * @param {{ teamId?: string|null, enterpriseId?: string|null, isEnterpriseInstall?: boolean, userId?: string|null }} installQuery
+ * @returns {Promise<boolean>}
+ */
+async function getInternetSearchEnabled(installQuery) {
+  const id = userPreferenceId({
+    isEnterpriseInstall: installQuery.isEnterpriseInstall,
+    enterpriseId: installQuery.enterpriseId ?? null,
+    teamId: installQuery.teamId ?? null,
+    userId: installQuery.userId ?? null,
+  });
+  if (!id) return false;
+  const row = await getPrisma().userPreference.findUnique({ where: { id } });
+  return row?.internetSearch === true;
+}
+
+/**
+ * @param {{ teamId?: string|null, enterpriseId?: string|null, isEnterpriseInstall?: boolean, userId?: string|null }} installQuery
+ * @param {boolean} enabled
+ */
+async function setInternetSearchEnabled(installQuery, enabled) {
+  const userId = installQuery.userId ?? null;
+  if (!userId) throw new Error("userId is required");
+
+  const isEnterpriseInstall = !!installQuery.isEnterpriseInstall;
+  const enterpriseId = installQuery.enterpriseId ?? null;
+  const teamId = installQuery.teamId ?? null;
+  const id = userPreferenceId({ isEnterpriseInstall, enterpriseId, teamId, userId });
+  if (!id) throw new Error("teamId or enterpriseId is required for user preferences");
+
+  await getPrisma().userPreference.upsert({
+    where: { id },
+    create: { id, enterpriseId, teamId, userId, internetSearch: !!enabled },
+    update: { internetSearch: !!enabled },
+  });
+}
+
+/**
  * @param {import("@slack/bolt").SlackAction | import("@slack/bolt").SlackViewAction} body
  */
 function installQueryFromInteractiveBody(body) {
@@ -80,5 +117,7 @@ module.exports = {
   userPreferenceId,
   getTableauMcpUrlOverride,
   setTableauMcpUrlOverride,
+  getInternetSearchEnabled,
+  setInternetSearchEnabled,
   installQueryFromInteractiveBody,
 };
