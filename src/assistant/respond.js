@@ -337,11 +337,12 @@ async function getAiResponse({
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
 
-  // Build tools list: Google Search grounding (when enabled) + function declarations
-  const toolsList = [];
-  if (useInternetSearch && !workflowStep) toolsList.push({ googleSearch: {} });
-  if (mergedDeclarations.length > 0) toolsList.push({ functionDeclarations: mergedDeclarations });
-  const tools = toolsList.length > 0 ? toolsList : undefined;
+  // Merge googleSearch and functionDeclarations into a single Tool object.
+  // Vertex AI rejects requests where they appear as separate Tool entries.
+  const toolEntry = {};
+  if (useInternetSearch && !workflowStep) toolEntry.googleSearch = {};
+  if (mergedDeclarations.length > 0) toolEntry.functionDeclarations = mergedDeclarations;
+  const tools = Object.keys(toolEntry).length > 0 ? [toolEntry] : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
@@ -437,9 +438,7 @@ async function getAiResponse({
         : "I hit the limit for tool steps in one turn. Please narrow your request.";
     return aiReply(limitMsg, uploadQueue);
   } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Vertex/Gemini error:", err.message || err);
-    }
+    console.error("Vertex/Gemini error:", err.message || err);
     const msg = err.message || String(err);
     if (msg.includes("GOOGLE_CLOUD_PROJECT") || msg.includes("Could not load the default credentials")) {
       return aiReply(
