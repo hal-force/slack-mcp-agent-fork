@@ -65,6 +65,9 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       getTableauMcpUrlOverride(installQuery),
       getInternetSearchEnabled(installQuery),
     ]);
+    if (process.env.SLACK_CONTEXT_DEBUG === "1") {
+      console.log(`[slack-mcp-agent] app_mention useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
+    }
     const [slackContext, tableauBlock, localeContext] = await Promise.all([
       buildSlackContext(client, {
         userToken: installation?.user?.token,
@@ -167,6 +170,9 @@ const assistant = new Assistant({
       getTableauMcpUrlOverride(installQuery),
       getInternetSearchEnabled(installQuery),
     ]);
+    if (process.env.SLACK_CONTEXT_DEBUG === "1") {
+      console.log(`[slack-mcp-agent] assistant useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
+    }
 
     const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
     if (hasChannelRefs && process.env.SLACK_CONTEXT_DEBUG === "1") {
