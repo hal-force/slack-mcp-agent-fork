@@ -42,7 +42,7 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 5. Error Handling
 - If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.
 - If the user asks about real-time data (weather, live prices, breaking news, current events) and you do not have a web search tool available, do NOT just say you cannot help. Instead reply: "I don't have real-time web access right now. You can enable *Internet Search* in *App Home → Settings* so I can look this up for you."
-- Internet Search and canvas/Tableau tools cannot be active in the same request (platform limitation). When canvas or Tableau tools are loaded, Internet Search is automatically paused for that turn — even if the setting is on. If the user asks a web-search question in a session where canvas or Tableau tools are active, let them know: "Internet Search is paused this turn because canvas or Tableau tools are active. Open a new chat thread without referencing canvas or data tools for live web results."
+- Internet Search and canvas/Tableau query tools are mutually exclusive (platform constraint). When Internet Search is enabled, canvas create/edit and live Tableau queries are unavailable for that turn. If the user asks to create a canvas or run a Tableau query while Internet Search is on, tell them: "Canvas and Tableau query tools are paused while *Internet Search* is active — disable it in *App Home → Settings* to use them."
 
 6. Locale & Units
 - When the context includes a *User locale* block, always use the unit system it specifies for all measurements (Celsius vs Fahrenheit, km vs miles, kg vs pounds, etc.).
@@ -332,19 +332,17 @@ async function getAiResponse({
   const contents = buildContents(threadHistory || [], userMessage.trim(), slackContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
-  const useCanvasTools = !workflowStep && !!(userToken && String(userToken).trim());
-  const useTableauTools = !workflowStep && tableauQueryToolsEnabled({ tableauMcpBaseUrl });
+  // Vertex AI Tool proto oneof: googleSearch and functionDeclarations cannot coexist.
+  // Internet search takes priority when explicitly enabled — canvas and Tableau query
+  // tools are suppressed for that turn so the user gets live web results.
+  const useCanvasTools = !workflowStep && !useInternetSearch && !!(userToken && String(userToken).trim());
+  const useTableauTools = !workflowStep && !useInternetSearch && tableauQueryToolsEnabled({ tableauMcpBaseUrl });
   const mergedDeclarations = [];
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
 
-  // Vertex AI Tool proto uses a oneof for tool_type: googleSearch and functionDeclarations
-  // cannot coexist in the same request. When function declarations are present (canvas /
-  // Tableau tools), they take priority. googleSearch is used only when no declarations
-  // are active — i.e., a pure web-knowledge query with no workspace tool needs.
   const toolsList = [];
-  const useGoogleSearch = useInternetSearch && !workflowStep && mergedDeclarations.length === 0;
-  if (useGoogleSearch) toolsList.push({ googleSearch: {} });
+  if (useInternetSearch && !workflowStep) toolsList.push({ googleSearch: {} });
   if (mergedDeclarations.length > 0) toolsList.push({ functionDeclarations: mergedDeclarations });
   const tools = toolsList.length > 0 ? toolsList : undefined;
   const toolConfig =
