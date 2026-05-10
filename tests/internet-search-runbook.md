@@ -1,8 +1,8 @@
 # Internet Search Toggle — End-to-End Test Runbook
 
 Tests the full user-facing behaviour of the per-user Internet Search toggle: opt-in/out,
-context priority, graceful degradation when off, and the tool-merging fix that prevents
-Vertex AI from rejecting requests that combine `googleSearch` with canvas/Tableau tools.
+context priority, graceful degradation when off, and the ability to combine web search
+grounding with canvas and Tableau tools in the same turn.
 
 ---
 
@@ -78,6 +78,7 @@ What's the weather in Nairobi right now?
 **Expected Heroku log:**
 ```
 [slack-mcp-agent] assistant useInternetSearch=true userId=U…
+[slack-mcp-agent] tools=[{"googleSearch":{}},...] useCanvasTools=true useTableauTools=false
 ```
 
 ---
@@ -122,28 +123,30 @@ web sources for something clearly in the workspace.
 
 ---
 
-### TC-5 — Canvas + Internet Search together (tool-merging fix validation)
+### TC-5 — Canvas + Internet Search together (both active simultaneously)
 
 **Setup:** Internet Search enabled. User has a user token (canvas tools active).
 
 **Prompt:**
 ```
-What's today's date and create a canvas summarising it
+What's the weather in Nairobi right now and create a canvas summarising it
 ```
 
 **Expected response:**
-- States today's date (may use web search or model knowledge)
-- Creates a canvas OR explains the canvas action taken
+- Contains actual current weather data for Nairobi (from Google Search grounding)
+- Creates a canvas with that information
 - NO "Something went wrong on my side"
+- NO message saying canvas tools are paused or unavailable
 
 **Expected log:**
 ```
 [slack-mcp-agent] assistant useInternetSearch=true userId=U…
+[slack-mcp-agent] tools=[{"googleSearch":{}},{"functionDeclarations":[...]}] useCanvasTools=true useTableauTools=false
 ```
 
-> This is the regression test for the Vertex AI tool-merging bug. Previously, having both
-> `{ googleSearch: {} }` and `{ functionDeclarations: [...] }` as separate Tool entries
-> caused a 400 error. They are now correctly merged into one Tool object.
+> Validates that `googleSearch` and `functionDeclarations` coexist as separate entries in the
+> tools array — the Vertex AI `oneof` constraint is per Tool object, not across the array.
+> Both grounding and canvas tools are active in the same turn.
 
 ---
 
@@ -247,7 +250,7 @@ Visual validation — no Heroku logs needed.
 | TC-2 | Toggle ON — weather | Actual Nairobi weather in response |
 | TC-3 | Toggle ON — knowledge | Correct Champions League answer |
 | TC-4 | Slack context priority | Slack-sourced answer, no irrelevant web citations |
-| TC-5 | Canvas + search | Canvas action + no "went wrong" error |
+| TC-5 | Canvas + search simultaneously | Real weather data AND canvas created; no error |
 | TC-6 | Persistence | Toggle ON persists across new thread |
 | TC-7 | Toggle OFF again | Refusal message returns; no weather data |
 | TC-8 | @mention path | Correct live data in channel reply |

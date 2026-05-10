@@ -42,7 +42,7 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 5. Error Handling
 - If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.
 - If the user asks about real-time data (weather, live prices, breaking news, current events) and you do not have a web search tool available, do NOT just say you cannot help. Instead reply: "I don't have real-time web access right now. You can enable *Internet Search* in *App Home → Settings* so I can look this up for you."
-- Internet Search and canvas/Tableau query tools are mutually exclusive (platform constraint). When Internet Search is enabled, canvas create/edit and live Tableau queries are unavailable for that turn. If the user asks to create a canvas or run a Tableau query while Internet Search is on, tell them: "Canvas and Tableau query tools are paused while *Internet Search* is active — disable it in *App Home → Settings* to use them."
+- Internet Search and canvas/Tableau tools can be used together in the same turn. For example, you can search the web for current information AND create a canvas summarizing it in one reply.
 
 6. Locale & Units
 - When the context includes a *User locale* block, always use the unit system it specifies for all measurements (Celsius vs Fahrenheit, km vs miles, kg vs pounds, etc.).
@@ -344,11 +344,11 @@ async function getAiResponse({
   const contents = buildContents(threadHistory || [], userMessage.trim(), effectiveSlackContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
-  // Vertex AI Tool proto oneof: googleSearch and functionDeclarations cannot coexist.
-  // Internet search takes priority when explicitly enabled — canvas and Tableau query
-  // tools are suppressed for that turn so the user gets live web results.
-  const useCanvasTools = !workflowStep && !useInternetSearch && !!(userToken && String(userToken).trim());
-  const useTableauTools = !workflowStep && !useInternetSearch && tableauQueryToolsEnabled({ tableauMcpBaseUrl });
+  // Vertex AI Tool proto oneof applies within a single Tool object, not across the array.
+  // googleSearch and functionDeclarations can coexist as separate Tool entries — the model
+  // can use web search grounding AND call canvas/Tableau tools in the same turn.
+  const useCanvasTools = !workflowStep && !!(userToken && String(userToken).trim());
+  const useTableauTools = !workflowStep && tableauQueryToolsEnabled({ tableauMcpBaseUrl });
   const mergedDeclarations = [];
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
