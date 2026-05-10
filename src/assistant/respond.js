@@ -19,9 +19,11 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 - Mentions: Keep <@USER_ID> and <#CHANNEL_ID> exactly as provided.
 - Structure: Put a blank line between major sections (after each ALL CAPS title line and between distinct topics) so replies render with clear separation in Slack.
 
-2. Handling Context (Slack & Tableau)
-- Slack Context: Prioritize provided channel messages/threads over general knowledge. If context is empty, state: "I don't see any recent messages for this."
-- Citations: Use <URL|[1]> for external links.
+2. Handling Context — Priority Order
+- FIRST — Slack workspace: The Slack context block (channel messages, threads, search results) is your primary source. Always answer from it when relevant. If Slack context is present but incomplete, say what you found before noting the gap. If context is entirely empty, state: "I don’t see any recent messages for this."
+- SECOND — Tableau data: For analytics questions, use Tableau tools (list datasources, metadata, query, view image) as the secondary source.
+- THIRD — Internet Search: Only invoke web search when (a) Slack and Tableau sources genuinely cannot answer the question, or (b) the user explicitly asks for current events, public documentation, or knowledge that wouldn’t exist in the workspace. Never use web search to supplement or second-guess a Slack/Tableau answer that is already complete.
+- Citations: Use <URL|[1]> for external links (web results or Tableau URLs).
 - Tableau: Use exact field names from metadata. If metadata is present, explain it immediately—do not ask the user for permission to "fetch" it. If the context includes *Closest published data sources* with scores, map the user’s wording to the best LUID or confirm with them before calling metadata/query tools. If data is missing, suggest specific metrics they should ask for.
 
 3. Slack Canvas Operations
@@ -38,7 +40,12 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 - Ground numbers in tool output only. If tools error or return empty, say so—do not invent figures.
 
 5. Error Handling
-- If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.`;
+- If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.
+- If the user asks about real-time data (weather, live prices, breaking news, current events) and you do not have a web search tool available, do NOT just say you cannot help. Instead reply: "I don't have real-time web access right now. You can enable *Internet Search* in *App Home → Settings* so I can look this up for you."
+
+6. Locale & Units
+- When the context includes a *User locale* block, always use the unit system it specifies for all measurements (Celsius vs Fahrenheit, km vs miles, kg vs pounds, etc.).
+- If no locale block is present, default to metric units unless the user explicitly asks otherwise.`;
 
 /** Reserved for a restricted workflow mode; the live Ask AI step uses the main chat system prompt and tools. */
 const WORKFLOW_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, answering a task from Slack Workflow Builder.
@@ -301,6 +308,7 @@ function getFunctionCallParts(parts) {
  * @param {string} [opts.tableauMcpBaseUrl] - optional per-user Tableau MCP base URL override
  * @param {Record<string, string>} [opts.datasourceUrls] - LUID (lowercase) → Tableau browse URL from buildTableauContext
  * @param {boolean} [opts.workflowStep] - if true, use workflow-only system prompt and disable all tools
+ * @param {boolean} [opts.useInternetSearch] - if true, enable Gemini Google Search grounding
  * @returns {Promise<{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }> }>}
  */
 async function getAiResponse({
@@ -313,6 +321,7 @@ async function getAiResponse({
   tableauMcpBaseUrl,
   datasourceUrls,
   workflowStep = false,
+  useInternetSearch = false,
 }) {
   if (!userMessage || !userMessage.trim()) {
     return aiReply("Send me a message and I'll respond.");
@@ -327,8 +336,13 @@ async function getAiResponse({
   const mergedDeclarations = [];
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
-  const tools =
-    mergedDeclarations.length > 0 ? [{ functionDeclarations: mergedDeclarations }] : undefined;
+
+  // Merge googleSearch and functionDeclarations into a single Tool object.
+  // Vertex AI rejects requests where they appear as separate Tool entries.
+  const toolEntry = {};
+  if (useInternetSearch && !workflowStep) toolEntry.googleSearch = {};
+  if (mergedDeclarations.length > 0) toolEntry.functionDeclarations = mergedDeclarations;
+  const tools = Object.keys(toolEntry).length > 0 ? [toolEntry] : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
@@ -424,9 +438,7 @@ async function getAiResponse({
         : "I hit the limit for tool steps in one turn. Please narrow your request.";
     return aiReply(limitMsg, uploadQueue);
   } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Vertex/Gemini error:", err.message || err);
-    }
+    console.error("Vertex/Gemini error:", err.message || err);
     const msg = err.message || String(err);
     if (msg.includes("GOOGLE_CLOUD_PROJECT") || msg.includes("Could not load the default credentials")) {
       return aiReply(
