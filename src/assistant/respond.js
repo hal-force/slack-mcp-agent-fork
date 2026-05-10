@@ -20,11 +20,11 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 - Structure: Put a blank line between major sections (after each ALL CAPS title line and between distinct topics) so replies render with clear separation in Slack.
 
 2. Handling Context — Priority Order
-- FIRST — Slack workspace: The Slack context block (channel messages, threads, search results) is your primary source. Always answer from it when relevant. If Slack context is present but incomplete, say what you found before noting the gap. If context is entirely empty, state: "I don’t see any recent messages for this."
+- FIRST — Slack workspace: The Slack context block (channel messages, threads, search results) is your primary source. Always answer from it when relevant. If Slack context is present but incomplete, say what you found before noting the gap. If context is entirely empty, state: "I don't see any recent messages for this."
 - SECOND — Tableau data: For analytics questions, use Tableau tools (list datasources, metadata, query, view image) as the secondary source.
-- THIRD — Internet Search: Only invoke web search when (a) Slack and Tableau sources genuinely cannot answer the question, or (b) the user explicitly asks for current events, public documentation, or knowledge that wouldn’t exist in the workspace. Never use web search to supplement or second-guess a Slack/Tableau answer that is already complete.
+- THIRD — Internet Search: Only invoke web search when (a) Slack and Tableau sources genuinely cannot answer the question, or (b) the user explicitly asks for current events, public documentation, or knowledge that wouldn't exist in the workspace. Never use web search to supplement or second-guess a Slack/Tableau answer that is already complete.
 - Citations: Use <URL|[1]> for external links (web results or Tableau URLs).
-- Tableau: Use exact field names from metadata. If metadata is present, explain it immediately—do not ask the user for permission to "fetch" it. If the context includes *Closest published data sources* with scores, map the user’s wording to the best LUID or confirm with them before calling metadata/query tools. If data is missing, suggest specific metrics they should ask for.
+- Tableau: Use exact field names from metadata. If metadata is present, explain it immediately—do not ask the user for permission to "fetch" it. If the context includes *Closest published data sources* with scores, map the user's wording to the best LUID or confirm with them before calling metadata/query tools. If data is missing, suggest specific metrics they should ask for.
 
 3. Slack Canvas Operations
 - Update strategy: Prefer *targeted* edits when the user wants to change one part: call slack_canvas_read to get section id values from each sections[] entry, then slack_canvas_update with insert_after, insert_before, or replace_section plus that section_id. Use insert_start / append_end for adding at top or bottom without a section anchor. Use replace_all only when the user wants the *entire* document rewritten from scratch.
@@ -42,6 +42,7 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 5. Error Handling
 - If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.
 - If the user asks about real-time data (weather, live prices, breaking news, current events) and you do not have a web search tool available, do NOT just say you cannot help. Instead reply: "I don't have real-time web access right now. You can enable *Internet Search* in *App Home → Settings* so I can look this up for you."
+- Internet Search and canvas/Tableau tools cannot be active in the same request (platform limitation). When canvas or Tableau tools are loaded, Internet Search is automatically paused for that turn — even if the setting is on. If the user asks a web-search question in a session where canvas or Tableau tools are active, let them know: "Internet Search is paused this turn because canvas or Tableau tools are active. Open a new chat thread without referencing canvas or data tools for live web results."
 
 6. Locale & Units
 - When the context includes a *User locale* block, always use the unit system it specifies for all measurements (Celsius vs Fahrenheit, km vs miles, kg vs pounds, etc.).
@@ -151,7 +152,7 @@ const CANVAS_TOOLS = [
 
 const MAX_TOOL_ROUNDS = 5;
 
-/** Nudge when Gemini ends a turn with no text after tools—avoids showing a false “try again” to users. */
+/** Nudge when Gemini ends a turn with no text after tools—avoids showing a false "try again" to users. */
 const EMPTY_FINAL_RECOVERY_USER_TEXT =
   "Your previous assistant turn had no user-visible text. Write the **final** Slack mrkdwn answer now: use the user's question, the conversation, and any tool/function results above—especially numbers and breakdowns. Follow the system Slack formatting rules. Do **not** call tools; only output the reply the user should read.";
 
@@ -337,12 +338,15 @@ async function getAiResponse({
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
 
-  // Merge googleSearch and functionDeclarations into a single Tool object.
-  // Vertex AI rejects requests where they appear as separate Tool entries.
-  const toolEntry = {};
-  if (useInternetSearch && !workflowStep) toolEntry.googleSearch = {};
-  if (mergedDeclarations.length > 0) toolEntry.functionDeclarations = mergedDeclarations;
-  const tools = Object.keys(toolEntry).length > 0 ? [toolEntry] : undefined;
+  // Vertex AI Tool proto uses a oneof for tool_type: googleSearch and functionDeclarations
+  // cannot coexist in the same request. When function declarations are present (canvas /
+  // Tableau tools), they take priority. googleSearch is used only when no declarations
+  // are active — i.e., a pure web-knowledge query with no workspace tool needs.
+  const toolsList = [];
+  const useGoogleSearch = useInternetSearch && !workflowStep && mergedDeclarations.length === 0;
+  if (useGoogleSearch) toolsList.push({ googleSearch: {} });
+  if (mergedDeclarations.length > 0) toolsList.push({ functionDeclarations: mergedDeclarations });
+  const tools = toolsList.length > 0 ? toolsList : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
