@@ -328,8 +328,20 @@ async function getAiResponse({
     return aiReply("Send me a message and I'll respond.");
   }
 
-  const model = workflowStep ? getWorkflowModel() : selectChatModel(userMessage);
-  const contents = buildContents(threadHistory || [], userMessage.trim(), slackContext);
+  // Force primary model for internet search turns — fast model may not support search grounding.
+  const model = workflowStep ? getWorkflowModel() : (useInternetSearch ? getChatModel() : selectChatModel(userMessage));
+
+  // When internet search is active, inject an explicit note so the model knows to use it.
+  // Gemini's googleSearch grounding is dynamic (model decides), so without this the system
+  // prompt's "last resort" instruction causes the model to skip search when any context exists.
+  let effectiveSlackContext = slackContext;
+  if (useInternetSearch && !workflowStep) {
+    const searchNote =
+      "[Internet Search is ACTIVE this turn — use Google Search immediately for any real-time, current-events, weather, price, or factual look-up that needs live data. Do not say you lack web access.]";
+    effectiveSlackContext = searchNote + (slackContext ? "\n\n" + slackContext : "");
+  }
+
+  const contents = buildContents(threadHistory || [], userMessage.trim(), effectiveSlackContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
   // Vertex AI Tool proto oneof: googleSearch and functionDeclarations cannot coexist.
@@ -345,6 +357,10 @@ async function getAiResponse({
   if (useInternetSearch && !workflowStep) toolsList.push({ googleSearch: {} });
   if (mergedDeclarations.length > 0) toolsList.push({ functionDeclarations: mergedDeclarations });
   const tools = toolsList.length > 0 ? toolsList : undefined;
+
+  if (process.env.SLACK_CONTEXT_DEBUG === "1" && useInternetSearch) {
+    console.log(`[slack-mcp-agent] tools=${JSON.stringify(tools)} useCanvasTools=${useCanvasTools} useTableauTools=${useTableauTools}`);
+  }
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
