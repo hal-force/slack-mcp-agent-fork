@@ -238,12 +238,12 @@ async function getAiResponse({
   // Collect all function declarations from active skills.
   const mergedDeclarations = activeSkills.flatMap((s) => s.functionDeclarations);
 
-  // Merge googleSearch and functionDeclarations into a single Tool object.
-  // Vertex AI rejects requests where they appear as separate Tool entries.
-  const toolEntry = {};
-  if (useInternetSearch) toolEntry.googleSearch = {};
-  if (mergedDeclarations.length > 0) toolEntry.functionDeclarations = mergedDeclarations;
-  const tools = Object.keys(toolEntry).length > 0 ? [toolEntry] : undefined;
+  // googleSearch and functionDeclarations are a proto oneof (tool_type) and must be
+  // in separate Tool entries in the array — they cannot share one Tool object.
+  const tools = [];
+  if (useInternetSearch) tools.push({ googleSearch: {} });
+  if (mergedDeclarations.length > 0) tools.push({ functionDeclarations: mergedDeclarations });
+  const toolsArg = tools.length > 0 ? tools : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
@@ -259,7 +259,7 @@ async function getAiResponse({
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const result = await model.generateContent({
         contents: working,
-        tools,
+        tools: toolsArg,
         toolConfig,
       });
       const response = result.response;
