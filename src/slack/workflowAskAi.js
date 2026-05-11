@@ -27,8 +27,11 @@ const WORKFLOW_POST_CHANNEL_INPUT_NAME =
   process.env.SLACK_WORKFLOW_ASK_AI_POST_CHANNEL_INPUT || "b504c1";
 
 const { buildSlackContext, parseChannelRefs } = require("../assistant/slackContext");
+const { classifyIntent } = require("../router/intentRouter");
+const { assembleContext } = require("../context/assembleContext");
+const { installQueryFromBoltContext } = require("../install-kit/installQuery");
 const { getUserLocaleContext } = require("../assistant/userLocale");
-const { buildTableauContext } = require("../assistant/tableauMcpClient");
+const { buildTableauContext } = require("../assistant/tableauContextBuilder");
 const { getInstallation } = require("../install-kit/installationStore");
 const { getInstallUrl } = require("../install-kit/env");
 const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("../preferences/userPreferences");
@@ -319,7 +322,7 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           return;
         }
 
-        const installQuery = workflowInstallQuery(body, event);
+        const installQuery = installQueryFromBoltContext(body, {}, event);
         const [installation, tableauMcpBaseUrl, localeContext, useInternetSearch] = await Promise.all([
           getInstallation(installQuery),
           getTableauMcpUrlOverride(installQuery),
@@ -378,9 +381,13 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           }
         }
 
-        const tableauBlock = await buildTableauContext(userMessage, { tableauMcpBaseUrl });
-        const tableauContext = tableauBlock.context;
-        const contextForAi = [localeContext, slackContext, tableauContext].filter(Boolean).join("\n");
+        const { useFullModel, wantTableau } = classifyIntent(userMessage, {
+          tableauEnabled: !!tableauMcpBaseUrl,
+          hasUserToken: !!installation?.user?.token,
+          internetSearch: useInternetSearch,
+        });
+        const tableauBlock = await buildTableauContext(userMessage, { tableauMcpBaseUrl, wantTableau });
+        const contextForAi = assembleContext({ localeContext, slackContext, tableauContext: tableauBlock.context });
 
         const logPayload = {
           tag: "workflow_ask_ai",
@@ -416,7 +423,7 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           teamId,
           tableauMcpBaseUrl,
           datasourceUrls: tableauBlock.datasourceUrls,
-          workflowStep: false,
+          useFullModel,
           useInternetSearch,
         });
 

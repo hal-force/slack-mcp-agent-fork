@@ -2,6 +2,49 @@ const { WebClient } = require("@slack/web-api");
 const { buildContextViaMcp } = require("./slackMcpClient");
 const { channelAccessMissingScopeHintLines } = require("../slack/reinstallPrompt");
 
+/**
+ * Resolve all <@UXXXXXX> mention tokens in a text string to display names.
+ * Uses a simple in-call cache to avoid redundant users.info calls.
+ * @param {import("@slack/web-api").WebClient} apiClient
+ * @param {string} text
+ * @returns {Promise<string>}
+ */
+async function resolveUserMentions(apiClient, text) {
+  if (!text || typeof text !== "string") return text;
+  const userIdRe = /<@(U[A-Z0-9]+)(?:\|[^>]*)?>/ ;
+  if (!userIdRe.test(text)) return text;
+
+  const ids = new Set();
+  const allRe = /<@(U[A-Z0-9]+)(?:\|[^>]*)?>/g;
+  let m;
+  while ((m = allRe.exec(text)) !== null) ids.add(m[1]);
+
+  const nameById = {};
+  await Promise.all(
+    [...ids].map(async (uid) => {
+      try {
+        const res = await apiClient.users.info({ user: uid });
+        const u = res.user;
+        if (u) {
+          nameById[uid] =
+            u.profile?.display_name_normalized ||
+            u.profile?.display_name ||
+            u.profile?.real_name_normalized ||
+            u.real_name ||
+            u.name ||
+            uid;
+        }
+      } catch (_) {
+        // Leave unresolved mentions as-is if the API call fails.
+      }
+    })
+  );
+
+  return text.replace(/<@(U[A-Z0-9]+)(?:\|[^>]*)?>/g, (match, uid) =>
+    nameById[uid] ? `@${nameById[uid]}` : match
+  );
+}
+
 /** Slack channel IDs start with C (e.g. C0AL8UCPULW). */
 function isChannelId(s) {
   return /^C[A-Z0-9]+$/i.test(String(s || ""));
@@ -249,10 +292,14 @@ async function buildSlackContext(client, opts = {}) {
         Array.isArray(channelAccessErrors) ? channelAccessErrors : null,
       );
       const tail = [extra.length > 0 ? extra.join("\n\n") : "", problems].filter(Boolean).join("\n\n");
-      if (tail) {
-        return mcpContext.replace("--- End Slack context ---", `${tail}\n--- End Slack context ---`);
+      const mcpResult = tail
+        ? mcpContext.replace("--- End Slack context ---", `${tail}\n--- End Slack context ---`)
+        : mcpContext;
+      try {
+        return await resolveUserMentions(apiClient, mcpResult);
+      } catch (_) {
+        return mcpResult;
       }
-      return mcpContext;
     }
     // Fall through to Web API if MCP fails (e.g. token scope, network)
   }
@@ -319,7 +366,7 @@ async function buildSlackContext(client, opts = {}) {
     const query = (userMessage || "").trim();
     if (includeSearch && query.length >= 3) {
       try {
-        const searchRes = await apiClient.search.messages({ query, count: 5, sort: "score" });
+        const searchRes = await apiClient.search.messages({ query, count: 20, sort: "score" });
         const matches = searchRes.messages?.matches ?? [];
         if (matches.length > 0) {
           const lines = matches.map((m) => {
@@ -348,7 +395,12 @@ async function buildSlackContext(client, opts = {}) {
   const header =
     "\n--- Slack context (internal workspace—prioritize this over general knowledge when answering) ---\n";
   const body = [sections.join("\n\n"), accessProblems].filter(Boolean).join("\n\n");
-  return `${header}${body}\n--- End Slack context ---\n`;
+  const raw = `${header}${body}\n--- End Slack context ---\n`;
+  try {
+    return await resolveUserMentions(apiClient, raw);
+  } catch (_) {
+    return raw;
+  }
 }
 
 module.exports = { buildSlackContext, parseChannelRefs };
