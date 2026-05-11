@@ -66,7 +66,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
     if (process.env.SLACK_CONTEXT_DEBUG === "1") {
       console.log(`[slack-mcp-agent] app_mention useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }
-    const { useFullModel, wantTableau } = classifyIntent(userMessage, {
+    const { useFullModel, wantTableau, intents } = classifyIntent(userMessage, {
       tableauEnabled: !!tableauMcpBaseUrl,
       hasUserToken: !!installation?.user?.token,
       internetSearch: useInternetSearch,
@@ -94,6 +94,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       datasourceUrls: tableauBlock.datasourceUrls,
       useFullModel,
       useInternetSearch,
+      intents,
     });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
@@ -190,7 +191,7 @@ const assistant = new Assistant({
       console.log(`[slack-mcp-agent] assistant useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }
 
-    const { useFullModel, wantTableau } = classifyIntent(text, {
+    const { useFullModel, wantTableau, intents } = classifyIntent(text, {
       tableauEnabled: !!tableauMcpBaseUrl,
       hasUserToken: !!installation?.user?.token,
       internetSearch: useInternetSearch,
@@ -267,6 +268,7 @@ const assistant = new Assistant({
         datasourceUrls: tableauBlock.datasourceUrls,
         useFullModel,
         useInternetSearch,
+        intents,
       });
 
       const replyText =

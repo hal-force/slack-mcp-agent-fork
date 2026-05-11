@@ -195,6 +195,7 @@ function getFunctionCallParts(parts) {
  * @param {Record<string, string>} [opts.datasourceUrls] - LUID (lowercase) → Tableau browse URL from buildTableauContext
  * @param {boolean} [opts.useFullModel] - if true, skip fast-model routing and use primary model
  * @param {boolean} [opts.useInternetSearch] - if true, enable Gemini Google Search grounding
+ * @param {string[]} [opts.intents] - active intents from classifyIntent; used to filter which skill declarations to include
  * @returns {Promise<{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }> }>}
  */
 async function getAiResponse({
@@ -208,6 +209,7 @@ async function getAiResponse({
   datasourceUrls,
   useFullModel = false,
   useInternetSearch = false,
+  intents = null,
 }) {
   const activeSkills = resolveActiveSkills({
     userToken,
@@ -235,14 +237,23 @@ async function getAiResponse({
   const contents = buildContents(threadHistory || [], userMessage.trim(), effectiveSlackContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
-  // Collect all function declarations from active skills.
-  const mergedDeclarations = activeSkills.flatMap((s) => s.functionDeclarations);
+  // Filter declarations by active intent so that always-available skills (e.g. canvas,
+  // which is active whenever the user has a token) don't block internet search on turns
+  // where those tools aren't relevant.
+  const declarationSkills = intents
+    ? activeSkills.filter((s) => !s.matchesIntent || s.matchesIntent(intents))
+    : activeSkills;
+  const mergedDeclarations = declarationSkills.flatMap((s) => s.functionDeclarations);
 
-  // googleSearch and functionDeclarations are a proto oneof (tool_type) and must be
-  // in separate Tool entries in the array — they cannot share one Tool object.
+  // Vertex AI cannot combine googleSearch with functionDeclarations in any configuration.
+  // Prefer function declarations when they apply to the current intent; fall back to
+  // googleSearch for pure conversational + internet-search turns.
   const tools = [];
-  if (useInternetSearch) tools.push({ googleSearch: {} });
-  if (mergedDeclarations.length > 0) tools.push({ functionDeclarations: mergedDeclarations });
+  if (mergedDeclarations.length > 0) {
+    tools.push({ functionDeclarations: mergedDeclarations });
+  } else if (useInternetSearch) {
+    tools.push({ googleSearch: {} });
+  }
   const toolsArg = tools.length > 0 ? tools : undefined;
   const toolConfig =
     mergedDeclarations.length > 0

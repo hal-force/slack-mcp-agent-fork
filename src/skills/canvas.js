@@ -85,6 +85,7 @@ function createCanvasSkill({ userToken, defaultChannelId = null, teamId = null }
     name: "canvas",
     functionDeclarations,
     handlesToolName: (name) => CANVAS_TOOL_NAMES.has(name),
+    matchesIntent: (intents) => Array.isArray(intents) && intents.includes("canvas"),
     dispatch: (_name, args, _sessionOpts) =>
       dispatchCanvasTool(userToken, _name, args, {
         defaultChannelId: defaultChannelId || null,

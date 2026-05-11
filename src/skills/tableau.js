@@ -19,6 +19,7 @@ function createTableauSkill({ tableauMcpBaseUrl }) {
     name: "tableau",
     functionDeclarations: TABLEAU_FUNCTION_DECLARATIONS,
     handlesToolName: isTableauGeminiTool,
+    matchesIntent: (intents) => Array.isArray(intents) && intents.includes("tableau"),
     dispatch: (name, args, sessionOpts) =>
       dispatchTableauTool(name, args, {
         tableauMcpBaseUrl,

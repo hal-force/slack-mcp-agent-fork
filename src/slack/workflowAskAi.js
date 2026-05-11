@@ -381,7 +381,7 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           }
         }
 
-        const { useFullModel, wantTableau } = classifyIntent(userMessage, {
+        const { useFullModel, wantTableau, intents } = classifyIntent(userMessage, {
           tableauEnabled: !!tableauMcpBaseUrl,
           hasUserToken: !!installation?.user?.token,
           internetSearch: useInternetSearch,
@@ -425,6 +425,7 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           datasourceUrls: tableauBlock.datasourceUrls,
           useFullModel,
           useInternetSearch,
+          intents,
         });
 
         let aiText = aiResult.text;
