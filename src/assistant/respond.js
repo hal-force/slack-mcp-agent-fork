@@ -353,14 +353,12 @@ async function getAiResponse({
   if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
   if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
 
-  const toolsList = [];
-  if (useInternetSearch && !workflowStep) toolsList.push({ googleSearch: {} });
-  if (mergedDeclarations.length > 0) toolsList.push({ functionDeclarations: mergedDeclarations });
-  const tools = toolsList.length > 0 ? toolsList : undefined;
-
-  if (process.env.SLACK_CONTEXT_DEBUG === "1" && useInternetSearch) {
-    console.log(`[slack-mcp-agent] tools=${JSON.stringify(tools)} useCanvasTools=${useCanvasTools} useTableauTools=${useTableauTools}`);
-  }
+// Merge googleSearch and functionDeclarations into a single Tool object.
+  // Vertex AI rejects requests where they appear as separate Tool entries.
+  const toolEntry = {};
+  if (useInternetSearch && !workflowStep) toolEntry.googleSearch = {};
+  if (mergedDeclarations.length > 0) toolEntry.functionDeclarations = mergedDeclarations;
+  const tools = Object.keys(toolEntry).length > 0 ? [toolEntry] : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
       ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
