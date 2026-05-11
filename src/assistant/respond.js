@@ -1,12 +1,5 @@
-const { VertexAI, FunctionCallingMode, FunctionDeclarationSchemaType } = require("@google-cloud/vertexai");
-const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
-const {
-  TABLEAU_FUNCTION_DECLARATIONS,
-  isTableauGeminiTool,
-  dispatchTableauTool,
-  tableauQueryToolsEnabled,
-  
-} = require("./tableauGeminiTools");
+const { VertexAI, FunctionCallingMode } = require("@google-cloud/vertexai");
+const { resolveActiveSkills } = require("../skills/registry");
 
 const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a high-utility AI assistant.
 
@@ -48,107 +41,6 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 - When the context includes a *User locale* block, always use the unit system it specifies for all measurements (Celsius vs Fahrenheit, km vs miles, kg vs pounds, etc.).
 - If no locale block is present, default to metric units unless the user explicitly asks otherwise.`;
 
-/** Reserved for a restricted workflow mode; the live Ask AI step uses the main chat system prompt and tools. */
-const WORKFLOW_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, answering a task from Slack Workflow Builder.
-
-1. Scope
-- You have the workflow prompt and any **Slack context** block appended below (a snapshot of recent messages from channels referenced as <#C…> in the prompt). That snapshot is all the live Slack data you get for this run—treat it as read-only; you cannot open new channels, threads, or tools.
-- You do NOT have canvases, Tableau, search beyond that snapshot, or any tool calls. If the task needs data that is not in the prompt or the Slack context block, say what is missing and what a prior workflow step would need to pass in.
-
-2. Slack formatting (output contract)
-- Output must be a single string using Slack mrkdwn. NOT GitHub markdown, NOT HTML.
-- Bold: *text* (single asterisk only — never **double**)
-- Italic: _text_
-- Strikethrough: ~text~
-- Blockquote: > text
-- Bullet points: Use • (bullet character). Never use * or - as list markers — they conflict with bold/italic syntax.
-- Section titles: *BOLD ALL CAPS* — never use # headers.
-- Links: ONLY the format <https://example.com|Display Text> — no raw URLs, no [text](url), no HTML anchors. The URL must be clean with no trailing commas, filenames, or extra characters before the pipe.
-- Channels: <#CHANNEL_ID> format (e.g. <#C012AB3CD>)
-- People: Use display names as shown in context (e.g. *Alex Thompson*) — never paste raw U… user ID codes.
-- Line breaks: Use a single newline \n between elements. No blank lines between bullet points.
-- Do not wrap the output in code fences, quotes, or any container. Return the mrkdwn string directly.
-
-3. Tone
-- Confident (never cocky)
-- Witty (but never silly)
-- Conversational (but always appropriate and respectful)
-- Intelligent (and we always treat our users as intelligent too)
-- Friendly (but not ingratiating)
-- Helpful (never overbearing)
-- Clear, concise and human`;
-
-const T = FunctionDeclarationSchemaType;
-
-const CANVAS_TOOLS = [
-  {
-    functionDeclarations: [
-      {
-        name: "slack_canvas_create",
-        description:
-          "Create a Slack canvas for the user. Use when they ask to create, add, or start a canvas or doc. For workspaces that require a channel tab, pass channel_id (defaults to the current conversation if omitted). The tool response includes canvas_url and slack_mrkdwn_link_example for posting a clickable Slack link.",
-        parameters: {
-          type: T.OBJECT,
-          properties: {
-            title: { type: T.STRING, description: "Optional title." },
-            markdown: { type: T.STRING, description: "Initial markdown body." },
-            channel_id: {
-              type: T.STRING,
-              description: "Optional channel ID (C…) to tab the canvas in; defaults to current conversation.",
-            },
-          },
-        },
-      },
-      {
-        name: "slack_canvas_read",
-        description:
-          "Read canvas structure: returns heading sections and IDs via Slack API. Use when the user wants to inspect, list sections, or locate a canvas. Does not return full markdown body. Response includes canvas_url for a clickable client link.",
-        parameters: {
-          type: T.OBJECT,
-          properties: {
-            canvas_id: { type: T.STRING, description: "Canvas ID such as F0123ABCD." },
-            contains_text: {
-              type: T.STRING,
-              description: "Optional filter: headings containing this text.",
-            },
-          },
-          required: ["canvas_id"],
-        },
-      },
-      {
-        name: "slack_canvas_update",
-        description:
-          "Update a canvas. Use slack_canvas_read first to obtain section_id values for heading blocks. Modes: insert_after / insert_before / replace_section require section_id. insert_start and append_end add content at top or bottom. replace_all rewrites the whole canvas. Never delete. Response includes canvas_url.",
-        parameters: {
-          type: T.OBJECT,
-          properties: {
-            canvas_id: { type: T.STRING },
-            markdown: { type: T.STRING, description: "Markdown content to insert or to replace a section with." },
-            section_id: {
-              type: T.STRING,
-              description:
-                "Required for insert_after, insert_before, replace_section. From slack_canvas_read sections[].id (e.g. temp:C:…).",
-            },
-            mode: {
-              type: T.STRING,
-              enum: [
-                "append_end",
-                "replace_all",
-                "insert_start",
-                "insert_after",
-                "insert_before",
-                "replace_section",
-              ],
-              description:
-                "append_end=end; insert_start=top; replace_all=whole doc; insert_after/before/replace_section need section_id.",
-            },
-          },
-          required: ["canvas_id", "markdown", "mode"],
-        },
-      },
-    ],
-  },
-];
 
 const MAX_TOOL_ROUNDS = 5;
 
@@ -212,9 +104,6 @@ function resolveFinalAssistantText(text, uploadQueue) {
 
 let _chatModel = null;
 let _fastChatModel = null;
-let _workflowModel = null;
-
-const TOOL_SIGNAL_RE = /tableau|canvas|datasource|dashboard|query|viz|view|workbook/i;
 
 function createGenerativeModel(systemPromptText, modelIdOverride) {
   const project = process.env.GOOGLE_CLOUD_PROJECT;
@@ -252,18 +141,14 @@ function getFastChatModel() {
   return _fastChatModel;
 }
 
-function getWorkflowModel() {
-  if (!_workflowModel) _workflowModel = createGenerativeModel(WORKFLOW_SYSTEM_PROMPT);
-  return _workflowModel;
-}
-
 /**
- * Select the appropriate model based on query complexity signals.
+ * Select the appropriate model based on whether the query needs full tool capabilities.
  * Routes to a fast model (GEMINI_FAST_MODEL) for conversational queries with no tool indicators.
+ * @param {boolean} useFullModel
  */
-function selectChatModel(userMessage) {
+function selectChatModel(useFullModel) {
   if (!process.env.GEMINI_FAST_MODEL) return getChatModel();
-  if (TOOL_SIGNAL_RE.test(userMessage)) return getChatModel();
+  if (useFullModel) return getChatModel();
   return getFastChatModel();
 }
 
@@ -308,7 +193,7 @@ function getFunctionCallParts(parts) {
  * @param {string|null} [opts.teamId] - T… workspace team id for building canvas client URLs
  * @param {string} [opts.tableauMcpBaseUrl] - optional per-user Tableau MCP base URL override
  * @param {Record<string, string>} [opts.datasourceUrls] - LUID (lowercase) → Tableau browse URL from buildTableauContext
- * @param {boolean} [opts.workflowStep] - if true, use workflow-only system prompt and disable all tools
+ * @param {boolean} [opts.useFullModel] - if true, skip fast-model routing and use primary model
  * @param {boolean} [opts.useInternetSearch] - if true, enable Gemini Google Search grounding
  * @returns {Promise<{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }> }>}
  */
@@ -321,21 +206,27 @@ async function getAiResponse({
   teamId,
   tableauMcpBaseUrl,
   datasourceUrls,
-  workflowStep = false,
+  useFullModel = false,
   useInternetSearch = false,
 }) {
+  const activeSkills = resolveActiveSkills({
+    userToken,
+    defaultChannelId: defaultCanvasChannelId || null,
+    teamId: teamId || null,
+    tableauMcpBaseUrl,
+  });
   if (!userMessage || !userMessage.trim()) {
     return aiReply("Send me a message and I'll respond.");
   }
 
   // Force primary model for internet search turns — fast model may not support search grounding.
-  const model = workflowStep ? getWorkflowModel() : (useInternetSearch ? getChatModel() : selectChatModel(userMessage));
+  const model = useInternetSearch ? getChatModel() : selectChatModel(useFullModel);
 
   // When internet search is active, inject an explicit note so the model knows to use it.
   // Gemini's googleSearch grounding is dynamic (model decides), so without this the system
   // prompt's "last resort" instruction causes the model to skip search when any context exists.
   let effectiveSlackContext = slackContext;
-  if (useInternetSearch && !workflowStep) {
+  if (useInternetSearch) {
     const searchNote =
       "[Internet Search is ACTIVE this turn — use Google Search immediately for any real-time, current-events, weather, price, or factual look-up that needs live data. Do not say you lack web access.]";
     effectiveSlackContext = searchNote + (slackContext ? "\n\n" + slackContext : "");
@@ -344,19 +235,13 @@ async function getAiResponse({
   const contents = buildContents(threadHistory || [], userMessage.trim(), effectiveSlackContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
-  // Vertex AI Tool proto oneof applies within a single Tool object, not across the array.
-  // googleSearch and functionDeclarations can coexist as separate Tool entries — the model
-  // can use web search grounding AND call canvas/Tableau tools in the same turn.
-  const useCanvasTools = !workflowStep && !!(userToken && String(userToken).trim());
-  const useTableauTools = !workflowStep && tableauQueryToolsEnabled({ tableauMcpBaseUrl });
-  const mergedDeclarations = [];
-  if (useCanvasTools) mergedDeclarations.push(...CANVAS_TOOLS[0].functionDeclarations);
-  if (useTableauTools) mergedDeclarations.push(...TABLEAU_FUNCTION_DECLARATIONS);
+  // Collect all function declarations from active skills.
+  const mergedDeclarations = activeSkills.flatMap((s) => s.functionDeclarations);
 
-// Merge googleSearch and functionDeclarations into a single Tool object.
+  // Merge googleSearch and functionDeclarations into a single Tool object.
   // Vertex AI rejects requests where they appear as separate Tool entries.
   const toolEntry = {};
-  if (useInternetSearch && !workflowStep) toolEntry.googleSearch = {};
+  if (useInternetSearch) toolEntry.googleSearch = {};
   if (mergedDeclarations.length > 0) toolEntry.functionDeclarations = mergedDeclarations;
   const tools = Object.keys(toolEntry).length > 0 ? [toolEntry] : undefined;
   const toolConfig =
@@ -415,27 +300,16 @@ async function getAiResponse({
 
       // Dispatch all tool calls in this round concurrently. JS is single-threaded so
       // mutations to uploadQueue/datasourceUrlByLuid/viewUrlById are safe — only I/O overlaps.
+      const sessionOpts = { uploadQueue, datasourceUrlByLuid, viewUrlById };
       const responseParts = await Promise.all(
         fcParts.map(async (p) => {
           const fc = p.functionCall;
           const name = fc.name;
           const args = fc.args && typeof fc.args === "object" ? { ...fc.args } : {};
-          let toolResult;
-          if (isTableauGeminiTool(name)) {
-            toolResult = await dispatchTableauTool(name, args, {
-              tableauMcpBaseUrl,
-              uploadQueue,
-              datasourceUrlByLuid,
-              viewUrlById,
-            });
-          } else if (useCanvasTools) {
-            toolResult = await dispatchCanvasTool(userToken, name, args, {
-              defaultChannelId: defaultCanvasChannelId || null,
-              teamId: teamId || null,
-            });
-          } else {
-            toolResult = { ok: false, error: "No handler for this tool in the current session." };
-          }
+          const skill = activeSkills.find((s) => s.handlesToolName(name));
+          const toolResult = skill
+            ? await skill.dispatch(name, args, sessionOpts)
+            : { ok: false, error: "No handler for this tool in the current session." };
           return {
             functionResponse: {
               name,
