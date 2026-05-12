@@ -2,7 +2,7 @@
  * Gemini function declarations + dispatch for Tableau MCP (query, list, metadata).
  */
 
-const { FunctionDeclarationSchemaType } = require("@google-cloud/vertexai");
+const { Type: FunctionDeclarationSchemaType } = require("@google/genai");
 const {
   callTableauTool,
   resolveTableauMcpUrl,

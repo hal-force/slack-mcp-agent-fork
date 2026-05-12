@@ -2,10 +2,10 @@
  * Canvas skill — Slack canvas create/read/update via user OAuth token.
  */
 
-const { FunctionDeclarationSchemaType } = require("@google-cloud/vertexai");
+const { Type } = require("@google/genai");
 const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
 
-const T = FunctionDeclarationSchemaType;
+const T = Type;
 
 const CANVAS_TOOL_NAMES = new Set(["slack_canvas_create", "slack_canvas_read", "slack_canvas_update"]);
 

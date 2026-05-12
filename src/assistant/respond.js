@@ -1,4 +1,4 @@
-const { VertexAI, FunctionCallingMode } = require("@google-cloud/vertexai");
+const { GoogleGenAI } = require("@google/genai");
 const { resolveActiveSkills } = require("../skills/registry");
 
 const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a high-utility AI assistant.
@@ -50,12 +50,12 @@ const EMPTY_FINAL_RECOVERY_USER_TEXT =
 
 /**
  * One follow-up generateContent without tools when the model stops with empty text (common after tool rounds).
- * @param {*} model - Vertex GenerativeModel
+ * @param {(contents: unknown[]) => Promise<unknown>} callModelNoTools - bound no-tools generate function
  * @param {Array<{ role: string, parts: unknown[] }>} workingContents
  * @param {unknown[]} emptyTurnModelParts from the empty final candidate
  * @returns {Promise<string|null>}
  */
-async function recoverEmptyFinalText(model, workingContents, emptyTurnModelParts) {
+async function recoverEmptyFinalText(callModelNoTools, workingContents, emptyTurnModelParts) {
   const modelTurn =
     Array.isArray(emptyTurnModelParts) && emptyTurnModelParts.length > 0
       ? { role: "model", parts: emptyTurnModelParts }
@@ -65,8 +65,8 @@ async function recoverEmptyFinalText(model, workingContents, emptyTurnModelParts
     modelTurn,
     { role: "user", parts: [{ text: EMPTY_FINAL_RECOVERY_USER_TEXT }] },
   ];
-  const result = await model.generateContent({ contents: recoveryContents });
-  const candidate = result.response?.candidates?.[0];
+  const response = await callModelNoTools(recoveryContents);
+  const candidate = response?.candidates?.[0];
   if (!candidate || candidate.finishReason === "SAFETY") return null;
   const parts = getModelParts(candidate);
   if (getFunctionCallParts(parts).length > 0) return null;
@@ -102,54 +102,43 @@ function resolveFinalAssistantText(text, uploadQueue) {
   return "I didn't get a clear response. Please try again.";
 }
 
-let _chatModel = null;
-let _fastChatModel = null;
+let _ai = null;
 
-function createGenerativeModel(systemPromptText, modelIdOverride) {
+function getAiClient() {
+  if (_ai) return _ai;
   const project = process.env.GOOGLE_CLOUD_PROJECT;
   const location =
     process.env.VERTEX_LOCATION ||
     process.env.GOOGLE_CLOUD_LOCATION ||
     "us-central1";
-  const modelId = modelIdOverride || process.env.GEMINI_MODEL || "gemini-2.5-flash";
   if (!project) {
     throw new Error("Missing GOOGLE_CLOUD_PROJECT. Set it in .env for Vertex/Gemini.");
   }
-  const vertex = new VertexAI({ project, location });
-  return vertex.getGenerativeModel({
-    model: modelId,
-    systemInstruction: {
-      role: "system",
-      parts: [{ text: systemPromptText }],
-    },
-    generationConfig: {
-      maxOutputTokens: Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 1024,
-      temperature: 0.7,
-    },
-  });
+  _ai = new GoogleGenAI({ vertexai: true, project, location });
+  return _ai;
 }
 
-function getChatModel() {
-  if (!_chatModel) _chatModel = createGenerativeModel(SYSTEM_PROMPT);
-  return _chatModel;
-}
-
-function getFastChatModel() {
-  const fastModelId = process.env.GEMINI_FAST_MODEL;
-  if (!fastModelId) return getChatModel();
-  if (!_fastChatModel) _fastChatModel = createGenerativeModel(SYSTEM_PROMPT, fastModelId);
-  return _fastChatModel;
+function getPrimaryModelId() {
+  return process.env.GEMINI_MODEL || "gemini-2.5-flash";
 }
 
 /**
- * Select the appropriate model based on whether the query needs full tool capabilities.
- * Routes to a fast model (GEMINI_FAST_MODEL) for conversational queries with no tool indicators.
+ * Select the model ID for this turn.
+ * Routes to GEMINI_FAST_MODEL for simple conversational queries when available.
  * @param {boolean} useFullModel
  */
-function selectChatModel(useFullModel) {
-  if (!process.env.GEMINI_FAST_MODEL) return getChatModel();
-  if (useFullModel) return getChatModel();
-  return getFastChatModel();
+function selectModelId(useFullModel) {
+  const fast = process.env.GEMINI_FAST_MODEL;
+  if (!fast || useFullModel) return getPrimaryModelId();
+  return fast;
+}
+
+function getBaseConfig() {
+  return {
+    systemInstruction: SYSTEM_PROMPT,
+    maxOutputTokens: Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 1024,
+    temperature: 0.7,
+  };
 }
 
 function buildContents(threadHistory, userMessage, slackContext) {
@@ -221,8 +210,10 @@ async function getAiResponse({
     return aiReply("Send me a message and I'll respond.");
   }
 
+  const ai = getAiClient();
   // Force primary model for internet search turns — fast model may not support search grounding.
-  const model = useInternetSearch ? getChatModel() : selectChatModel(useFullModel);
+  const modelId = useInternetSearch ? getPrimaryModelId() : selectModelId(useFullModel);
+  const baseConfig = getBaseConfig();
 
   // When internet search is active, inject an explicit note so the model knows to use it.
   // Gemini's googleSearch grounding is dynamic (model decides), so without this the system
@@ -238,27 +229,34 @@ async function getAiResponse({
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
   // Filter declarations by active intent so that always-available skills (e.g. canvas,
-  // which is active whenever the user has a token) don't block internet search on turns
-  // where those tools aren't relevant.
+  // which is active whenever the user has a token) aren't included on unrelated turns.
   const declarationSkills = intents
     ? activeSkills.filter((s) => !s.matchesIntent || s.matchesIntent(intents))
     : activeSkills;
   const mergedDeclarations = declarationSkills.flatMap((s) => s.functionDeclarations);
 
-  // Vertex AI cannot combine googleSearch with functionDeclarations in any configuration.
-  // Prefer function declarations when they apply to the current intent; fall back to
-  // googleSearch for pure conversational + internet-search turns.
+  // @google/genai supports googleSearch and functionDeclarations as separate tool entries.
   const tools = [];
   if (mergedDeclarations.length > 0) {
     tools.push({ functionDeclarations: mergedDeclarations });
-  } else if (useInternetSearch) {
+  }
+  if (useInternetSearch) {
     tools.push({ googleSearch: {} });
   }
   const toolsArg = tools.length > 0 ? tools : undefined;
   const toolConfig =
     mergedDeclarations.length > 0
-      ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
+      ? { functionCallingConfig: { mode: "AUTO" } }
       : undefined;
+
+  const callModel = (contents) =>
+    ai.models.generateContent({
+      model: modelId,
+      contents,
+      config: { ...baseConfig, tools: toolsArg, toolConfig },
+    });
+  const callModelNoTools = (contents) =>
+    ai.models.generateContent({ model: modelId, contents, config: baseConfig });
 
   let working = contents;
   /** @type {Array<{ buffer: Buffer, filename: string, title?: string }>} */
@@ -268,12 +266,7 @@ async function getAiResponse({
 
   try {
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const result = await model.generateContent({
-        contents: working,
-        tools: toolsArg,
-        toolConfig,
-      });
-      const response = result.response;
+      const response = await callModel(working);
       const candidate = response?.candidates?.[0];
       if (!candidate) {
         const msg =
@@ -293,7 +286,7 @@ async function getAiResponse({
         let text = getTextFromCandidate(candidate);
         if (!text.trim() && uploadQueue.length === 0) {
           try {
-            const recovered = await recoverEmptyFinalText(model, working, modelParts);
+            const recovered = await recoverEmptyFinalText(callModelNoTools, working, modelParts);
             if (recovered) text = recovered;
           } catch (recoveryErr) {
             if (process.env.NODE_ENV !== "production") {
@@ -339,7 +332,7 @@ async function getAiResponse({
         : "I hit the limit for tool steps in one turn. Please narrow your request.";
     return aiReply(limitMsg, uploadQueue);
   } catch (err) {
-    console.error("Vertex/Gemini error:", err.message || err);
+    console.error("Gemini error:", err.message || err);
     const msg = err.message || String(err);
     if (msg.includes("GOOGLE_CLOUD_PROJECT") || msg.includes("Could not load the default credentials")) {
       return aiReply(
