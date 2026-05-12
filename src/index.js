@@ -12,8 +12,6 @@ if (process.env.GCP_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CRED
 const { App, Assistant } = require("@slack/bolt");
 const { receiver } = require("./slack/receiver");
 const { getAiResponse } = require("./assistant/respond");
-const { buildSlackContext } = require("./assistant/slackContext");
-const { buildTableauContext } = require("./assistant/tableauContextBuilder");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
 const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("./preferences/userPreferences");
@@ -21,7 +19,7 @@ const { registerAppHome } = require("./slack/appHome");
 const { registerAskAiWorkflowStep } = require("./slack/workflowAskAi");
 const { getUserLocaleContext } = require("./assistant/userLocale");
 const { classifyIntent } = require("./router/intentRouter");
-const { assembleContext } = require("./context/assembleContext");
+const { resolveActiveSkills, executeActiveSkills } = require("./skills/registry");
 const { installQueryFromBoltContext } = require("./install-kit/installQuery");
 const { mrkdwnStringToBlocks } = require("./slack/mrkdwnToBlocks");
 const { postThreadFileUploads } = require("./slack/postThreadFileUploads");
@@ -66,35 +64,49 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
     if (process.env.SLACK_CONTEXT_DEBUG === "1") {
       console.log(`[slack-mcp-agent] app_mention useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }
-    const { useFullModel, wantTableau, intents } = classifyIntent(userMessage, {
-      tableauEnabled: !!tableauMcpBaseUrl,
-      hasUserToken: !!installation?.user?.token,
-      internetSearch: useInternetSearch,
-    });
-    const [slackContext, tableauBlock, localeContext] = await Promise.all([
-      buildSlackContext(client, {
-        userToken: installation?.user?.token,
-        channelId: event.channel,
-        threadTs: event.thread_ts || event.ts,
-        userMessage,
-      }),
-      buildTableauContext(userMessage, { tableauMcpBaseUrl, wantTableau }),
-      getUserLocaleContext(client, installQuery.userId),
-    ]);
-    const contextForAi = assembleContext({ localeContext, slackContext, tableauContext: tableauBlock.context });
     const teamId =
       body?.team_id || body?.authorizations?.[0]?.team_id || event?.team || event?.team_id || null;
-    const response = await getAiResponse({
-      userMessage,
-      slackContext: contextForAi || undefined,
-      userToken: installation?.user?.token,
-      defaultCanvasChannelId: event.channel,
+    const userToken = installation?.user?.token;
+    const { useFullModel, intents } = classifyIntent(userMessage, {
+      tableauEnabled: !!tableauMcpBaseUrl,
+      hasUserToken: !!userToken,
+      internetSearch: useInternetSearch,
+    });
+    const activeSkills = resolveActiveSkills({
+      userToken,
+      defaultChannelId: event.channel,
       teamId,
       tableauMcpBaseUrl,
-      datasourceUrls: tableauBlock.datasourceUrls,
+      internetSearchEnabled: useInternetSearch,
+    });
+    const [localeContext, skillResult] = await Promise.all([
+      getUserLocaleContext(client, installQuery.userId),
+      executeActiveSkills(activeSkills, intents, {
+        userMessage,
+        client,
+        sessionOpts: {
+          userToken,
+          channelId: event.channel,
+          threadTs: event.thread_ts || event.ts,
+          userMessage,
+          tableauMcpBaseUrl,
+          defaultChannelId: event.channel,
+          teamId,
+        },
+      }),
+    ]);
+    const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
+    const response = await getAiResponse({
+      userMessage,
+      skillContext: skillContext || undefined,
+      uploads: skillResult.uploads,
+      sideEffects: skillResult.sideEffects,
+      googleSearchActive: skillResult.googleSearchActive,
+      systemPromptSections: skillResult.systemPromptSections,
+      userToken,
+      defaultCanvasChannelId: event.channel,
+      teamId,
       useFullModel,
-      useInternetSearch,
-      intents,
     });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
@@ -191,12 +203,6 @@ const assistant = new Assistant({
       console.log(`[slack-mcp-agent] assistant useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }
 
-    const { useFullModel, wantTableau, intents } = classifyIntent(text, {
-      tableauEnabled: !!tableauMcpBaseUrl,
-      hasUserToken: !!installation?.user?.token,
-      internetSearch: useInternetSearch,
-    });
-
     const hasChannelRefs = /#([a-z0-9][a-z0-9._-]*)/i.test(text) || /\b(this|the) channel\b/i.test(text);
     if (hasChannelRefs && process.env.SLACK_CONTEXT_DEBUG === "1") {
       console.log("[slack-mcp-agent] installQuery:", JSON.stringify(installQuery), "found:", !!installation, "userToken:", !!installation?.user?.token);
@@ -221,54 +227,68 @@ const assistant = new Assistant({
       }
 
       const teamIdForContext = body?.team_id || context?.teamId || context?.team?.id;
+      const teamId = body?.team_id || body?.authorizations?.[0]?.team_id || teamIdForContext || null;
 
-      // Fetch thread history and slack context concurrently — buildSlackContext uses
-      // skipChannelAndThread so it doesn't depend on the replies result.
-      const [repliesRes, slackContextResult, localeContext] = await Promise.all([
-        client.conversations.replies({ channel, ts: thread_ts, oldest: thread_ts }).catch(() => ({ messages: [] })),
-        buildSlackContext(client, {
-          userToken,
-          channelId: channel,
-          threadTs: thread_ts,
-          userMessage: text,
-          skipChannelAndThread: true,
-          includeSearch: true,
-          contextChannelId,
-          teamId: teamIdForContext,
-        }),
-        getUserLocaleContext(client, installQuery.userId),
-      ]);
+      const { useFullModel, intents } = classifyIntent(text, {
+        tableauEnabled: !!tableauMcpBaseUrl,
+        hasUserToken: !!userToken,
+        internetSearch: useInternetSearch,
+      });
 
-      let threadHistory = (repliesRes.messages || []).map((m) => ({
+      // Fetch thread history first (threadHint needed for Tableau datasource matching).
+      const repliesRes = await client.conversations
+        .replies({ channel, ts: thread_ts, oldest: thread_ts })
+        .catch(() => ({ messages: [] }));
+
+      const threadHistory = (repliesRes.messages || []).map((m) => ({
         role: m.bot_id ? "assistant" : "user",
         text: m.text || "",
       }));
-
-      let slackContext = slackContextResult;
-
-      // threadHint lets buildTableauContext match datasource names from prior thread messages
-      // to LUIDs for metadata pre-fetch — must come after replies are resolved.
       const threadHint = threadHistory.map((m) => m.text || "").join("\n");
-      const tableauBlock = await buildTableauContext(text, { threadHint, tableauMcpBaseUrl, wantTableau });
-      const contextForAi = assembleContext({ localeContext, slackContext, tableauContext: tableauBlock.context });
 
-      const teamId =
-        body?.team_id ||
-        body?.authorizations?.[0]?.team_id ||
-        teamIdForContext ||
-        null;
+      const activeSkills = resolveActiveSkills({
+        userToken,
+        defaultChannelId: contextChannelId || channel,
+        teamId,
+        tableauMcpBaseUrl,
+        internetSearchEnabled: useInternetSearch,
+      });
+
+      const [localeContext, skillResult] = await Promise.all([
+        getUserLocaleContext(client, installQuery.userId),
+        executeActiveSkills(activeSkills, intents, {
+          userMessage: text,
+          threadHistory,
+          client,
+          sessionOpts: {
+            userToken,
+            channelId: channel,
+            threadTs: thread_ts,
+            userMessage: text,
+            skipChannelAndThread: true,
+            includeSearch: true,
+            contextChannelId,
+            teamId,
+            tableauMcpBaseUrl,
+            threadHint,
+            defaultChannelId: contextChannelId || channel,
+          },
+        }),
+      ]);
+
+      const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
       const response = await getAiResponse({
         userMessage: text,
         threadHistory,
-        slackContext: contextForAi || undefined,
-        userToken: installation?.user?.token,
+        skillContext: skillContext || undefined,
+        uploads: skillResult.uploads,
+        sideEffects: skillResult.sideEffects,
+        googleSearchActive: skillResult.googleSearchActive,
+        systemPromptSections: skillResult.systemPromptSections,
+        userToken,
         defaultCanvasChannelId: contextChannelId || channel,
         teamId,
-        tableauMcpBaseUrl,
-        datasourceUrls: tableauBlock.datasourceUrls,
         useFullModel,
-        useInternetSearch,
-        intents,
       });
 
       const replyText =
