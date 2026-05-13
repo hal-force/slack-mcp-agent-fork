@@ -9,7 +9,7 @@ function createInternetSearchSkill() {
   return {
     name: "internetSearch",
     matchesIntent: (intents) =>
-      Array.isArray(intents) && intents.includes("internetSearch"),
+      Array.isArray(intents) && intents.includes("internet_search"),
     isAvailable: (caps) => !!caps.internetSearchEnabled,
     systemPromptSection: SYSTEM_PROMPT_SECTION,
 
