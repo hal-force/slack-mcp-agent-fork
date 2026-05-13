@@ -1,7 +1,7 @@
-const { VertexAI, FunctionCallingMode } = require("@google-cloud/vertexai");
-const { resolveActiveSkills } = require("../skills/registry");
+const { GoogleGenAI } = require("@google/genai");
+const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
 
-const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a high-utility AI assistant.
+const BASE_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a high-utility AI assistant.
 
 1. Slack Formatting Rules (Mandatory)
 - No Headers: Never use # for headers. Use BOLD ALL CAPS for section titles.
@@ -14,65 +14,17 @@ const SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a hig
 
 2. Handling Context — Priority Order
 - FIRST — Slack workspace: The Slack context block (channel messages, threads, search results) is your primary source. Always answer from it when relevant. If Slack context is present but incomplete, say what you found before noting the gap. If context is entirely empty, state: "I don't see any recent messages for this."
-- SECOND — Tableau data: For analytics questions, use Tableau tools (list datasources, metadata, query, view image) as the secondary source.
-- THIRD — Internet Search: Only invoke web search when (a) Slack and Tableau sources genuinely cannot answer the question, or (b) the user explicitly asks for current events, public documentation, or knowledge that wouldn't exist in the workspace. Never use web search to supplement or second-guess a Slack/Tableau answer that is already complete.
+- SECOND — Tableau data: For analytics questions, use the Tableau context (datasource list, metadata, query results, view images) as the secondary source.
+- THIRD — Internet Search: Only invoke web search when (a) Slack and Tableau sources genuinely cannot answer the question, or (b) the user explicitly asks for current events, public documentation, or knowledge that wouldn't exist in the workspace.
 - Citations: Use <URL|[1]> for external links (web results or Tableau URLs).
-- Tableau: Use exact field names from metadata. If metadata is present, explain it immediately—do not ask the user for permission to "fetch" it. If the context includes *Closest published data sources* with scores, map the user's wording to the best LUID or confirm with them before calling metadata/query tools. If data is missing, suggest specific metrics they should ask for.
 
-3. Slack Canvas Operations
-- Update strategy: Prefer *targeted* edits when the user wants to change one part: call slack_canvas_read to get section id values from each sections[] entry, then slack_canvas_update with insert_after, insert_before, or replace_section plus that section_id. Use insert_start / append_end for adding at top or bottom without a section anchor. Use replace_all only when the user wants the *entire* document rewritten from scratch.
-- Canvas links: You MUST output links as <URL|View Canvas>. Never output a raw canvas file ID like F12345 as if it were a link.
-- Reading canvases: Tool results list section IDs (not full body text). Use those IDs for partial updates. Never guess body text that is not in the tool response.
-- Safety: Do not delete canvases (no delete operation).
+3. Error Handling
+- If data is missing or tools errored, briefly explain why and ask for clarification. Do not apologize excessively.
+- If the user asks about real-time data and internet search is not available, reply: "I don't have real-time web access right now. You can enable *Internet Search* in *App Home → Settings* so I can look this up for you."
 
-4. Tableau data (when tools are available)
-- **PNG snapshots first for visual analytics:** When the user asks for revenue, trends, quarters, KPIs, dashboards, charts, or anything that is normally shown on a Tableau sheet, you should deliver a **PNG of a real published view** in Slack—not only text. Flow: (1) **tableau_list_views** with a **filter** when helpful (Tableau REST filter form field:operator:value on views—e.g. name:eq:Overview, or wildcards on supported servers like name:eq:*Sales*, workbookName:eq:*Superstore*); (2) **tableau_get_view_image** with that **view_id**, **format PNG**, and **width 1400**, **height 900** (or 1200×800) so the image is readable in Slack. The file is uploaded automatically **below** your message. **Always** follow tool calls with at least one or two sentences in your *final* reply (dashboard name, why it fits the question)—never end the turn with only empty text after get_view_image.
-- **Exact numbers:** You may **also** use list → metadata → **tableau_query_datasource** for precise figures. Use **fieldCaption** from metadata; for measures set **function** (SUM, AVG, etc.). Prefer bullets for multi-row results (rule 1). A PNG plus a short numeric summary is better than numbers alone when a matching view exists.
-- If **list_views** returns many hits, pick the best match (name/workbook vs user wording) for **get_view_image**; if unsure, try the clearest dashboard or overview view.
-- If a query fails for format reasons, simplify fields/captions and retry. Quote server errors briefly.
-- Ground numbers in tool output only. If tools error or return empty, say so—do not invent figures.
-
-5. Error Handling
-- If a tool call fails, briefly explain why (e.g., "I couldn't find a canvas with that ID") and ask for clarification. Do not apologize excessively.
-- If the user asks about real-time data (weather, live prices, breaking news, current events) and you do not have a web search tool available, do NOT just say you cannot help. Instead reply: "I don't have real-time web access right now. You can enable *Internet Search* in *App Home → Settings* so I can look this up for you."
-- Internet Search and canvas/Tableau tools can be used together in the same turn. For example, you can search the web for current information AND create a canvas summarizing it in one reply.
-
-6. Locale & Units
-- When the context includes a *User locale* block, always use the unit system it specifies for all measurements (Celsius vs Fahrenheit, km vs miles, kg vs pounds, etc.).
+4. Locale & Units
+- When the context includes a *User locale* block, always use the unit system it specifies.
 - If no locale block is present, default to metric units unless the user explicitly asks otherwise.`;
-
-
-const MAX_TOOL_ROUNDS = 5;
-
-/** Nudge when Gemini ends a turn with no text after tools—avoids showing a false "try again" to users. */
-const EMPTY_FINAL_RECOVERY_USER_TEXT =
-  "Your previous assistant turn had no user-visible text. Write the **final** Slack mrkdwn answer now: use the user's question, the conversation, and any tool/function results above—especially numbers and breakdowns. Follow the system Slack formatting rules. Do **not** call tools; only output the reply the user should read.";
-
-/**
- * One follow-up generateContent without tools when the model stops with empty text (common after tool rounds).
- * @param {*} model - Vertex GenerativeModel
- * @param {Array<{ role: string, parts: unknown[] }>} workingContents
- * @param {unknown[]} emptyTurnModelParts from the empty final candidate
- * @returns {Promise<string|null>}
- */
-async function recoverEmptyFinalText(model, workingContents, emptyTurnModelParts) {
-  const modelTurn =
-    Array.isArray(emptyTurnModelParts) && emptyTurnModelParts.length > 0
-      ? { role: "model", parts: emptyTurnModelParts }
-      : { role: "model", parts: [{ text: "" }] };
-  const recoveryContents = [
-    ...workingContents,
-    modelTurn,
-    { role: "user", parts: [{ text: EMPTY_FINAL_RECOVERY_USER_TEXT }] },
-  ];
-  const result = await model.generateContent({ contents: recoveryContents });
-  const candidate = result.response?.candidates?.[0];
-  if (!candidate || candidate.finishReason === "SAFETY") return null;
-  const parts = getModelParts(candidate);
-  if (getFunctionCallParts(parts).length > 0) return null;
-  const t = getTextFromCandidate(candidate);
-  return t.trim() ? t : null;
-}
 
 /**
  * @param {string} text
@@ -83,76 +35,28 @@ function aiReply(text, uploads = []) {
   return { text: text || "", uploads: uploads || [] };
 }
 
-/**
- * Gemini sometimes returns no text after tool rounds even when uploads were queued (e.g. after get_view_image).
- * Avoid telling the user the run failed when a snapshot was produced.
- * @param {string} text
- * @param {Array<unknown>} uploadQueue
- * @returns {string}
- */
-function resolveFinalAssistantText(text, uploadQueue) {
-  const t = (text || "").trim();
-  if (t) return t;
-  if (uploadQueue?.length) {
-    const n = uploadQueue.length;
-    return n === 1
-      ? "Here's a Tableau view snapshot—see the image file below this message."
-      : `Here are ${n} Tableau view snapshots—see the image files below this message.`;
-  }
-  return "I didn't get a clear response. Please try again.";
-}
+let _ai = null;
 
-let _chatModel = null;
-let _fastChatModel = null;
-
-function createGenerativeModel(systemPromptText, modelIdOverride) {
+function getAiClient() {
+  if (_ai) return _ai;
   const project = process.env.GOOGLE_CLOUD_PROJECT;
-  const location =
-    process.env.VERTEX_LOCATION ||
-    process.env.GOOGLE_CLOUD_LOCATION ||
-    "us-central1";
-  const modelId = modelIdOverride || process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  if (!project) {
-    throw new Error("Missing GOOGLE_CLOUD_PROJECT. Set it in .env for Vertex/Gemini.");
-  }
-  const vertex = new VertexAI({ project, location });
-  return vertex.getGenerativeModel({
-    model: modelId,
-    systemInstruction: {
-      role: "system",
-      parts: [{ text: systemPromptText }],
-    },
-    generationConfig: {
-      maxOutputTokens: Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 1024,
-      temperature: 0.7,
-    },
-  });
+  const location = process.env.VERTEX_LOCATION || process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
+  if (!project) throw new Error("Missing GOOGLE_CLOUD_PROJECT. Set it in .env for Vertex/Gemini.");
+  _ai = new GoogleGenAI({ vertexai: true, project, location });
+  return _ai;
 }
 
-function getChatModel() {
-  if (!_chatModel) _chatModel = createGenerativeModel(SYSTEM_PROMPT);
-  return _chatModel;
+function getPrimaryModelId() {
+  return process.env.GEMINI_MODEL || "gemini-2.5-flash";
 }
 
-function getFastChatModel() {
-  const fastModelId = process.env.GEMINI_FAST_MODEL;
-  if (!fastModelId) return getChatModel();
-  if (!_fastChatModel) _fastChatModel = createGenerativeModel(SYSTEM_PROMPT, fastModelId);
-  return _fastChatModel;
+function selectModelId(useFullModel) {
+  const fast = process.env.GEMINI_FAST_MODEL;
+  if (!fast || useFullModel) return getPrimaryModelId();
+  return fast;
 }
 
-/**
- * Select the appropriate model based on whether the query needs full tool capabilities.
- * Routes to a fast model (GEMINI_FAST_MODEL) for conversational queries with no tool indicators.
- * @param {boolean} useFullModel
- */
-function selectChatModel(useFullModel) {
-  if (!process.env.GEMINI_FAST_MODEL) return getChatModel();
-  if (useFullModel) return getChatModel();
-  return getFastChatModel();
-}
-
-function buildContents(threadHistory, userMessage, slackContext) {
+function buildContents(threadHistory, userMessage, skillContext) {
   const contents = [];
   if (Array.isArray(threadHistory) && threadHistory.length > 0) {
     for (const msg of threadHistory) {
@@ -163,7 +67,7 @@ function buildContents(threadHistory, userMessage, slackContext) {
   }
   const trimmed = (userMessage || "").trim();
   if (trimmed) {
-    const contextBlock = slackContext && slackContext.trim() ? slackContext.trim() + "\n\n" : "";
+    const contextBlock = skillContext && skillContext.trim() ? skillContext.trim() + "\n\n" : "";
     contents.push({ role: "user", parts: [{ text: contextBlock + trimmed }] });
   }
   return contents;
@@ -171,175 +75,156 @@ function buildContents(threadHistory, userMessage, slackContext) {
 
 function getTextFromCandidate(candidate) {
   const parts = candidate?.content?.parts || [];
-  const texts = parts.filter((p) => p.text).map((p) => p.text);
-  return texts.join("").trim();
+  return parts
+    .filter((p) => p.text)
+    .map((p) => p.text)
+    .join("")
+    .trim();
 }
 
-function getModelParts(candidate) {
-  return candidate?.content?.parts || [];
-}
+/**
+ * Dispatch canvas side effects after the LLM reply is produced.
+ * Returns any supplementary text to append (e.g., canvas URL confirmation).
+ *
+ * @param {Array<{type: string, payload: object}>} sideEffects
+ * @param {string} llmReplyText
+ * @param {{ userToken?: string, defaultChannelId?: string|null, teamId?: string|null }} opts
+ */
+async function dispatchSideEffects(sideEffects, llmReplyText, opts = {}) {
+  if (!sideEffects?.length) return;
+  const { userToken, defaultChannelId = null, teamId = null } = opts;
+  if (!userToken) return;
 
-function getFunctionCallParts(parts) {
-  return parts.filter((p) => p.functionCall);
+  await Promise.all(
+    sideEffects.map(async (se) => {
+      if (se.type === "canvas_update") {
+        try {
+          await dispatchCanvasTool(
+            userToken,
+            "slack_canvas_update",
+            {
+              canvas_id: se.payload.canvas_id,
+              markdown: llmReplyText,
+              mode: se.payload.mode || "replace_all",
+            },
+            { defaultChannelId, teamId },
+          );
+        } catch (err) {
+          if (process.env.NODE_ENV !== "production") {
+            console.error("[dispatchSideEffects] canvas_update error:", err?.message || err);
+          }
+        }
+      }
+    }),
+  );
 }
 
 /**
  * @param {string} userMessage
  * @param {object} opts
  * @param {Array<{role: string, text: string}>} [opts.threadHistory]
- * @param {string} [opts.slackContext]
- * @param {string} [opts.userToken] - xoxp- for canvas tools
- * @param {string|null} [opts.defaultCanvasChannelId] - C… for default canvas tab
- * @param {string|null} [opts.teamId] - T… workspace team id for building canvas client URLs
- * @param {string} [opts.tableauMcpBaseUrl] - optional per-user Tableau MCP base URL override
- * @param {Record<string, string>} [opts.datasourceUrls] - LUID (lowercase) → Tableau browse URL from buildTableauContext
- * @param {boolean} [opts.useFullModel] - if true, skip fast-model routing and use primary model
- * @param {boolean} [opts.useInternetSearch] - if true, enable Gemini Google Search grounding
+ * @param {string} [opts.skillContext] - pre-assembled context from executeActiveSkills()
+ * @param {Array<{buffer: Buffer, filename: string, title?: string}>} [opts.uploads] - from skills
+ * @param {Array<{type: string, payload: object}>} [opts.sideEffects] - from skills
+ * @param {boolean} [opts.googleSearchActive]
+ * @param {string[]} [opts.systemPromptSections] - per-skill prompt sections
+ * @param {string} [opts.userToken] - xoxp- for canvas side effects
+ * @param {string|null} [opts.defaultCanvasChannelId]
+ * @param {string|null} [opts.teamId]
+ * @param {boolean} [opts.useFullModel]
  * @returns {Promise<{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }> }>}
  */
 async function getAiResponse({
   userMessage,
   threadHistory,
-  slackContext,
+  skillContext,
+  uploads = [],
+  sideEffects = [],
+  googleSearchActive = false,
+  systemPromptSections = [],
   userToken,
   defaultCanvasChannelId,
   teamId,
-  tableauMcpBaseUrl,
-  datasourceUrls,
   useFullModel = false,
-  useInternetSearch = false,
 }) {
-  const activeSkills = resolveActiveSkills({
-    userToken,
-    defaultChannelId: defaultCanvasChannelId || null,
-    teamId: teamId || null,
-    tableauMcpBaseUrl,
-  });
   if (!userMessage || !userMessage.trim()) {
     return aiReply("Send me a message and I'll respond.");
   }
 
-  // Force primary model for internet search turns — fast model may not support search grounding.
-  const model = useInternetSearch ? getChatModel() : selectChatModel(useFullModel);
+  const ai = getAiClient();
+  // Force primary model when internet search is active — fast model may not support grounding.
+  const modelId = googleSearchActive ? getPrimaryModelId() : selectModelId(useFullModel);
 
-  // When internet search is active, inject an explicit note so the model knows to use it.
-  // Gemini's googleSearch grounding is dynamic (model decides), so without this the system
-  // prompt's "last resort" instruction causes the model to skip search when any context exists.
-  let effectiveSlackContext = slackContext;
-  if (useInternetSearch) {
+  // Assemble system prompt: base + per-skill sections.
+  const systemInstruction =
+    systemPromptSections.length > 0
+      ? BASE_SYSTEM_PROMPT + "\n\n---\n\n" + systemPromptSections.join("\n\n")
+      : BASE_SYSTEM_PROMPT;
+
+  // When internet search is active, inject a note so the model uses it.
+  let effectiveContext = skillContext || "";
+  if (googleSearchActive) {
     const searchNote =
       "[Internet Search is ACTIVE this turn — use Google Search immediately for any real-time, current-events, weather, price, or factual look-up that needs live data. Do not say you lack web access.]";
-    effectiveSlackContext = searchNote + (slackContext ? "\n\n" + slackContext : "");
+    effectiveContext = searchNote + (effectiveContext ? "\n\n" + effectiveContext : "");
   }
 
-  const contents = buildContents(threadHistory || [], userMessage.trim(), effectiveSlackContext);
+  const contents = buildContents(threadHistory || [], userMessage.trim(), effectiveContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
-  // Collect all function declarations from active skills.
-  const mergedDeclarations = activeSkills.flatMap((s) => s.functionDeclarations);
-
-  // googleSearch and functionDeclarations are a proto oneof (tool_type) and must be
-  // in separate Tool entries in the array — they cannot share one Tool object.
-  const tools = [];
-  if (useInternetSearch) tools.push({ googleSearch: {} });
-  if (mergedDeclarations.length > 0) tools.push({ functionDeclarations: mergedDeclarations });
-  const toolsArg = tools.length > 0 ? tools : undefined;
-  const toolConfig =
-    mergedDeclarations.length > 0
-      ? { functionCallingConfig: { mode: FunctionCallingMode.AUTO } }
-      : undefined;
-
-  let working = contents;
-  /** @type {Array<{ buffer: Buffer, filename: string, title?: string }>} */
-  const uploadQueue = [];
-  const datasourceUrlByLuid = { ...(datasourceUrls && typeof datasourceUrls === "object" ? datasourceUrls : {}) };
-  const viewUrlById = {};
+  const tools = googleSearchActive ? [{ googleSearch: {} }] : undefined;
+  const config = {
+    systemInstruction,
+    maxOutputTokens: Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 1024,
+    temperature: 0.7,
+    ...(tools ? { tools } : {}),
+  };
 
   try {
-    for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const result = await model.generateContent({
-        contents: working,
-        tools: toolsArg,
-        toolConfig,
-      });
-      const response = result.response;
-      const candidate = response?.candidates?.[0];
-      if (!candidate) {
-        const msg =
-          uploadQueue?.length > 0
-            ? "I couldn't finish the written reply, but see the Tableau file(s) below if any were attached."
-            : "I didn't get a valid response. Please try again.";
-        return aiReply(msg, uploadQueue);
-      }
-
-      if (candidate.finishReason === "SAFETY") {
-        return aiReply("I can't generate a response for that. Try rephrasing.", uploadQueue);
-      }
-
-      const modelParts = getModelParts(candidate);
-      const fcParts = getFunctionCallParts(modelParts);
-      if (fcParts.length === 0) {
-        let text = getTextFromCandidate(candidate);
-        if (!text.trim() && uploadQueue.length === 0) {
-          try {
-            const recovered = await recoverEmptyFinalText(model, working, modelParts);
-            if (recovered) text = recovered;
-          } catch (recoveryErr) {
-            if (process.env.NODE_ENV !== "production") {
-              console.error("Empty-final recovery generateContent failed:", recoveryErr?.message || recoveryErr);
-            }
-          }
-        }
-        return aiReply(resolveFinalAssistantText(text, uploadQueue), uploadQueue);
-      }
-
-      working.push({
-        role: "model",
-        parts: modelParts,
-      });
-
-      // Dispatch all tool calls in this round concurrently. JS is single-threaded so
-      // mutations to uploadQueue/datasourceUrlByLuid/viewUrlById are safe — only I/O overlaps.
-      const sessionOpts = { uploadQueue, datasourceUrlByLuid, viewUrlById };
-      const responseParts = await Promise.all(
-        fcParts.map(async (p) => {
-          const fc = p.functionCall;
-          const name = fc.name;
-          const args = fc.args && typeof fc.args === "object" ? { ...fc.args } : {};
-          const skill = activeSkills.find((s) => s.handlesToolName(name));
-          const toolResult = skill
-            ? await skill.dispatch(name, args, sessionOpts)
-            : { ok: false, error: "No handler for this tool in the current session." };
-          return {
-            functionResponse: {
-              name,
-              response: { name, content: toolResult },
-            },
-          };
-        })
+    const response = await ai.models.generateContent({ model: modelId, contents, config });
+    const candidate = response?.candidates?.[0];
+    if (!candidate) {
+      return aiReply(
+        uploads.length > 0
+          ? "I couldn't finish the written reply, but see the file(s) below if any were attached."
+          : "I didn't get a valid response. Please try again.",
+        uploads,
       );
-
-      working.push({ role: "user", parts: responseParts });
+    }
+    if (candidate.finishReason === "SAFETY") {
+      return aiReply("I can't generate a response for that. Try rephrasing.", uploads);
     }
 
-    const limitMsg =
-      uploadQueue?.length > 0
-        ? "I hit the tool-step limit for one message—try a narrower ask. Any Tableau snapshot(s) we already rendered are attached below."
-        : "I hit the limit for tool steps in one turn. Please narrow your request.";
-    return aiReply(limitMsg, uploadQueue);
+    const text = getTextFromCandidate(candidate);
+    const finalText = text || (uploads.length > 0
+      ? uploads.length === 1
+        ? "Here's a Tableau view snapshot—see the image file below this message."
+        : `Here are ${uploads.length} Tableau view snapshots—see the image files below this message.`
+      : "I didn't get a clear response. Please try again.");
+
+    // Dispatch canvas side effects with the LLM's reply as the canvas content.
+    if (sideEffects.length > 0) {
+      await dispatchSideEffects(sideEffects, finalText, {
+        userToken,
+        defaultChannelId: defaultCanvasChannelId || null,
+        teamId: teamId || null,
+      });
+    }
+
+    return aiReply(finalText, uploads);
   } catch (err) {
-    console.error("Vertex/Gemini error:", err.message || err);
+    console.error("Gemini error:", err.message || err);
     const msg = err.message || String(err);
     if (msg.includes("GOOGLE_CLOUD_PROJECT") || msg.includes("Could not load the default credentials")) {
       return aiReply(
         "slack-mcp-agent isn't configured for AI yet (check GOOGLE_CLOUD_PROJECT and Google auth).",
-        uploadQueue,
+        uploads,
       );
     }
     if (msg.includes("403") || msg.includes("PERMISSION_DENIED")) {
-      return aiReply("AI service access isn't set up. Check Vertex AI permissions and billing.", uploadQueue);
+      return aiReply("AI service access isn't set up. Check Vertex AI permissions and billing.", uploads);
     }
-    return aiReply("Something went wrong on my side. Please try again in a moment.", uploadQueue);
+    return aiReply("Something went wrong on my side. Please try again in a moment.", uploads);
   }
 }
 

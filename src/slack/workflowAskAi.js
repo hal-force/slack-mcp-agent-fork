@@ -26,15 +26,14 @@ const WORKFLOW_AI_RESPONSE_OUTPUT_NAME =
 const WORKFLOW_POST_CHANNEL_INPUT_NAME =
   process.env.SLACK_WORKFLOW_ASK_AI_POST_CHANNEL_INPUT || "b504c1";
 
-const { buildSlackContext, parseChannelRefs } = require("../assistant/slackContext");
+const { parseChannelRefs } = require("../assistant/slackContext");
 const { classifyIntent } = require("../router/intentRouter");
-const { assembleContext } = require("../context/assembleContext");
 const { installQueryFromBoltContext } = require("../install-kit/installQuery");
 const { getUserLocaleContext } = require("../assistant/userLocale");
-const { buildTableauContext } = require("../assistant/tableauContextBuilder");
 const { getInstallation } = require("../install-kit/installationStore");
 const { getInstallUrl } = require("../install-kit/env");
 const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("../preferences/userPreferences");
+const { resolveActiveSkills, executeActiveSkills } = require("../skills/registry");
 const { resolveSlackMrkdwnEntities } = require("./resolveSlackMrkdwnEntities");
 const { mrkdwnStringToBlocks } = require("./mrkdwnToBlocks");
 const { postThreadFileUploads } = require("./postThreadFileUploads");
@@ -345,19 +344,28 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           })();
 
         const primaryChannelId = postChannelId || channelIdsFromPrompt[0] || null;
-        const hasChannelRefs =
-          channelIdsFromPrompt.length > 0 ||
-          /#([a-z0-9][a-z0-9._-]*)/i.test(userMessage) ||
-          /\b(this|the) channel\b/i.test(userMessage);
 
-        let slackContext = "";
-        let channelAccessErrorCount = 0;
-        const channelAccessErrors = [];
+        const { useFullModel, intents } = classifyIntent(userMessage, {
+          tableauEnabled: !!tableauMcpBaseUrl,
+          hasUserToken: !!installation?.user?.token,
+          internetSearch: useInternetSearch,
+        });
 
-        if (client) {
-          try {
-            let built = await buildSlackContext(client, {
-              userToken: installation?.user?.token,
+        const userToken = installation?.user?.token;
+        const activeSkills = resolveActiveSkills({
+          userToken,
+          defaultChannelId: primaryChannelId,
+          teamId,
+          tableauMcpBaseUrl,
+          internetSearchEnabled: useInternetSearch,
+        });
+
+        const [skillResult] = await Promise.all([
+          executeActiveSkills(activeSkills, intents, {
+            userMessage,
+            client,
+            sessionOpts: {
+              userToken,
               channelId: primaryChannelId || undefined,
               threadTs: null,
               userMessage,
@@ -365,29 +373,13 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
               includeSearch: true,
               contextChannelId: postChannelId || undefined,
               teamId,
-              channelAccessErrors,
-            });
-            const needsUserToken = hasChannelRefs && !installation?.user?.token;
-            if (needsUserToken) {
-              const reinstallNote = modelContextChannelAccessReinstallNote();
-              built = built
-                ? `${reinstallNote}\n\n${built}`
-                : `\n--- Slack context ---\n${reinstallNote}\n--- End Slack context ---\n`;
-            }
-            slackContext = built;
-            channelAccessErrorCount = channelAccessErrors.length;
-          } catch (ctxErr) {
-            logger.warn(`[workflow_ask_ai] slack context skipped: ${ctxErr?.message || ctxErr}`);
-          }
-        }
+              tableauMcpBaseUrl,
+              defaultChannelId: primaryChannelId,
+            },
+          }),
+        ]);
 
-        const { useFullModel, wantTableau } = classifyIntent(userMessage, {
-          tableauEnabled: !!tableauMcpBaseUrl,
-          hasUserToken: !!installation?.user?.token,
-          internetSearch: useInternetSearch,
-        });
-        const tableauBlock = await buildTableauContext(userMessage, { tableauMcpBaseUrl, wantTableau });
-        const contextForAi = assembleContext({ localeContext, slackContext, tableauContext: tableauBlock.context });
+        const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
 
         const logPayload = {
           tag: "workflow_ask_ai",
@@ -407,24 +399,24 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           promptHead: userMessage.slice(0, 100).replace(/\s+/g, " ").trim(),
           channelIdsInPrompt: channelIdsFromPrompt,
           primaryChannelId,
-          slackContextChars: slackContext.length,
-          channelAccessErrorCount,
-          chatParity: true,
-          hasUserToken: !!installation?.user?.token,
+          skillContextChars: skillContext.length,
+          googleSearchActive: skillResult.googleSearchActive,
+          hasUserToken: !!userToken,
           tableauMcpConfigured: !!tableauMcpBaseUrl,
         };
         logger.info(`[workflow_ask_ai] ${JSON.stringify(logPayload)}`);
 
         const aiResult = await getAiResponse({
           userMessage,
-          slackContext: contextForAi || undefined,
-          userToken: installation?.user?.token,
+          skillContext: skillContext || undefined,
+          uploads: skillResult.uploads,
+          sideEffects: skillResult.sideEffects,
+          googleSearchActive: skillResult.googleSearchActive,
+          systemPromptSections: skillResult.systemPromptSections,
+          userToken,
           defaultCanvasChannelId: postChannelId || primaryChannelId || null,
           teamId,
-          tableauMcpBaseUrl,
-          datasourceUrls: tableauBlock.datasourceUrls,
           useFullModel,
-          useInternetSearch,
         });
 
         let aiText = aiResult.text;
