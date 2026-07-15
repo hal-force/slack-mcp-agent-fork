@@ -1,5 +1,5 @@
-const { GoogleGenAI } = require("@google/genai");
 const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
+const { generateReply, selectedProvider } = require("./llmProvider");
 
 const BASE_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a high-utility AI assistant.
 
@@ -35,17 +35,6 @@ function aiReply(text, uploads = []) {
   return { text: text || "", uploads: uploads || [] };
 }
 
-let _ai = null;
-
-function getAiClient() {
-  if (_ai) return _ai;
-  const project = process.env.GOOGLE_CLOUD_PROJECT;
-  const location = process.env.VERTEX_LOCATION || process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
-  if (!project) throw new Error("Missing GOOGLE_CLOUD_PROJECT. Set it in .env for Vertex/Gemini.");
-  _ai = new GoogleGenAI({ vertexai: true, project, location });
-  return _ai;
-}
-
 function getPrimaryModelId() {
   return process.env.GEMINI_MODEL || "gemini-2.5-flash";
 }
@@ -71,15 +60,6 @@ function buildContents(threadHistory, userMessage, skillContext) {
     contents.push({ role: "user", parts: [{ text: contextBlock + trimmed }] });
   }
   return contents;
-}
-
-function getTextFromCandidate(candidate) {
-  const parts = candidate?.content?.parts || [];
-  return parts
-    .filter((p) => p.text)
-    .map((p) => p.text)
-    .join("")
-    .trim();
 }
 
 /**
@@ -151,9 +131,14 @@ async function getAiResponse({
     return aiReply("Send me a message and I'll respond.");
   }
 
-  const ai = getAiClient();
+  const provider = selectedProvider();
   // Force primary model when internet search is active — fast model may not support grounding.
+  // (Model id only applies to the Vertex/Gemini backend.)
   const modelId = googleSearchActive ? getPrimaryModelId() : selectModelId(useFullModel);
+
+  // googleSearch grounding is a Gemini-only tool. Under the gateway (Claude) it is unavailable,
+  // so don't advertise it to the model on that backend.
+  const searchActive = googleSearchActive && provider === "vertex";
 
   // Assemble system prompt: base + per-skill sections.
   const systemInstruction =
@@ -163,7 +148,7 @@ async function getAiResponse({
 
   // When internet search is active, inject a note so the model uses it.
   let effectiveContext = skillContext || "";
-  if (googleSearchActive) {
+  if (searchActive) {
     const searchNote =
       "[Internet Search is ACTIVE this turn — use Google Search immediately for any real-time, current-events, weather, price, or factual look-up that needs live data. Do not say you lack web access.]";
     effectiveContext = searchNote + (effectiveContext ? "\n\n" + effectiveContext : "");
@@ -172,30 +157,32 @@ async function getAiResponse({
   const contents = buildContents(threadHistory || [], userMessage.trim(), effectiveContext);
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
-  const tools = googleSearchActive ? [{ googleSearch: {} }] : undefined;
-  const config = {
-    systemInstruction,
-    maxOutputTokens: Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 1024,
-    temperature: 0.7,
-    ...(tools ? { tools } : {}),
-  };
+  const maxOutputTokens = Number(process.env.LLM_MAX_OUTPUT_TOKENS) ||
+    Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 4096;
 
   try {
-    const response = await ai.models.generateContent({ model: modelId, contents, config });
-    const candidate = response?.candidates?.[0];
-    if (!candidate) {
-      return aiReply(
-        uploads.length > 0
-          ? "I couldn't finish the written reply, but see the file(s) below if any were attached."
-          : "I didn't get a valid response. Please try again.",
-        uploads,
-      );
-    }
-    if (candidate.finishReason === "SAFETY") {
+    const result = await generateReply(
+      {
+        systemInstruction,
+        contents,
+        maxOutputTokens,
+        temperature: 0.7,
+        googleSearchActive: searchActive,
+      },
+      { modelId },
+    );
+
+    if (result.safety) {
       return aiReply("I can't generate a response for that. Try rephrasing.", uploads);
     }
 
-    const text = getTextFromCandidate(candidate);
+    let text = result.text;
+    if (text && result.truncated) {
+      // The model hit the output-token cap. Flag it so the user knows the reply is cut,
+      // rather than silently ending mid-thought (a source of "truncated response" reports).
+      text += "\n\n_…(response truncated — ask me to continue for the rest.)_";
+    }
+
     const finalText = text || (uploads.length > 0
       ? uploads.length === 1
         ? "Here's a Tableau view snapshot—see the image file below this message."
@@ -213,13 +200,16 @@ async function getAiResponse({
 
     return aiReply(finalText, uploads);
   } catch (err) {
-    console.error("Gemini error:", err.message || err);
+    console.error(`LLM error (${provider}):`, err.message || err);
     const msg = err.message || String(err);
     if (msg.includes("GOOGLE_CLOUD_PROJECT") || msg.includes("Could not load the default credentials")) {
       return aiReply(
         "slack-mcp-agent isn't configured for AI yet (check GOOGLE_CLOUD_PROJECT and Google auth).",
         uploads,
       );
+    }
+    if (msg.includes("LLM gateway")) {
+      return aiReply("The AI gateway is unavailable right now. Please try again in a moment.", uploads);
     }
     if (msg.includes("403") || msg.includes("PERMISSION_DENIED")) {
       return aiReply("AI service access isn't set up. Check Vertex AI permissions and billing.", uploads);

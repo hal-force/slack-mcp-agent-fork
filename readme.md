@@ -123,7 +123,9 @@ In Slack **App Settings**, enable **Agents & AI Apps** for the Assistant UI.
 
 **Slack MCP must be turned on for your app** (separate from the Assistant UI toggle): open [Your Apps](https://api.slack.com/apps) → select this app → **Agents & AI Apps** (or **Assistant**) → enable **Model Context Protocol** / Slack MCP server access. If MCP is off, `mcp.slack.com` returns HTTP 400 with *“App is not enabled for Slack MCP server access”* and the app falls back to the Web API only for Slack context. The error response includes a direct link to `https://api.slack.com/apps/YOUR_APP_ID/app-assistant`.
 
-AI is powered by **Vertex AI (Gemini)**. Configure `GOOGLE_CLOUD_PROJECT`, `VERTEX_LOCATION`, and optionally `GEMINI_MODEL` in `.env`; see above. To change the system prompt or model settings, edit `src/assistant/respond.js`.
+AI is powered by **Vertex AI (Gemini)** by default. Configure `GOOGLE_CLOUD_PROJECT`, `VERTEX_LOCATION`, and optionally `GEMINI_MODEL` in `.env`; see above. To change the system prompt or model settings, edit `src/assistant/respond.js`.
+
+**Alternate backend — LLM gateway (Claude):** Set `AI_PROVIDER=gateway` plus `LLM_GATEWAY_URL`, `LLM_GATEWAY_API_KEY`, and `LLM_GATEWAY_MODEL` to route replies through an OpenAI-compatible `/v1/chat/completions` gateway (e.g. an internal gateway serving Claude models). The provider abstraction lives in `src/assistant/llmProvider.js`; `respond.js` calls it and stays backend-agnostic. If the gateway vars are incomplete the app safely falls back to Vertex/Gemini. **Caveat:** Google Search grounding is a Gemini-only tool, so the *Internet Search* toggle has no effect under the gateway backend — the model answers from Slack/Tableau context and its own knowledge only.
 
 **Slack context (Slack MCP server):** The assistant uses Slack as context when answering. For @mentions it fetches recent channel/thread messages and optional search results; for Assistant threads it runs search from the user’s message. This is implemented in `src/assistant/slackContext.js` using the Slack MCP server at `https://mcp.slack.com/mcp` when a user token is present (Streamable HTTP: initialize, `Mcp-Session-Id`, then `tools/list` / `tools/call`), else the Slack Web API ([Slack MCP server](https://docs.slack.dev/ai/mcp-server)). Ensure the app has scopes such as `channels:history`, `groups:history`, `im:history`, `mpim:history`, and `search:read.public` (and other `search:read.*`) for full context. Set `SLACK_MCP_DEBUG=1` (or `SLACK_CONTEXT_DEBUG=1`) to log Slack MCP failures instead of failing silently.
 
@@ -220,6 +222,13 @@ Add these in the dashboard (or via CLI). **Do not commit secrets to git.**
 | `GOOGLE_CLOUD_PROJECT` | Yes | GCP project ID for Vertex AI |
 | `VERTEX_LOCATION` | Yes | e.g. `us-central1` |
 | `GEMINI_MODEL` | No | Default `gemini-2.5-flash` |
+| `AI_PROVIDER` | No | `vertex` (default) or `gateway`. `gateway` routes replies to an OpenAI-compatible `/v1/chat/completions` endpoint (e.g. the internal LLM gateway serving Claude). Falls back to `vertex` if gateway vars are incomplete. |
+| `LLM_GATEWAY_URL` | For gateway | Full `/v1/chat/completions` URL of the gateway |
+| `LLM_GATEWAY_API_KEY` | For gateway | Bearer token for the gateway |
+| `LLM_GATEWAY_MODEL` | For gateway | Model id, e.g. `claude-sonnet-4-6` |
+| `LLM_MAX_OUTPUT_TOKENS` | No | Max reply tokens (default `4096`). Applies to both backends; replies that still hit the cap are flagged as truncated rather than cut silently. |
+| `MCP_HTTP_MAX_ATTEMPTS` | No | MCP HTTP retry attempts on transient 5xx/429/network errors (default `3`) |
+| `MCP_HTTP_RETRY_BASE_MS` | No | Base backoff between MCP retries in ms (default `300`, linear) |
 | `TABLEAU_MCP_SERVER` | No | Tableau MCP streamable HTTP URL when you want Tableau context |
 | `TABLEAU_MCP_LIST_DATASOURCES` | No | Set `1` to always attach a datasource list sample (more API load) |
 | `TABLEAU_MCP_VERBOSE_TOOLS` | No | Set `1` to include long Tableau tool descriptions in context (default is names only) |
