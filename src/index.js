@@ -15,6 +15,7 @@ const { getAiResponse } = require("./assistant/respond");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
 const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("./preferences/userPreferences");
+const { resolveTableauMcpUrl } = require("./assistant/tableauMcpClient");
 const { registerAppHome } = require("./slack/appHome");
 const { registerAskAiWorkflowStep } = require("./slack/workflowAskAi");
 const { getUserLocaleContext } = require("./assistant/userLocale");
@@ -56,11 +57,15 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
   try {
     const userMessage = event.text?.replace(/<@[A-Z0-9]+>/g, "").trim() || "";
     const installQuery = installQueryFromBoltContext(body, {}, event);
-    const [installation, tableauMcpBaseUrl, useInternetSearch] = await Promise.all([
+    const [installation, tableauMcpUrlOverride, useInternetSearch] = await Promise.all([
       getInstallation(installQuery),
       getTableauMcpUrlOverride(installQuery),
       getInternetSearchEnabled(installQuery),
     ]);
+    // Effective URL = per-user override, else the host default (TABLEAU_MCP_SERVER).
+    // Gating (tableauEnabled) must use this, not the raw override, or a deployment-wide
+    // default never enables the skill.
+    const tableauMcpBaseUrl = resolveTableauMcpUrl(tableauMcpUrlOverride);
     if (process.env.SLACK_CONTEXT_DEBUG === "1") {
       console.log(`[slack-mcp-agent] app_mention useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }
@@ -194,11 +199,13 @@ const assistant = new Assistant({
     const { channel, thread_ts } = message;
     const text = message.text.trim();
     const installQuery = installQueryFromBoltContext(body, context, { user: message?.user });
-    const [installation, tableauMcpBaseUrl, useInternetSearch] = await Promise.all([
+    const [installation, tableauMcpUrlOverride, useInternetSearch] = await Promise.all([
       getInstallation(installQuery),
       getTableauMcpUrlOverride(installQuery),
       getInternetSearchEnabled(installQuery),
     ]);
+    // Effective URL = per-user override, else the host default (TABLEAU_MCP_SERVER).
+    const tableauMcpBaseUrl = resolveTableauMcpUrl(tableauMcpUrlOverride);
     if (process.env.SLACK_CONTEXT_DEBUG === "1") {
       console.log(`[slack-mcp-agent] assistant useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }

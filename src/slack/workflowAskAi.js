@@ -33,6 +33,7 @@ const { getUserLocaleContext } = require("../assistant/userLocale");
 const { getInstallation } = require("../install-kit/installationStore");
 const { getInstallUrl } = require("../install-kit/env");
 const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("../preferences/userPreferences");
+const { resolveTableauMcpUrl } = require("../assistant/tableauMcpClient");
 const { resolveActiveSkills, executeActiveSkills } = require("../skills/registry");
 const { resolveSlackMrkdwnEntities } = require("./resolveSlackMrkdwnEntities");
 const { mrkdwnStringToBlocks } = require("./mrkdwnToBlocks");
@@ -322,12 +323,14 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
         }
 
         const installQuery = installQueryFromBoltContext(body, {}, event);
-        const [installation, tableauMcpBaseUrl, localeContext, useInternetSearch] = await Promise.all([
+        const [installation, tableauMcpUrlOverride, localeContext, useInternetSearch] = await Promise.all([
           getInstallation(installQuery),
           getTableauMcpUrlOverride(installQuery),
           getUserLocaleContext(client, installQuery.userId),
           getInternetSearchEnabled(installQuery),
         ]);
+        // Effective URL = per-user override, else the host default (TABLEAU_MCP_SERVER).
+        const tableauMcpBaseUrl = resolveTableauMcpUrl(tableauMcpUrlOverride);
 
         const teamId =
           body?.team_id ||
