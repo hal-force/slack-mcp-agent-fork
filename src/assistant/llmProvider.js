@@ -1,14 +1,15 @@
 /**
  * LLM provider abstraction.
  *
- * Two backends behind one `generateReply()` call:
+ * Three backends behind one `generateReply()` call:
  *  - "vertex"  (default): Vertex AI / Gemini via @google/genai.
  *  - "gateway": OpenAI-compatible /v1/chat/completions endpoint (used by the
  *               internal LLM gateway that serves Claude models).
+ *  - "bedrock": AWS Bedrock Converse API, serving Claude natively.
  *
- * Select with AI_PROVIDER = "vertex" | "gateway". A gateway config that is
- * present but incomplete falls back to vertex so a misconfiguration never
- * silently breaks replies.
+ * Select with AI_PROVIDER = "vertex" | "gateway" | "bedrock". A gateway or
+ * bedrock config that is present but incomplete falls back to vertex so a
+ * misconfiguration never silently breaks replies.
  *
  * Normalized request shape (provider-agnostic):
  *   {
@@ -28,6 +29,7 @@ let _genAiClient = null;
 function selectedProvider() {
   const p = String(process.env.AI_PROVIDER || "").trim().toLowerCase();
   if (p === "gateway" && gatewayConfig()) return "gateway";
+  if (p === "bedrock" && bedrockConfig()) return "bedrock";
   return "vertex";
 }
 
@@ -37,6 +39,23 @@ function gatewayConfig() {
   const model = String(process.env.LLM_GATEWAY_MODEL || "").trim();
   if (!url || !apiKey || !model) return null;
   return { url, apiKey, model };
+}
+
+/**
+ * AWS Bedrock config. Requires a model id and a region; AWS credentials are
+ * resolved by the SDK's default provider chain (env vars, shared config, or an
+ * assumed role), so we don't read the secret/session token directly here.
+ * Returns null if the required pieces are missing so selectedProvider() falls
+ * back to vertex rather than silently breaking replies.
+ */
+function bedrockConfig() {
+  const model = String(process.env.BEDROCK_MODEL_ID || "").trim();
+  const region = String(
+    process.env.BEDROCK_REGION || process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "",
+  ).trim();
+  const hasCreds = Boolean(String(process.env.AWS_ACCESS_KEY_ID || "").trim());
+  if (!model || !region || !hasCreds) return null;
+  return { model, region };
 }
 
 // ----- Vertex / Gemini -----
@@ -100,6 +119,82 @@ function contentsToOpenAiMessages(systemInstruction, contents) {
   return messages;
 }
 
+// ----- AWS Bedrock (Converse API, serving Claude natively) -----
+
+let _bedrockClient = null;
+
+function getBedrockClient(region) {
+  if (_bedrockClient) return _bedrockClient;
+  const { BedrockRuntimeClient } = require("@aws-sdk/client-bedrock-runtime");
+  // Credentials come from the SDK default provider chain (AWS_ACCESS_KEY_ID /
+  // _SECRET_ACCESS_KEY / _SESSION_TOKEN env vars on Heroku).
+  _bedrockClient = new BedrockRuntimeClient({ region });
+  return _bedrockClient;
+}
+
+/**
+ * Convert Gemini-native contents into Bedrock Converse messages.
+ * Converse wants role "user"|"assistant" and content as [{ text }] blocks,
+ * with the system prompt passed separately. It also rejects empty messages and
+ * requires messages to alternate, so we merge consecutive same-role turns.
+ */
+function contentsToBedrockMessages(contents) {
+  const messages = [];
+  for (const c of contents || []) {
+    const text = (c.parts || [])
+      .filter((p) => p && p.text)
+      .map((p) => p.text)
+      .join("");
+    if (!text.trim()) continue;
+    const role = c.role === "model" ? "assistant" : "user";
+    const last = messages[messages.length - 1];
+    if (last && last.role === role) {
+      last.content.push({ text });
+    } else {
+      messages.push({ role, content: [{ text }] });
+    }
+  }
+  return messages;
+}
+
+async function generateWithBedrock({ systemInstruction, contents, maxOutputTokens, temperature }) {
+  const cfg = bedrockConfig();
+  if (!cfg) throw new Error("Bedrock is not configured (BEDROCK_MODEL_ID / region / AWS credentials).");
+
+  const { ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
+  const client = getBedrockClient(cfg.region);
+  const messages = contentsToBedrockMessages(contents);
+  // Converse requires at least one message and a leading user turn.
+  if (messages.length === 0 || messages[0].role !== "user") {
+    messages.unshift({ role: "user", content: [{ text: "(no message)" }] });
+  }
+
+  const out = await client.send(
+    new ConverseCommand({
+      modelId: cfg.model,
+      messages,
+      ...(systemInstruction && systemInstruction.trim()
+        ? { system: [{ text: systemInstruction.trim() }] }
+        : {}),
+      inferenceConfig: { maxTokens: maxOutputTokens, temperature },
+    }),
+  );
+
+  const text = (out.output?.message?.content || [])
+    .filter((b) => b && b.text)
+    .map((b) => b.text)
+    .join("")
+    .trim();
+  const stopReason = out.stopReason || null;
+  return {
+    text,
+    finishReason: stopReason,
+    // Bedrock reports "max_tokens" when the output cap is hit.
+    truncated: stopReason === "max_tokens",
+    safety: stopReason === "content_filtered" || stopReason === "guardrail_intervened",
+  };
+}
+
 async function generateWithGateway({ systemInstruction, contents, maxOutputTokens, temperature }) {
   const cfg = gatewayConfig();
   if (!cfg) throw new Error("LLM gateway is not configured (LLM_GATEWAY_URL / _API_KEY / _MODEL).");
@@ -157,6 +252,10 @@ async function generateReply(req, opts = {}) {
     const out = await generateWithGateway(req);
     return { ...out, provider };
   }
+  if (provider === "bedrock") {
+    const out = await generateWithBedrock(req);
+    return { ...out, provider };
+  }
   const out = await generateWithGemini({ ...req, modelId: opts.modelId });
   return { ...out, provider };
 }
@@ -165,6 +264,8 @@ module.exports = {
   generateReply,
   selectedProvider,
   gatewayConfig,
+  bedrockConfig,
   // exported for tests
   contentsToOpenAiMessages,
+  contentsToBedrockMessages,
 };

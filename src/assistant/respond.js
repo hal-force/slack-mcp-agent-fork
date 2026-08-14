@@ -211,6 +211,18 @@ async function getAiResponse({
     if (msg.includes("LLM gateway")) {
       return aiReply("The AI gateway is unavailable right now. Please try again in a moment.", uploads);
     }
+    if (
+      provider === "bedrock" ||
+      msg.includes("Bedrock") ||
+      msg.includes("ExpiredToken") ||
+      msg.includes("UnrecognizedClient") ||
+      msg.includes("security token")
+    ) {
+      return aiReply(
+        "The AI service (AWS Bedrock) is unavailable right now — its credentials may have expired. Please try again shortly.",
+        uploads,
+      );
+    }
     if (msg.includes("403") || msg.includes("PERMISSION_DENIED")) {
       return aiReply("AI service access isn't set up. Check Vertex AI permissions and billing.", uploads);
     }

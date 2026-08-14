@@ -9,4 +9,7 @@ node_modules/
 .tmp-mcp/
 
 # Salesforce DX / CLI cache (not part of this app — created if SF extensions or sf/sfdx run against this folder)
-.sfdx/cursor_slack_chat.md
+.sfdx/
+
+# Cursor chat transcript — contains a plaintext secret; must never be committed
+cursor_slack_chat.md
