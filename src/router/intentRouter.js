@@ -20,8 +20,13 @@ const ORIGINS = {
 };
 
 const SIGNAL = {
+  // Tableau is the agent's primary analytics surface, so route data-shaped
+  // questions here even when the user never says "Tableau" — e.g. "find my
+  // grants data", "show me the sales numbers". Fetching the datasource catalog
+  // is cheap; the skill no-ops if nothing matches. slack_search may also fire
+  // on the same turn — both skills contribute context in parallel.
   tableau:
-    /\btableau\b|\bvizql\b|\bdatasource\b|\bdata source\b|\bworkbook\b|\bdashboard\b|\bpulse\b/i,
+    /\btableau\b|\bvizql\b|\bdatasources?\b|\bdata\s?sources?\b|\bworkbooks?\b|\bdashboards?\b|\bpulse\b|\bdatasets?\b|\bgrants?\b|\bmetrics?\b|\bkpis?\b|\banalytics\b|\breports?\b|\bfigures\b|\bnumbers\b|\bstatistics\b|\bstats\b|\bdata\b/i,
   canvas:
     /\bcanvas\b|\bcreate\b.*\bdoc(?:ument)?\b|\bdoc(?:ument)?\b.*\bcreate\b/i,
   slackSearch:
@@ -37,11 +42,24 @@ const SIGNAL = {
  *   hasUserToken?: boolean,
  *   internetSearch?: boolean,
  * }} caps - capability flags for the current session
+ * @param {string} [threadHint] - prior thread text; keeps a Tableau conversation
+ *   in Tableau mode on follow-up turns that omit an explicit keyword
+ *   (e.g. "you literally showed me OTF Grants Enriched").
  * @returns {{ intents: string[], useFullModel: boolean, wantTableau: boolean }}
  */
-function classifyIntent(userMessage, caps = {}) {
+function classifyIntent(userMessage, caps = {}, threadHint = "") {
   const intents = new Set();
-  if (caps.tableauEnabled && SIGNAL.tableau.test(userMessage)) intents.add(INTENTS.TABLEAU);
+  // Route to Tableau on an explicit keyword in this message, OR when the thread
+  // is already a Tableau conversation (continuity). lexicalWantTableau inspects
+  // the combined lexical context — prior datasource names, LUIDs, analytics
+  // language — so a keyword-less follow-up doesn't silently lose the context.
+  if (
+    caps.tableauEnabled &&
+    (SIGNAL.tableau.test(userMessage) ||
+      (threadHint && lexicalWantTableau(`${userMessage}\n${threadHint}`)))
+  ) {
+    intents.add(INTENTS.TABLEAU);
+  }
   if (caps.hasUserToken   && SIGNAL.canvas.test(userMessage))  intents.add(INTENTS.CANVAS);
   if (SIGNAL.slackSearch.test(userMessage))                    intents.add(INTENTS.SLACK_SEARCH);
   if (caps.internetSearch)                                     intents.add(INTENTS.INTERNET_SEARCH);

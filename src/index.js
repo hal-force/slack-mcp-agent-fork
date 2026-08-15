@@ -72,11 +72,26 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
     const teamId =
       body?.team_id || body?.authorizations?.[0]?.team_id || event?.team || event?.team_id || null;
     const userToken = installation?.user?.token;
-    const { useFullModel, intents } = classifyIntent(userMessage, {
-      tableauEnabled: !!tableauMcpBaseUrl,
-      hasUserToken: !!userToken,
-      internetSearch: useInternetSearch,
-    });
+
+    // If the mention is inside a thread, pull prior turns so a keyword-less
+    // follow-up ("what about last quarter?") stays routed to Tableau.
+    let mentionThreadHint = "";
+    if (event.thread_ts) {
+      const priorReplies = await client.conversations
+        .replies({ channel: event.channel, ts: event.thread_ts, oldest: event.thread_ts })
+        .catch(() => ({ messages: [] }));
+      mentionThreadHint = (priorReplies.messages || []).map((m) => m.text || "").join("\n");
+    }
+
+    const { useFullModel, intents } = classifyIntent(
+      userMessage,
+      {
+        tableauEnabled: !!tableauMcpBaseUrl,
+        hasUserToken: !!userToken,
+        internetSearch: useInternetSearch,
+      },
+      mentionThreadHint,
+    );
     const activeSkills = resolveActiveSkills({
       userToken,
       defaultChannelId: event.channel,
@@ -95,6 +110,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
           threadTs: event.thread_ts || event.ts,
           userMessage,
           tableauMcpBaseUrl,
+          threadHint: mentionThreadHint,
           defaultChannelId: event.channel,
           teamId,
         },
@@ -236,13 +252,9 @@ const assistant = new Assistant({
       const teamIdForContext = body?.team_id || context?.teamId || context?.team?.id;
       const teamId = body?.team_id || body?.authorizations?.[0]?.team_id || teamIdForContext || null;
 
-      const { useFullModel, intents } = classifyIntent(text, {
-        tableauEnabled: !!tableauMcpBaseUrl,
-        hasUserToken: !!userToken,
-        internetSearch: useInternetSearch,
-      });
-
-      // Fetch thread history first (threadHint needed for Tableau datasource matching).
+      // Fetch thread history first: threadHint feeds both Tableau datasource
+      // matching AND intent classification (so a keyword-less follow-up in a
+      // Tableau thread stays routed to Tableau).
       const repliesRes = await client.conversations
         .replies({ channel, ts: thread_ts, oldest: thread_ts })
         .catch(() => ({ messages: [] }));
@@ -252,6 +264,16 @@ const assistant = new Assistant({
         text: m.text || "",
       }));
       const threadHint = threadHistory.map((m) => m.text || "").join("\n");
+
+      const { useFullModel, intents } = classifyIntent(
+        text,
+        {
+          tableauEnabled: !!tableauMcpBaseUrl,
+          hasUserToken: !!userToken,
+          internetSearch: useInternetSearch,
+        },
+        threadHint,
+      );
 
       const activeSkills = resolveActiveSkills({
         userToken,

@@ -318,7 +318,14 @@ function parseDatasourceCatalog(listText) {
 
   try {
     const j = JSON.parse(trimmed);
-    const candidates = j.datasources || j.dataSources || j.data?.datasources || j.items;
+    // Tableau MCP v4's list-datasources returns { data: [ ...rows ], totalAvailable }.
+    // Earlier shapes used j.datasources / j.dataSources / j.data.datasources / j.items.
+    // Handle j.data being the row array directly (v4) as well as the older nested forms.
+    const candidates =
+      j.datasources ||
+      j.dataSources ||
+      (Array.isArray(j.data) ? j.data : j.data?.datasources) ||
+      j.items;
     const arr = Array.isArray(candidates)
       ? candidates
       : candidates && typeof candidates === "object"
@@ -354,6 +361,31 @@ function parseDatasourceCatalog(listText) {
     pushPair(im[1], im[2], "", null);
   }
 
+  return out;
+}
+
+/**
+ * Render a parsed catalog as a compact one-line-per-row list for the model
+ * context. The raw list-datasources JSON is ~30k tokens for a few hundred
+ * datasources; this form (name — project — luid) is ~1/6 the size and carries
+ * everything needed to identify and pick a datasource. The matched datasource's
+ * full field metadata is added separately by the caller.
+ *
+ * @param {Array<{name:string, luid:string, project?:string}>} catalog
+ * @param {number} [maxRows] - safety cap on rendered rows
+ * @returns {string} compact block, or "" if the catalog is empty
+ */
+function formatDatasourceCatalogCompact(catalog, maxRows = 500) {
+  if (!Array.isArray(catalog) || catalog.length === 0) return "";
+  const rows = catalog.slice(0, maxRows).map((r) => {
+    const proj = r.project ? ` — ${r.project}` : "";
+    return `• ${r.name}${proj} — \`${r.luid}\``;
+  });
+  const header = `Published data sources (${catalog.length} total; name — project — luid):`;
+  let out = `${header}\n${rows.join("\n")}`;
+  if (catalog.length > maxRows) {
+    out += `\n…(${catalog.length - maxRows} more not shown)`;
+  }
   return out;
 }
 
@@ -450,12 +482,17 @@ async function buildTableauContext(userMessage = "", opts = {}) {
       (opts.wantTableau === undefined && lexicalWantTableau(lexical));
 
     let dsBlock = "";
+    let catalog = [];
     if (wantDs) {
       dsBlock = await tryListDatasources(baseUrl, sessionId);
-      if (dsBlock) parts.push(dsBlock);
+      catalog = dsBlock ? parseDatasourceCatalog(dsBlock) : [];
+      // Prefer a compact catalog (name — project — luid) over the raw ~30k-token
+      // JSON dump. Fall back to the raw block only if parsing yielded nothing,
+      // so an unexpected server shape never silently drops the catalog.
+      const compact = formatDatasourceCatalogCompact(catalog);
+      if (compact) parts.push(compact);
+      else if (dsBlock) parts.push(dsBlock);
     }
-
-    const catalog = dsBlock ? parseDatasourceCatalog(dsBlock) : [];
     let metaTarget = pickDatasourceForMessage(lexical, catalog);
     if (!metaTarget) {
       for (const id of extractDatasourceUuids(lexical)) {
@@ -516,4 +553,5 @@ module.exports = {
   rankDatasourcesForMessage,
   scoreDatasourceRow,
   formatDatasourceMatchHints,
+  formatDatasourceCatalogCompact,
 };
