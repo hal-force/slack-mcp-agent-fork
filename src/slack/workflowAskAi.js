@@ -420,6 +420,7 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           defaultCanvasChannelId: postChannelId || primaryChannelId || null,
           teamId,
           useFullModel,
+          tableauMcpBaseUrl,
         });
 
         let aiText = aiResult.text;

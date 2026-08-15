@@ -47,14 +47,22 @@ function gatewayConfig() {
  * assumed role), so we don't read the secret/session token directly here.
  * Returns null if the required pieces are missing so selectedProvider() falls
  * back to vertex rather than silently breaking replies.
+ *
+ * Credentials may take either form:
+ *  - A long-term Bedrock API key in AWS_BEARER_TOKEN_BEDROCK. The SDK detects
+ *    this env var, switches its auth scheme to httpBearerAuth automatically
+ *    (see @aws-sdk/core httpAuthSchemes), and never needs a session token — so
+ *    it doesn't expire the way STS (ASIA…) creds do.
+ *  - Classic SigV4 access-key creds in AWS_ACCESS_KEY_ID (+ secret / session).
  */
 function bedrockConfig() {
   const model = String(process.env.BEDROCK_MODEL_ID || "").trim();
   const region = String(
     process.env.BEDROCK_REGION || process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "",
   ).trim();
-  const hasCreds = Boolean(String(process.env.AWS_ACCESS_KEY_ID || "").trim());
-  if (!model || !region || !hasCreds) return null;
+  const hasBearerToken = Boolean(String(process.env.AWS_BEARER_TOKEN_BEDROCK || "").trim());
+  const hasAccessKey = Boolean(String(process.env.AWS_ACCESS_KEY_ID || "").trim());
+  if (!model || !region || !(hasBearerToken || hasAccessKey)) return null;
   return { model, region };
 }
 
@@ -126,8 +134,11 @@ let _bedrockClient = null;
 function getBedrockClient(region) {
   if (_bedrockClient) return _bedrockClient;
   const { BedrockRuntimeClient } = require("@aws-sdk/client-bedrock-runtime");
-  // Credentials come from the SDK default provider chain (AWS_ACCESS_KEY_ID /
-  // _SECRET_ACCESS_KEY / _SESSION_TOKEN env vars on Heroku).
+  // Credentials resolve from the environment automatically: if
+  // AWS_BEARER_TOKEN_BEDROCK is set the SDK uses httpBearerAuth (long-term
+  // Bedrock API key, no expiry churn); otherwise it falls back to SigV4 with
+  // AWS_ACCESS_KEY_ID / _SECRET_ACCESS_KEY / _SESSION_TOKEN. No explicit client
+  // config is needed for either path.
   _bedrockClient = new BedrockRuntimeClient({ region });
   return _bedrockClient;
 }
@@ -157,28 +168,113 @@ function contentsToBedrockMessages(contents) {
   return messages;
 }
 
-async function generateWithBedrock({ systemInstruction, contents, maxOutputTokens, temperature }) {
+/**
+ * Build a Bedrock Converse toolConfig from provider-neutral tool specs.
+ * @param {Array<{name:string, description?:string, inputSchema:object}>} tools
+ */
+function toolSpecsToConverseToolConfig(tools) {
+  if (!Array.isArray(tools) || tools.length === 0) return undefined;
+  return {
+    tools: tools.map((t) => ({
+      toolSpec: {
+        name: t.name,
+        ...(t.description ? { description: t.description } : {}),
+        inputSchema: { json: t.inputSchema || { type: "object", properties: {} } },
+      },
+    })),
+  };
+}
+
+const BEDROCK_MAX_TOOL_ROUNDS = Number(process.env.BEDROCK_MAX_TOOL_ROUNDS || 10);
+
+/**
+ * @param {object} req
+ * @param {Array<{name:string, description?:string, inputSchema:object}>} [req.tools]
+ * @param {(name:string, input:object) => Promise<object>} [req.dispatchTool]
+ *   Called for each tool the model requests; returns a plain JSON-serializable
+ *   result object. Only used when req.tools is non-empty.
+ */
+async function generateWithBedrock({
+  systemInstruction,
+  contents,
+  maxOutputTokens,
+  temperature,
+  tools,
+  dispatchTool,
+  __client, // test seam: inject a fake { send } client
+}) {
   const cfg = bedrockConfig();
   if (!cfg) throw new Error("Bedrock is not configured (BEDROCK_MODEL_ID / region / AWS credentials).");
 
   const { ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
-  const client = getBedrockClient(cfg.region);
+  const client = __client || getBedrockClient(cfg.region);
   const messages = contentsToBedrockMessages(contents);
   // Converse requires at least one message and a leading user turn.
   if (messages.length === 0 || messages[0].role !== "user") {
     messages.unshift({ role: "user", content: [{ text: "(no message)" }] });
   }
 
-  const out = await client.send(
-    new ConverseCommand({
-      modelId: cfg.model,
-      messages,
-      ...(systemInstruction && systemInstruction.trim()
-        ? { system: [{ text: systemInstruction.trim() }] }
-        : {}),
-      inferenceConfig: { maxTokens: maxOutputTokens, temperature },
-    }),
-  );
+  const toolConfig = toolSpecsToConverseToolConfig(tools);
+  const canDispatch = toolConfig && typeof dispatchTool === "function";
+
+  const baseParams = {
+    modelId: cfg.model,
+    ...(systemInstruction && systemInstruction.trim()
+      ? { system: [{ text: systemInstruction.trim() }] }
+      : {}),
+    inferenceConfig: { maxTokens: maxOutputTokens, temperature },
+    ...(toolConfig ? { toolConfig } : {}),
+  };
+
+  // Agentic loop: keep servicing tool_use stops until the model produces a final
+  // answer (or we hit the round cap). Without tools this runs exactly once, so
+  // the non-tool path is unchanged.
+  let out;
+  let rounds = 0;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    out = await client.send(new ConverseCommand({ ...baseParams, messages }));
+    const stopReason = out.stopReason || null;
+    const assistantMsg = out.output?.message;
+
+    if (stopReason !== "tool_use" || !canDispatch || !assistantMsg) break;
+
+    const toolUses = (assistantMsg.content || []).filter((b) => b && b.toolUse);
+    if (toolUses.length === 0) break;
+
+    // Record the assistant's tool-use turn, then answer every requested tool.
+    messages.push({ role: assistantMsg.role || "assistant", content: assistantMsg.content });
+
+    const toolResults = [];
+    for (const b of toolUses) {
+      const { toolUseId, name, input } = b.toolUse;
+      let result;
+      try {
+        result = await dispatchTool(name, input || {});
+      } catch (err) {
+        result = { ok: false, error: err?.message || String(err) };
+      }
+      const ok = !result || result.ok !== false;
+      toolResults.push({
+        toolResult: {
+          toolUseId,
+          content: [{ json: result == null ? { ok: false } : result }],
+          status: ok ? "success" : "error",
+        },
+      });
+    }
+    messages.push({ role: "user", content: toolResults });
+
+    rounds += 1;
+    if (rounds >= BEDROCK_MAX_TOOL_ROUNDS) {
+      // Safety valve: ask for a final answer with tools disabled so we don't
+      // loop forever if the model keeps requesting tools.
+      out = await client.send(
+        new ConverseCommand({ ...baseParams, toolConfig: undefined, messages }),
+      );
+      break;
+    }
+  }
 
   const text = (out.output?.message?.content || [])
     .filter((b) => b && b.text)
@@ -268,4 +364,6 @@ module.exports = {
   // exported for tests
   contentsToOpenAiMessages,
   contentsToBedrockMessages,
+  toolSpecsToConverseToolConfig,
+  generateWithBedrock,
 };

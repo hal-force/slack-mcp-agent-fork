@@ -394,9 +394,61 @@ function tableauQueryToolsEnabled(toolOpts = {}) {
   return !!resolveTableauMcpUrl(toolOpts.tableauMcpBaseUrl);
 }
 
+// ----- Provider-neutral tool specs (JSON Schema) -----
+// The declarations above use @google/genai Type enums (STRING/NUMBER/OBJECT…).
+// Bedrock Converse (and any other backend) wants standard JSON Schema, so we
+// convert once here and expose TABLEAU_TOOL_SPECS as { name, description,
+// inputSchema } with lowercase JSON-Schema types. This keeps the LLM layer free
+// of Gemini-specific shapes.
+
+function geminiTypeToJsonSchemaType(t) {
+  switch (t) {
+    case T.STRING:
+      return "string";
+    case T.NUMBER:
+      return "number";
+    case T.INTEGER:
+      return "integer";
+    case T.BOOLEAN:
+      return "boolean";
+    case T.ARRAY:
+      return "array";
+    case T.OBJECT:
+      return "object";
+    default:
+      return typeof t === "string" ? t.toLowerCase() : "string";
+  }
+}
+
+function geminiSchemaToJsonSchema(schema) {
+  if (!schema || typeof schema !== "object") return { type: "object", properties: {} };
+  const out = {};
+  if (schema.type != null) out.type = geminiTypeToJsonSchemaType(schema.type);
+  if (schema.description) out.description = schema.description;
+  if (Array.isArray(schema.enum)) out.enum = schema.enum;
+  if (schema.properties && typeof schema.properties === "object") {
+    out.properties = {};
+    for (const [k, v] of Object.entries(schema.properties)) {
+      out.properties[k] = geminiSchemaToJsonSchema(v);
+    }
+  }
+  if (Array.isArray(schema.required) && schema.required.length) out.required = schema.required;
+  if (schema.items) out.items = geminiSchemaToJsonSchema(schema.items);
+  if (out.type === "object" && !out.properties) out.properties = {};
+  return out;
+}
+
+const TABLEAU_TOOL_SPECS = TABLEAU_FUNCTION_DECLARATIONS.map((d) => ({
+  name: d.name,
+  description: d.description,
+  inputSchema: geminiSchemaToJsonSchema(d.parameters),
+}));
+
 module.exports = {
   TABLEAU_FUNCTION_DECLARATIONS,
+  TABLEAU_TOOL_SPECS,
   isTableauGeminiTool,
   dispatchTableauTool,
   tableauQueryToolsEnabled,
+  geminiSchemaToJsonSchema,
 };

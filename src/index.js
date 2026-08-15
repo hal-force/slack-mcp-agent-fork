@@ -128,6 +128,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       defaultCanvasChannelId: event.channel,
       teamId,
       useFullModel,
+      tableauMcpBaseUrl,
     });
     const threadTs = event.thread_ts || event.ts;
     const replyText =
@@ -318,6 +319,7 @@ const assistant = new Assistant({
         defaultCanvasChannelId: contextChannelId || channel,
         teamId,
         useFullModel,
+        tableauMcpBaseUrl,
       });
 
       const replyText =

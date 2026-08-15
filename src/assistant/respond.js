@@ -1,5 +1,10 @@
 const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
 const { generateReply, selectedProvider } = require("./llmProvider");
+const {
+  TABLEAU_TOOL_SPECS,
+  dispatchTableauTool,
+  tableauQueryToolsEnabled,
+} = require("./tableauGeminiTools");
 
 const BASE_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, a high-utility AI assistant.
 
@@ -126,6 +131,7 @@ async function getAiResponse({
   defaultCanvasChannelId,
   teamId,
   useFullModel = false,
+  tableauMcpBaseUrl,
 }) {
   if (!userMessage || !userMessage.trim()) {
     return aiReply("Send me a message and I'll respond.");
@@ -160,6 +166,26 @@ async function getAiResponse({
   const maxOutputTokens = Number(process.env.LLM_MAX_OUTPUT_TOKENS) ||
     Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 4096;
 
+  // Live Tableau MCP tool calling. When the app runs on Bedrock and a Tableau
+  // MCP server is configured, expose the query/metadata/list/view tools so the
+  // model can actually pull and analyze data in-turn (list-datasources →
+  // get-datasource-metadata → query-datasource, or list-views → get-view-image)
+  // rather than only seeing the pre-fetched context block. View images the tools
+  // render are queued here and returned as Slack uploads.
+  const toolUploads = [];
+  let tools;
+  let dispatchTool;
+  if (provider === "bedrock" && tableauQueryToolsEnabled({ tableauMcpBaseUrl })) {
+    tools = TABLEAU_TOOL_SPECS;
+    const toolOpts = {
+      tableauMcpBaseUrl,
+      uploadQueue: toolUploads,
+      datasourceUrlByLuid: {},
+      viewUrlById: {},
+    };
+    dispatchTool = (name, input) => dispatchTableauTool(name, input, toolOpts);
+  }
+
   try {
     const result = await generateReply(
       {
@@ -168,12 +194,18 @@ async function getAiResponse({
         maxOutputTokens,
         temperature: 0.7,
         googleSearchActive: searchActive,
+        tools,
+        dispatchTool,
       },
       { modelId },
     );
 
+    // View images rendered by in-turn tool calls are posted alongside any
+    // uploads the skills already produced.
+    const allUploads = toolUploads.length ? [...uploads, ...toolUploads] : uploads;
+
     if (result.safety) {
-      return aiReply("I can't generate a response for that. Try rephrasing.", uploads);
+      return aiReply("I can't generate a response for that. Try rephrasing.", allUploads);
     }
 
     let text = result.text;
@@ -183,10 +215,10 @@ async function getAiResponse({
       text += "\n\n_…(response truncated — ask me to continue for the rest.)_";
     }
 
-    const finalText = text || (uploads.length > 0
-      ? uploads.length === 1
+    const finalText = text || (allUploads.length > 0
+      ? allUploads.length === 1
         ? "Here's a Tableau view snapshot—see the image file below this message."
-        : `Here are ${uploads.length} Tableau view snapshots—see the image files below this message.`
+        : `Here are ${allUploads.length} Tableau view snapshots—see the image files below this message.`
       : "I didn't get a clear response. Please try again.");
 
     // Dispatch canvas side effects with the LLM's reply as the canvas content.
@@ -198,7 +230,7 @@ async function getAiResponse({
       });
     }
 
-    return aiReply(finalText, uploads);
+    return aiReply(finalText, allUploads);
   } catch (err) {
     console.error(`LLM error (${provider}):`, err.message || err);
     const msg = err.message || String(err);

@@ -7,6 +7,8 @@ const {
   bedrockConfig,
   contentsToOpenAiMessages,
   contentsToBedrockMessages,
+  toolSpecsToConverseToolConfig,
+  generateWithBedrock,
 } = require("../src/assistant/llmProvider");
 
 const GW_KEYS = ["AI_PROVIDER", "LLM_GATEWAY_URL", "LLM_GATEWAY_API_KEY", "LLM_GATEWAY_MODEL"];
@@ -16,6 +18,7 @@ const BEDROCK_KEYS = [
   "AWS_REGION",
   "AWS_DEFAULT_REGION",
   "AWS_ACCESS_KEY_ID",
+  "AWS_BEARER_TOKEN_BEDROCK",
 ];
 // Snapshot AWS_* so we can restore anything the host environment had set.
 const AWS_SNAPSHOT = Object.fromEntries(BEDROCK_KEYS.map((k) => [k, process.env[k]]));
@@ -103,8 +106,19 @@ test("falls back to vertex when bedrock requested but not configured", () => {
 test("bedrockConfig requires model, region, and credentials", () => {
   process.env.BEDROCK_MODEL_ID = "us.anthropic.claude-sonnet-4-20250514-v1:0";
   process.env.BEDROCK_REGION = "us-west-2";
-  delete process.env.AWS_ACCESS_KEY_ID; // no creds
+  delete process.env.AWS_ACCESS_KEY_ID; // no SigV4 creds
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK; // and no bearer token
   assert.equal(bedrockConfig(), null);
+});
+
+test("bedrockConfig accepts a bearer token as credentials (no access key)", () => {
+  process.env.AI_PROVIDER = "bedrock";
+  process.env.BEDROCK_MODEL_ID = "us.anthropic.claude-sonnet-4-20250514-v1:0";
+  process.env.BEDROCK_REGION = "us-west-2";
+  delete process.env.AWS_ACCESS_KEY_ID; // long-term API key path, no SigV4 keys
+  process.env.AWS_BEARER_TOKEN_BEDROCK = "ABSK-test-token";
+  assert.equal(selectedProvider(), "bedrock");
+  assert.equal(bedrockConfig().region, "us-west-2");
 });
 
 test("bedrockConfig falls back to AWS_REGION when BEDROCK_REGION unset", () => {
@@ -126,4 +140,168 @@ test("contentsToBedrockMessages maps roles, drops empties, merges same-role turn
     { role: "user", content: [{ text: "hi" }, { text: "again" }] },
     { role: "assistant", content: [{ text: "yo" }] },
   ]);
+});
+
+// ----- Bedrock tool-use (Converse) -----
+
+test("toolSpecsToConverseToolConfig wraps specs as { toolSpec: { inputSchema: { json } } }", () => {
+  assert.equal(toolSpecsToConverseToolConfig([]), undefined);
+  assert.equal(toolSpecsToConverseToolConfig(undefined), undefined);
+  const cfg = toolSpecsToConverseToolConfig([
+    { name: "t1", description: "d", inputSchema: { type: "object", properties: { x: { type: "string" } } } },
+  ]);
+  assert.equal(cfg.tools.length, 1);
+  assert.equal(cfg.tools[0].toolSpec.name, "t1");
+  assert.equal(cfg.tools[0].toolSpec.description, "d");
+  assert.deepEqual(cfg.tools[0].toolSpec.inputSchema.json, {
+    type: "object",
+    properties: { x: { type: "string" } },
+  });
+});
+
+test("generateWithBedrock runs the tool loop: services tool_use, feeds results, returns final text", async () => {
+  process.env.BEDROCK_MODEL_ID = "us.anthropic.claude-sonnet-4-6";
+  process.env.BEDROCK_REGION = "us-west-2";
+  process.env.AWS_ACCESS_KEY_ID = "ASIATEST";
+
+  const sent = []; // capture each ConverseCommand input
+  // Fake client: first call asks for a tool, second call returns the final answer.
+  let call = 0;
+  const fakeClient = {
+    async send(cmd) {
+      sent.push(cmd.input);
+      call += 1;
+      if (call === 1) {
+        return {
+          stopReason: "tool_use",
+          output: {
+            message: {
+              role: "assistant",
+              content: [
+                { text: "Let me check that." },
+                {
+                  toolUse: {
+                    toolUseId: "tu-1",
+                    name: "tableau_get_datasource_metadata",
+                    input: { datasource_luid: "abc" },
+                  },
+                },
+              ],
+            },
+          },
+        };
+      }
+      return {
+        stopReason: "end_turn",
+        output: { message: { role: "assistant", content: [{ text: "Final answer: 42 grants." }] } },
+      };
+    },
+  };
+
+  const dispatched = [];
+  const result = await generateWithBedrock({
+    systemInstruction: "sys",
+    contents: [{ role: "user", parts: [{ text: "how many grants?" }] }],
+    maxOutputTokens: 1024,
+    temperature: 0.7,
+    tools: [
+      {
+        name: "tableau_get_datasource_metadata",
+        description: "meta",
+        inputSchema: { type: "object", properties: { datasource_luid: { type: "string" } } },
+      },
+    ],
+    dispatchTool: async (name, input) => {
+      dispatched.push({ name, input });
+      return { ok: true, content: "fields: Grant Amount, Recipient" };
+    },
+    __client: fakeClient,
+  });
+
+  // The model's tool request was dispatched with the given args.
+  assert.equal(dispatched.length, 1);
+  assert.equal(dispatched[0].name, "tableau_get_datasource_metadata");
+  assert.deepEqual(dispatched[0].input, { datasource_luid: "abc" });
+
+  // Two Converse round-trips; the second included a user turn carrying the toolResult.
+  assert.equal(sent.length, 2);
+  const secondMsgs = sent[1].messages;
+  const toolResultTurn = secondMsgs.find(
+    (m) => m.role === "user" && (m.content || []).some((c) => c.toolResult),
+  );
+  assert.ok(toolResultTurn, "second request should include a toolResult user turn");
+  const tr = toolResultTurn.content.find((c) => c.toolResult).toolResult;
+  assert.equal(tr.toolUseId, "tu-1");
+  assert.equal(tr.status, "success");
+  assert.deepEqual(tr.content[0].json, { ok: true, content: "fields: Grant Amount, Recipient" });
+
+  // Final text is the model's last message.
+  assert.equal(result.text, "Final answer: 42 grants.");
+  assert.equal(result.finishReason, "end_turn");
+});
+
+test("generateWithBedrock marks a failed tool result with status error", async () => {
+  process.env.BEDROCK_MODEL_ID = "m";
+  process.env.BEDROCK_REGION = "us-west-2";
+  process.env.AWS_ACCESS_KEY_ID = "ASIATEST";
+
+  const sent = [];
+  let call = 0;
+  const fakeClient = {
+    async send(cmd) {
+      sent.push(cmd.input);
+      call += 1;
+      if (call === 1) {
+        return {
+          stopReason: "tool_use",
+          output: {
+            message: {
+              role: "assistant",
+              content: [{ toolUse: { toolUseId: "tu-x", name: "tableau_query_datasource", input: {} } }],
+            },
+          },
+        };
+      }
+      return { stopReason: "end_turn", output: { message: { role: "assistant", content: [{ text: "ok" }] } } };
+    },
+  };
+
+  await generateWithBedrock({
+    systemInstruction: "",
+    contents: [{ role: "user", parts: [{ text: "q" }] }],
+    maxOutputTokens: 256,
+    temperature: 0,
+    tools: [{ name: "tableau_query_datasource", description: "q", inputSchema: { type: "object", properties: {} } }],
+    dispatchTool: async () => ({ ok: false, error: "boom" }),
+    __client: fakeClient,
+  });
+
+  const tr = sent[1].messages
+    .flatMap((m) => m.content || [])
+    .find((c) => c.toolResult).toolResult;
+  assert.equal(tr.status, "error");
+  assert.deepEqual(tr.content[0].json, { ok: false, error: "boom" });
+});
+
+test("generateWithBedrock without tools makes exactly one call (unchanged path)", async () => {
+  process.env.BEDROCK_MODEL_ID = "m";
+  process.env.BEDROCK_REGION = "us-west-2";
+  process.env.AWS_ACCESS_KEY_ID = "ASIATEST";
+
+  let calls = 0;
+  const fakeClient = {
+    async send() {
+      calls += 1;
+      return { stopReason: "end_turn", output: { message: { role: "assistant", content: [{ text: "hi" }] } } };
+    },
+  };
+  const result = await generateWithBedrock({
+    systemInstruction: "",
+    contents: [{ role: "user", parts: [{ text: "hello" }] }],
+    maxOutputTokens: 128,
+    temperature: 0.7,
+    __client: fakeClient,
+  });
+  assert.equal(calls, 1);
+  assert.equal(result.text, "hi");
 });
