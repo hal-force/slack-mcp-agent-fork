@@ -36,7 +36,10 @@ silently drift.
 ## Running it
 
 ```bash
-# Deploy-time readiness (config + SSRF + live LLM & Tableau pings)
+# Deterministic deploy GATE (no network) — this is what the release phase runs
+npm run health:configcheck
+
+# Full deploy-time readiness (configcheck + live LLM & Tableau pings) — run by hand
 npm run health:smoke
 
 # Ongoing behavioral checks
@@ -52,6 +55,18 @@ node tests/health/runner.js all --json
 # Per-item detail on failures
 node tests/health/runner.js drift --verbose
 ```
+
+### Why the release phase runs `configcheck`, not `smoke`
+
+`configcheck` is the deterministic subset — config validation + the SSRF-guard
+self-test, with **no network calls**. It's the release gate because it blocks a
+deploy on a real misconfiguration (missing secret, malformed `TOKEN_ENC_KEY`,
+private/non-https Tableau URL, silent provider fallback, SSRF regression)
+**without** coupling "can I ship this code fix" to "is Bedrock/Tableau up this
+exact second." Gating web deploys on a live external ping means a transient
+provider blip would roll back an unrelated deploy. Live reachability
+(`pingLlm` / `pingTableau`) therefore lives in `smoke` (run by hand after a
+deploy) and in the scheduled monitor, not the gate.
 
 **Exit codes:** `0` = no failures (warnings allowed), `1` = ≥1 check failed,
 `2` = runner error. Suitable for a release phase or a cron that alerts on
@@ -70,17 +85,18 @@ On Heroku the config vars are already in the environment.
 
 | Check | When | Why |
 |-------|------|-----|
-| `health:smoke` | **Every deploy**, as a Heroku release-phase step | Fails the release if the app can't reach its LLM/Tableau or is misconfigured, before it takes traffic. |
+| `health:configcheck` | **Every deploy**, as the Heroku release-phase step | Fails the release on a real misconfiguration before it takes traffic. Deterministic — never fails on a transient external outage. |
+| `health:smoke` | **By hand right after a deploy** (and any time you suspect an outage) | Adds live LLM + Tableau pings on top of configcheck. Kept out of the release gate on purpose (see above). |
 | `health:drift` | **Daily**, and **immediately after any model-version or prompt change** | Model providers roll model versions under you; the golden prompts catch a behavior change the same day, not via a user complaint. |
 | `health:contextrot` | **Weekly**, and after onboarding a data-heavy tenant | Tableau sites grow; this flags when datasources start falling outside the catalog the model sees. |
 | `--live-tableau-scale` | **Weekly** (needs a configured Tableau endpoint) | Measures the *real* catalog size vs. the server list limit — the deepest rot boundary. |
 
 ### Wiring it into Heroku
 
-Release-phase smoke test (fails the deploy on a `fail`), in `Procfile`:
+Release-phase gate (fails the deploy on a `fail`), in `Procfile`:
 
 ```
-release: npm run deploy:migrate && npm run health:smoke
+release: npm run deploy:migrate && npm run health:configcheck
 web: npm start
 ```
 

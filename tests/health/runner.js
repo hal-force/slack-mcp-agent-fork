@@ -12,10 +12,14 @@
  *   node tests/health/runner.js <suite> [--json] [--verbose]
  *
  * Suites:
- *   smoke      config validation + SSRF self-test + live LLM & Tableau pings
- *   drift      golden routing (offline) + golden prompt eval (live LLM)
- *   contextrot datasource-catalog growth analysis (live + simulated)
- *   all        everything above
+ *   configcheck deterministic, NETWORK-FREE gate: config validation + SSRF
+ *               self-test. This is the Heroku release-phase gate — it blocks a
+ *               deploy on a real misconfiguration but never on a transient
+ *               external outage.
+ *   smoke       configcheck + live LLM & Tableau reachability pings
+ *   drift       golden routing (offline) + golden prompt eval (live LLM)
+ *   contextrot  datasource-catalog growth analysis (live + simulated)
+ *   all         smoke + drift + contextrot
  *
  * Flags:
  *   --json     emit machine-readable JSON (for dashboards / alerting)
@@ -61,18 +65,35 @@ function withTimeout(promise, ms, label) {
 }
 
 // ---------------------------------------------------------------------------
-// SMOKE — deploy-time readiness
+// CONFIGCHECK — deterministic, network-free deploy gate
+// ---------------------------------------------------------------------------
+
+/**
+ * The subset of smoke checks that are DETERMINISTIC (no network): config
+ * validation + the SSRF-guard self-test. This is what belongs in a Heroku
+ * release phase — it blocks a deploy on a real misconfiguration (missing
+ * secret, malformed TOKEN_ENC_KEY, private/non-https Tableau URL, silent
+ * provider fallback, SSRF-guard regression) WITHOUT coupling "can I ship a
+ * code fix" to "is Bedrock/Tableau reachable this exact second". Live
+ * reachability lives in `smoke` (manual) and the scheduled monitor instead, so
+ * a transient external blip can't roll back an unrelated deploy.
+ */
+function runConfigCheck() {
+  const results = [];
+  results.push(...validateDeployConfig(process.env));
+  results.push(ssrfGuardSelfTest());
+  return results;
+}
+
+// ---------------------------------------------------------------------------
+// SMOKE — deploy-time readiness (config gate + live reachability)
 // ---------------------------------------------------------------------------
 
 async function runSmoke() {
-  const results = [];
+  // 1) Everything the deterministic gate checks …
+  const results = runConfigCheck();
 
-  // 1) Static config validation (pure) + SSRF self-test.
-  results.push(...validateDeployConfig(process.env));
-  results.push(ssrfGuardSelfTest());
-
-  // 2) Live LLM reachability — one tiny real generation through the SAME path
-  //    the app uses (getAiResponse applies the real system prompt + fence).
+  // 2) … plus live LLM reachability — a tiny real generation via generateReply.
   results.push(await pingLlm());
 
   // 3) Live Tableau MCP reachability — initialize a session and list a page.
@@ -303,12 +324,15 @@ async function main() {
   try { require("dotenv").config({ quiet: true }); } catch (_) {}
 
   const sections = [];
+  // configcheck is the deterministic subset (no network) — used as the release
+  // gate. It is NOT part of `all`, which prefers the fuller live `smoke`.
+  if (suite === "configcheck") sections.push(["Config check (deterministic deploy gate)", runConfigCheck()]);
   if (suite === "smoke" || suite === "all") sections.push(["Smoke (deploy readiness)", await runSmoke()]);
   if (suite === "drift" || suite === "all") sections.push(["Model & routing drift", await runDrift({ verbose })]);
   if (suite === "contextrot" || suite === "all") sections.push(["Context rot (datasource growth)", await runContextRot({ verbose, liveScale })]);
 
   if (sections.length === 0) {
-    console.error(`Unknown suite "${suite}". Use: smoke | drift | contextrot | all`);
+    console.error(`Unknown suite "${suite}". Use: configcheck | smoke | drift | contextrot | all`);
     process.exit(2);
   }
 

@@ -11,6 +11,7 @@
     "deploy:migrate": "prisma migrate deploy",
     "postinstall": "prisma generate",
     "health": "node tests/health/runner.js all",
+    "health:configcheck": "node tests/health/runner.js configcheck",
     "health:smoke": "node tests/health/runner.js smoke",
     "health:drift": "node tests/health/runner.js drift",
     "health:contextrot": "node tests/health/runner.js contextrot"
