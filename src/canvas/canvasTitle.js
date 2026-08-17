@@ -83,4 +83,20 @@ async function generateCanvasTitle(sourceText, opts = {}) {
   }
 }
 
-module.exports = { generateCanvasTitle, cleanTitle, deriveTitleFromText };
+/**
+ * Prepend a title to canvas markdown as a leading `# H1` (the canvas's first
+ * section = its title). No-ops when there's no title, or when the body already
+ * starts with an H1 (so we never double-title). Pure and deterministic.
+ *
+ * @param {string} markdown - the canvas body markdown
+ * @param {string} title - the title to set (falsy → body unchanged)
+ * @returns {string}
+ */
+function titledCanvasMarkdown(markdown, title) {
+  const body = markdown || "";
+  if (!title) return body;
+  if (/^\s*#\s/.test(body)) return body; // already has a leading H1 title
+  return `# ${title}\n\n${body}`;
+}
+
+module.exports = { generateCanvasTitle, cleanTitle, deriveTitleFromText, titledCanvasMarkdown };

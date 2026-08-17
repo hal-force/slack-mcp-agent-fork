@@ -1,5 +1,5 @@
 const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
-const { generateCanvasTitle } = require("../canvas/canvasTitle");
+const { generateCanvasTitle, titledCanvasMarkdown } = require("../canvas/canvasTitle");
 const { generateReply, selectedProvider } = require("./llmProvider");
 const {
   TABLEAU_TOOL_SPECS,
@@ -105,10 +105,7 @@ async function dispatchSideEffects(sideEffects, llmReplyText, opts = {}) {
   if (needsTitle) {
     canvasTitle = await generateCanvasTitle(llmReplyText, { userMessage });
   }
-  const titledMarkdown =
-    canvasTitle && !/^\s*#\s/.test(llmReplyText || "")
-      ? `# ${canvasTitle}\n\n${llmReplyText}`
-      : llmReplyText;
+  const titledMarkdown = titledCanvasMarkdown(llmReplyText, canvasTitle);
 
   await Promise.all(
     sideEffects.map(async (se) => {

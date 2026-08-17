@@ -1,7 +1,11 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { cleanTitle, deriveTitleFromText } = require("../src/canvas/canvasTitle");
+const {
+  cleanTitle,
+  deriveTitleFromText,
+  titledCanvasMarkdown,
+} = require("../src/canvas/canvasTitle");
 
 // ---- cleanTitle: normalize a raw model/heuristic string into one title line ----
 
@@ -47,4 +51,22 @@ test("deriveTitleFromText never returns empty — falls back to Untitled Canvas"
 test("deriveTitleFromText caps at 8 words", () => {
   const t = deriveTitleFromText("one two three four five six seven eight nine ten");
   assert.equal(t.split(" ").length, 8);
+});
+
+// ---- titledCanvasMarkdown: prepend the title as the canvas's first section ----
+
+test("titledCanvasMarkdown prepends the title as a leading # H1", () => {
+  const out = titledCanvasMarkdown("*OTF SUMMARY*\n\nBody text.", "OTF Grants Overview");
+  assert.match(out, /^# OTF Grants Overview\n\n/);
+  assert.ok(out.includes("*OTF SUMMARY*"), "original body preserved");
+});
+
+test("titledCanvasMarkdown does not double-title when the body already starts with an H1", () => {
+  const body = "# Existing Title\n\nBody.";
+  assert.equal(titledCanvasMarkdown(body, "New Title"), body);
+});
+
+test("titledCanvasMarkdown returns the body unchanged when there is no title", () => {
+  assert.equal(titledCanvasMarkdown("Body only.", ""), "Body only.");
+  assert.equal(titledCanvasMarkdown("Body only.", null), "Body only.");
 });
