@@ -1,4 +1,5 @@
 const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
+const { generateCanvasTitle } = require("../canvas/canvasTitle");
 const { generateReply, selectedProvider } = require("./llmProvider");
 const {
   TABLEAU_TOOL_SPECS,
@@ -87,20 +88,41 @@ function buildContents(threadHistory, userMessage, skillContext) {
 async function dispatchSideEffects(sideEffects, llmReplyText, opts = {}) {
   const written = [];
   if (!sideEffects?.length) return written;
-  const { userToken, defaultChannelId = null, teamId = null } = opts;
+  const { userToken, defaultChannelId = null, teamId = null, userMessage = "" } = opts;
   if (!userToken) return written;
+
+  // A canvas's title is its first section (a leading `# H1`). The body write below
+  // uses replace_all, which resets that first section, so we can't rely on the
+  // create-time title arg — instead we generate a title from the report content
+  // and prepend it as an H1 to the CANVAS markdown only (the Slack message copy
+  // keeps its own mrkdwn, which forbids `#`). Only for whole-document writes
+  // (replace_all / create); append/insert edits must not inject a new title.
+  const wholeDocModes = new Set(["replace_all", "insert_start"]);
+  const needsTitle = sideEffects.some(
+    (se) => se.type === "canvas_update" && wholeDocModes.has(se.payload.mode || "replace_all"),
+  );
+  let canvasTitle = "";
+  if (needsTitle) {
+    canvasTitle = await generateCanvasTitle(llmReplyText, { userMessage });
+  }
+  const titledMarkdown =
+    canvasTitle && !/^\s*#\s/.test(llmReplyText || "")
+      ? `# ${canvasTitle}\n\n${llmReplyText}`
+      : llmReplyText;
 
   await Promise.all(
     sideEffects.map(async (se) => {
       if (se.type === "canvas_update") {
         try {
+          const mode = se.payload.mode || "replace_all";
+          const markdown = wholeDocModes.has(mode) ? titledMarkdown : llmReplyText;
           const res = await dispatchCanvasTool(
             userToken,
             "slack_canvas_update",
             {
               canvas_id: se.payload.canvas_id,
-              markdown: llmReplyText,
-              mode: se.payload.mode || "replace_all",
+              markdown,
+              mode,
             },
             { defaultChannelId, teamId },
           );
@@ -244,6 +266,7 @@ async function getAiResponse({
         userToken,
         defaultChannelId: defaultCanvasChannelId || null,
         teamId: teamId || null,
+        userMessage,
       });
     }
 

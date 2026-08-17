@@ -46,13 +46,20 @@ test("extractUploadedFiles dedupes and skips files without a permalink", () => {
 
 // ---- canvas markdown image section (file unfurls) ----
 
-test("buildCanvasImageSection emits a bare permalink per image (unfurl) with caption", () => {
+test("buildCanvasImageSection emits an ![alt](permalink) image per file with caption", () => {
   const md = buildCanvasImageSection([
     { permalink: "https://files.slack.com/chart.png", title: "Funding Trend" },
   ]);
   assert.match(md, /## Visualizations/);
   assert.match(md, /\*\*Funding Trend\*\*/);
-  assert.match(md, /^https:\/\/files\.slack\.com\/chart\.png$/m, "permalink must sit alone on a line to unfurl");
+  // Canvas markdown renders an uploaded Slack file inline only via ![alt](permalink),
+  // not a bare URL. Assert the image-markdown form is present on its own line.
+  assert.match(
+    md,
+    /^!\[Funding Trend\]\(https:\/\/files\.slack\.com\/chart\.png\)$/m,
+    "image must use ![alt](permalink) markdown to render inline",
+  );
+  assert.doesNotMatch(md, /^https:\/\/files\.slack\.com\/chart\.png$/m, "must not emit a bare permalink");
 });
 
 test("buildCanvasImageSection returns empty string when there are no images", () => {

@@ -70,9 +70,12 @@ async function uploadImagesForCanvas(botClient, uploads, opts = {}) {
 }
 
 /**
- * Build a canvas markdown section that embeds the given image files as unfurls.
- * Each file's permalink sits on its own paragraph (Slack unfurls a lone file
- * link into an inline image preview), with an optional bold caption above it.
+ * Build a canvas markdown section that embeds the given image files.
+ *
+ * Canvas-flavored markdown renders an uploaded Slack file (a `*.slack.com/files/*`
+ * permalink) inline ONLY via the markdown-image form `![alt](permalink)` placed on
+ * its own line — a bare permalink URL renders as a plain link, not an image. Each
+ * image gets an optional bold caption line above it.
  *
  * @param {Array<{ permalink: string, title?: string }>} imageRefs
  * @param {{ heading?: string }} [opts]
@@ -83,9 +86,11 @@ function buildCanvasImageSection(imageRefs, opts = {}) {
   if (refs.length === 0) return "";
   const heading = opts.heading || "Visualizations";
   const blocks = refs.map((r) => {
-    const caption = r.title ? `**${String(r.title).replace(/\*/g, "").trim()}**\n` : "";
-    // A bare permalink on its own line is what Slack unfurls into the image.
-    return `${caption}${r.permalink}`;
+    const alt = r.title ? String(r.title).replace(/[[\]]/g, "").trim() : "";
+    const caption = alt ? `**${alt.replace(/\*/g, "")}**\n` : "";
+    // `![alt](permalink)` on its own line is what canvas markdown renders as an
+    // inline image card; a bare permalink would only show as a link.
+    return `${caption}![${alt}](${r.permalink})`;
   });
   return `\n\n---\n\n## ${heading}\n\n${blocks.join("\n\n")}\n`;
 }
