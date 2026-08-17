@@ -68,6 +68,40 @@ test("useFullModel is set when Tableau intent is present", () => {
   assert.equal(useFullModel, true);
 });
 
+// ---- Report requests route to Canvas (long-form deliverable) ----
+test("report request routes to Canvas AND Tableau", () => {
+  const { intents } = classifyIntent(
+    "Can you generate a report on grants for the last year using my OTF data for my executive director? The report should be about three pages.",
+    CAPS,
+  );
+  assert.ok(intents.includes(INTENTS.CANVAS), "report should route to Canvas");
+  assert.ok(intents.includes(INTENTS.TABLEAU), "grants/data should still pull Tableau");
+});
+
+test("various authoring phrasings trigger Canvas", () => {
+  for (const msg of [
+    "write a brief on Q1 performance",
+    "draft a memo summarizing the grants",
+    "put together a detailed analysis for the board",
+    "prepare a write-up of the funding trends",
+  ]) {
+    const { intents } = classifyIntent(msg, CAPS);
+    assert.ok(intents.includes(INTENTS.CANVAS), `"${msg}" should route to Canvas`);
+  }
+});
+
+test("casual 'report' mentions do NOT create a Canvas", () => {
+  for (const msg of ["pull the latest report", "did you see the report?", "what's in the annual report"]) {
+    const { intents } = classifyIntent(msg, CAPS);
+    assert.ok(!intents.includes(INTENTS.CANVAS), `"${msg}" should not trigger Canvas`);
+  }
+});
+
+test("report routing needs a user token (Canvas is user-scoped)", () => {
+  const { intents } = classifyIntent("generate a report on grants", { ...CAPS, hasUserToken: false });
+  assert.ok(!intents.includes(INTENTS.CANVAS), "no user token → no Canvas");
+});
+
 test("lexicalWantTableau matches datasource names / analytics language", () => {
   assert.ok(lexicalWantTableau("the OTF Grants Enriched datasource"));
   assert.ok(lexicalWantTableau("published workbook in tableau"));

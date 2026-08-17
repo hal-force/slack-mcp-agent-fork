@@ -29,7 +29,13 @@ const BASE_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, 
 
 4. Locale & Units
 - When the context includes a *User locale* block, always use the unit system it specifies.
-- If no locale block is present, default to metric units unless the user explicitly asks otherwise.`;
+- If no locale block is present, default to metric units unless the user explicitly asks otherwise.
+
+5. Response Depth & Reports
+- Match the depth the user asks for. A quick question gets a concise answer. But when the user asks for a *report*, *brief*, *memo*, *analysis*, *deep dive*, *write-up*, *summary document*, or gives a length cue ("three pages", "detailed", "for my executive director"), produce a complete, well-structured long-form document written in narrative prose — NOT a bare list of statistics.
+- A report must go beyond the numbers: open with an EXECUTIVE SUMMARY, use clearly titled sections (BOLD ALL CAPS), and for each section explain what the data *means* — trends, drivers, comparisons, outliers, risks or caveats, and (where useful) recommendations or next steps. Interpret the "so what," don't just enumerate figures.
+- You have a large output budget. Never compress, truncate, or drop analysis to save space when depth is requested — favor completeness, clear reasoning, and full explanations. Write to the requested length.
+- These depth rules layer on top of the Slack formatting rules above: still use BOLD ALL CAPS section titles, bullets (never pipe tables), and blank lines between sections. When a Slack Canvas has been pre-created for this turn, write the full report as your reply so it lands in the canvas as a proper multi-section document.`;
 
 /**
  * @param {string} text

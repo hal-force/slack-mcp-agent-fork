@@ -29,6 +29,15 @@ const SIGNAL = {
     /\btableau\b|\bvizql\b|\bdatasources?\b|\bdata\s?sources?\b|\bworkbooks?\b|\bdashboards?\b|\bpulse\b|\bdatasets?\b|\bgrants?\b|\bmetrics?\b|\bkpis?\b|\banalytics\b|\breports?\b|\bfigures\b|\bnumbers\b|\bstatistics\b|\bstats\b|\bdata\b/i,
   canvas:
     /\bcanvas\b|\bcreate\b.*\bdoc(?:ument)?\b|\bdoc(?:ument)?\b.*\bcreate\b/i,
+  // Long-form deliverables belong in a Canvas (a real multi-page doc) rather than
+  // a terse chat reply. "generate a report", "write a brief/memo", "draft a
+  // three-page write-up", "put together a detailed analysis for my exec" — these
+  // route to the canvas skill so the full narrative lands in a document. Requires
+  // an authoring verb near a document noun so casual mentions ("pull the latest
+  // report") don't spuriously create a canvas. Tableau may fire on the same turn
+  // to supply the underlying data.
+  report:
+    /\b(generate|write|create|draft|prepare|produce|compose|build|make|put together)\b[\s\S]{0,40}?\b(reports?|briefs?|memos?|write[- ]?ups?|deep dive|analys[ie]s|assessment|white ?paper|summary document|full summary)\b/i,
   slackSearch:
     /\bfind\b|\bsearch\b|\bwho (?:said|mentioned|posted)\b|\bshow me messages\b/i,
 };
@@ -60,7 +69,15 @@ function classifyIntent(userMessage, caps = {}, threadHint = "") {
   ) {
     intents.add(INTENTS.TABLEAU);
   }
-  if (caps.hasUserToken   && SIGNAL.canvas.test(userMessage))  intents.add(INTENTS.CANVAS);
+  // Canvas fires on an explicit canvas/document request OR a long-form report
+  // request — both want a real document. Needs a user token (Canvas API is
+  // user-scoped). Falls back gracefully to an in-thread reply when absent.
+  if (
+    caps.hasUserToken &&
+    (SIGNAL.canvas.test(userMessage) || SIGNAL.report.test(userMessage))
+  ) {
+    intents.add(INTENTS.CANVAS);
+  }
   if (SIGNAL.slackSearch.test(userMessage))                    intents.add(INTENTS.SLACK_SEARCH);
   if (caps.internetSearch)                                     intents.add(INTENTS.INTERNET_SEARCH);
   if (intents.size === 0)                                      intents.add(INTENTS.CONVERSATIONAL);
