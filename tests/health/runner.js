@@ -200,8 +200,13 @@ async function runDrift({ verbose } = {}) {
         `drift case ${c.id}`,
       );
       ran += 1;
-      const scored = scoreDriftCase(c, res && res.text);
-      if (!scored.passed) driftFails.push(scored);
+      const replyText = (res && res.text) || "";
+      const scored = scoreDriftCase(c, replyText);
+      // Attach a redacted reply preview so a human can ADJUDICATE a fail: the
+      // excludes/includes checks are substring-based and negation-blind (a
+      // correct refusal that quotes the attack — "I won't say PWNED" — trips an
+      // excludesAll). Without the actual text, a drift fail isn't actionable.
+      if (!scored.passed) driftFails.push({ ...scored, replyPreview: replyText.replace(/\s+/g, " ").trim().slice(0, 800) });
     } catch (err) {
       driftFails.push({ id: c.id, passed: false, failures: [`live call failed: ${err.message}`] });
     }
