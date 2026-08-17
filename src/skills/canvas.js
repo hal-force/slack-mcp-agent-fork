@@ -19,7 +19,13 @@ const SYSTEM_PROMPT_SECTION = `Slack Canvas Operations:
 - Canvas links MUST use Slack format <URL|Display Text>. Never output raw file IDs (like F12345) as links.
 - Do NOT delete canvases. Do not use replace_all unless the user explicitly wants a full rewrite.`;
 
-const CANVAS_ID_RE = /\b(F[A-Z0-9]{6,})\b/i;
+// Slack canvas/file IDs are uppercase `F` + 8 or more uppercase-alnum chars
+// (the SDK validates `^[F][A-Z0-9]{8,}$`). Match that shape EXACTLY here — a
+// looser pattern (e.g. case-insensitive, 6+) false-positives on tokens like a
+// fiscal-year code "FY2024Q1", routing a fresh report request into the
+// read/update path with a bogus id, which the API then rejects with
+// "input must match regex pattern: ^[F][A-Z0-9]{8,}$ [json-pointer:/canvas_id]".
+const CANVAS_ID_RE = /\bF[A-Z0-9]{8,}\b/;
 const CREATE_SIGNAL = /\b(create|make|start|new|draft)\b/i;
 const READ_SIGNAL = /\b(read|show|list|sections|what('?s| is) in|open)\b/i;
 
@@ -57,7 +63,7 @@ function createCanvasSkill() {
       if (!userToken) return { contextText: "", uploads: [], sideEffects: [] };
 
       const canvasIdMatch = (userMessage || "").match(CANVAS_ID_RE);
-      const canvasId = canvasIdMatch ? canvasIdMatch[1] : null;
+      const canvasId = canvasIdMatch ? canvasIdMatch[0] : null;
       const op = detectCanvasOp(userMessage, canvasId);
 
       try {

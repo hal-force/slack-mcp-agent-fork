@@ -5,6 +5,11 @@
 
 const { WebClient } = require("@slack/web-api");
 
+// Slack validates canvas IDs against ^[F][A-Z0-9]{8,}$. Guard here too so a
+// malformed id returns a clean structured error instead of an SDK-thrown
+// "input must match regex pattern" exception that's opaque to the model.
+const CANVAS_ID_PATTERN = /^F[A-Z0-9]{8,}$/;
+
 /**
  * Web URL to open a canvas in the Slack client (team_id T…, canvas_id F…).
  * @see https://api.slack.com/reference/deep-linking#client_urls
@@ -65,6 +70,9 @@ async function canvasCreate(client, args) {
 async function canvasRead(client, args) {
   const canvas_id = String(args.canvas_id || "").trim();
   if (!canvas_id) return { ok: false, error: "canvas_id_required" };
+  if (!CANVAS_ID_PATTERN.test(canvas_id)) {
+    return { ok: false, error: "invalid_canvas_id", detail: `canvas_id must match ${CANVAS_ID_PATTERN} (got "${canvas_id}")` };
+  }
 
   const criteria = { section_types: ["any_header"] };
   const ct = (args.contains_text || "").trim();
@@ -108,6 +116,9 @@ async function canvasUpdate(client, args) {
       : "append_end";
 
   if (!canvas_id) return { ok: false, error: "canvas_id_required" };
+  if (!CANVAS_ID_PATTERN.test(canvas_id)) {
+    return { ok: false, error: "invalid_canvas_id", detail: `canvas_id must match ${CANVAS_ID_PATTERN} (got "${canvas_id}")` };
+  }
   if (!markdown.trim()) return { ok: false, error: "markdown_required" };
 
   const section_id = String(args.section_id || "").trim();
