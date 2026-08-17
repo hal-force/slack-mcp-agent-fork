@@ -9,7 +9,11 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "deploy:migrate": "prisma migrate deploy",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "health": "node tests/health/runner.js all",
+    "health:smoke": "node tests/health/runner.js smoke",
+    "health:drift": "node tests/health/runner.js drift",
+    "health:contextrot": "node tests/health/runner.js contextrot"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +37,6 @@
     "nodemon": "^3.1.11"
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=20"
   }
 }

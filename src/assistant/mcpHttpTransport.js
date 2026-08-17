@@ -114,6 +114,9 @@ async function streamableMcpPost(url, headers, bodyObj, timeoutMs = DEFAULT_TIME
           ...headers,
         },
         body: JSON.stringify(bodyObj),
+        // SSRF: a validated public host must not 30x-redirect us to an internal
+        // one. Fail closed rather than follow the redirect to an unchecked host.
+        redirect: "error",
         signal: AbortSignal.timeout(timeoutMs),
       });
       const text = await res.text();

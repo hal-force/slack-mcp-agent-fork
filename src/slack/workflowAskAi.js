@@ -32,7 +32,7 @@ const { installQueryFromBoltContext } = require("../install-kit/installQuery");
 const { getUserLocaleContext } = require("../assistant/userLocale");
 const { getInstallation } = require("../install-kit/installationStore");
 const { getInstallUrl } = require("../install-kit/env");
-const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("../preferences/userPreferences");
+const { getUserPreferences } = require("../preferences/userPreferences");
 const { resolveTableauMcpUrl } = require("../assistant/tableauMcpClient");
 const { resolveActiveSkills, executeActiveSkills } = require("../skills/registry");
 const { resolveSlackMrkdwnEntities } = require("./resolveSlackMrkdwnEntities");
@@ -324,14 +324,14 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
         }
 
         const installQuery = installQueryFromBoltContext(body, {}, event);
-        const [installation, tableauMcpUrlOverride, localeContext, useInternetSearch] = await Promise.all([
+        const [installation, prefs, localeContext] = await Promise.all([
           getInstallation(installQuery),
-          getTableauMcpUrlOverride(installQuery),
+          getUserPreferences(installQuery),
           getUserLocaleContext(client, installQuery.userId),
-          getInternetSearchEnabled(installQuery),
         ]);
+        const useInternetSearch = prefs.internetSearch;
         // Effective URL = per-user override, else the host default (TABLEAU_MCP_SERVER).
-        const tableauMcpBaseUrl = resolveTableauMcpUrl(tableauMcpUrlOverride);
+        const tableauMcpBaseUrl = resolveTableauMcpUrl(prefs.tableauMcpUrl);
 
         const teamId =
           body?.team_id ||
@@ -374,7 +374,8 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
               threadTs: null,
               userMessage,
               skipChannelAndThread: !primaryChannelId,
-              includeSearch: true,
+              // includeSearch omitted → workspace search runs only on a
+              // slack_search intent (E4).
               contextChannelId: postChannelId || undefined,
               teamId,
               tableauMcpBaseUrl,
@@ -462,6 +463,9 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
           }
         }
 
+        // Reply is out — now run the deferred canvas side effects (title + write).
+        const canvasUpdates = await aiResult.runSideEffects();
+
         if (postChannelId && client && aiUploads.length) {
           try {
             const imageRefs = await postThreadFileUploads(client, {
@@ -469,10 +473,10 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
               threadTs: null,
               uploads: aiUploads,
             });
-            if (aiResult.canvasUpdates?.length && imageRefs.length && userToken) {
+            if (canvasUpdates?.length && imageRefs.length && userToken) {
               const embedded = await embedImagesInCanvases({
                 userToken,
-                canvasUpdates: aiResult.canvasUpdates,
+                canvasUpdates,
                 imageRefs,
                 teamId,
                 defaultChannelId: postChannelId,

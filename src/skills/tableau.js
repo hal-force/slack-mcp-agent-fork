@@ -10,6 +10,20 @@ const {
   extractImageBuffersFromMcpToolResult,
   extensionForMime,
 } = require("../assistant/tableauMcpClient");
+const { selectedProvider } = require("../assistant/llmProvider");
+const { tableauQueryToolsEnabled } = require("../assistant/tableauGeminiTools");
+
+/**
+ * True when the model will call Tableau tools live, in-turn (Bedrock + query
+ * tools enabled). In that mode the model fetches the datasource catalog/metadata
+ * itself, so pre-fetching the full (large, ~30k-token) catalog here is redundant
+ * latency and prompt bloat — we skip it and let the tool loop do the work (E3).
+ */
+function liveTableauToolsActive(tableauMcpBaseUrl) {
+  return (
+    selectedProvider() === "bedrock" && tableauQueryToolsEnabled({ tableauMcpBaseUrl })
+  );
+}
 
 const VISUAL_SIGNAL =
   /\b(dashboard|screenshot|snapshot|chart|graph|trend|revenue|kpi|quarter|visual|view\s+image|show\s+me|display)\b/i;
@@ -123,10 +137,18 @@ function createTableauSkill() {
         ? threadHistory.map((m) => m.text || "").join("\n")
         : "");
       const wantTableau = Array.isArray(intents) && intents.includes("tableau");
+      const liveToolsActive = liveTableauToolsActive(tableauMcpBaseUrl);
 
       const [{ context: contextText }, viewUploads] = await Promise.all([
-        buildTableauContext(userMessage, { tableauMcpBaseUrl, wantTableau, threadHint: resolvedThreadHint }),
-        wantsViewImage(userMessage, intents)
+        buildTableauContext(userMessage, {
+          tableauMcpBaseUrl,
+          wantTableau,
+          threadHint: resolvedThreadHint,
+          liveToolsActive,
+        }),
+        // The live tool loop can fetch view images itself; only pre-fetch when
+        // tools aren't live (Gemini/Vertex path) and the message wants a visual.
+        !liveToolsActive && wantsViewImage(userMessage, intents)
           ? tryFetchViewImage(tableauMcpBaseUrl, userMessage)
           : Promise.resolve([]),
       ]);

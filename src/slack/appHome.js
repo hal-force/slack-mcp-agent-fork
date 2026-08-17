@@ -1,6 +1,7 @@
 const { getDefaultTableauMcpUrl, validateTableauMcpUserUrl } = require("../assistant/tableauMcpClient");
 const { getInstallUrl } = require("../install-kit/env");
 const {
+  getUserPreferences,
   getTableauMcpUrlOverride,
   setTableauMcpUrlOverride,
   getInternetSearchEnabled,
@@ -142,10 +143,8 @@ async function buildWelcomeBlocks(installQuery, installUrl) {
 }
 
 async function buildSettingsBlocks(installQuery, installUrl) {
-  const [override, internetSearchEnabled] = await Promise.all([
-    getTableauMcpUrlOverride(installQuery),
-    getInternetSearchEnabled(installQuery),
-  ]);
+  const { tableauMcpUrl: override, internetSearch: internetSearchEnabled } =
+    await getUserPreferences(installQuery);
 
   return [
     {

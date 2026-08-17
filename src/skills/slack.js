@@ -4,6 +4,7 @@
  */
 
 const { buildSlackContext } = require("../assistant/slackContext");
+const { INTENTS } = require("../router/intentRouter");
 
 const SYSTEM_PROMPT_SECTION = `Slack Workspace Context: The Slack context block (channel messages, threads, search results) is your primary source. Always answer from it when relevant. If Slack context is present but incomplete, say what you found before noting the gap. If context is entirely empty, state: "I don't see any recent messages for this."`;
 
@@ -32,6 +33,15 @@ function createSlackSkill() {
         teamId,
       } = sessionOpts;
 
+      // Only run the (expensive, workspace-wide) search when the turn actually
+      // has a search intent — "find/search/who said…". Channel & thread context
+      // still loads regardless; this just skips search.messages on the many
+      // turns that don't need it (E4). Honor an explicit sessionOpts override.
+      const includeSearch =
+        typeof sessionOpts.includeSearch === "boolean"
+          ? sessionOpts.includeSearch
+          : Array.isArray(intents) && intents.includes(INTENTS.SLACK_SEARCH);
+
       try {
         const contextText = await buildSlackContext(client, {
           userToken,
@@ -39,7 +49,7 @@ function createSlackSkill() {
           threadTs,
           userMessage,
           skipChannelAndThread: skipChannelAndThread || false,
-          includeSearch: true,
+          includeSearch,
           contextChannelId: contextChannelId || null,
           teamId: teamId || null,
         });

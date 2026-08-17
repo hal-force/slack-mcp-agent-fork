@@ -1,4 +1,5 @@
 const { getPrisma } = require("./prisma");
+const { encrypt, decrypt } = require("./tokenCrypto");
 
 /**
  * Slack sometimes sends an enterprise ID (prefix E…) in `team_id` with `is_enterprise_install` false,
@@ -71,8 +72,10 @@ function toDbRecord(installation, opts = {}) {
     enterpriseId,
     teamId,
     userId: userTokenOnly ? null : uid,
-    botToken,
-    userToken,
+    // Encrypted at rest (AES-256-GCM) when TOKEN_ENC_KEY is set; no-op plaintext
+    // otherwise. Decrypted in fromDbRecord on read. See tokenCrypto.js.
+    botToken: encrypt(botToken),
+    userToken: encrypt(userToken),
     botId: installation.bot?.id ?? null,
     botUserId: installation.bot?.userId ?? null,
     installerUser: installation.user?.id ?? null,
@@ -95,12 +98,16 @@ function fromDbRecord(row) {
 
   const isEnterpriseInstall = !!row.enterpriseId;
 
+  // Decrypt tokens (no-op for legacy plaintext rows — see tokenCrypto.js).
+  const botToken = decrypt(row.botToken);
+  const userToken = decrypt(row.userToken);
+
   const userPayload =
-    row.userToken || row.installerUser
+    userToken || row.installerUser
       ? {
           id: row.installerUser ?? "installer",
-          ...(row.userToken && {
-            token: row.userToken,
+          ...(userToken && {
+            token: userToken,
             scopes: userScopes.length ? userScopes : undefined,
           }),
         }
@@ -114,7 +121,7 @@ function fromDbRecord(row) {
     tokenType: row.tokenType ?? "bot",
     user: userPayload,
     bot: {
-      token: row.botToken,
+      token: botToken,
       id: row.botId ?? undefined,
       userId: row.botUserId ?? undefined,
       scopes,
@@ -220,8 +227,10 @@ function createInstallationStore({ logger } = {}) {
           return result;
         }
         if (isEnterpriseInstall) {
+          // Scope to the org-level row (userId: null). A bare { teamId } could
+          // return a per-user row — leaking another user's token.
           const byTeam = await prisma.installation.findFirst({
-            where: { teamId },
+            where: { teamId, userId: null },
           });
           if (byTeam) {
             const result = fromDbRecord(byTeam);
@@ -307,8 +316,10 @@ async function getInstallation(installQuery) {
       return result;
     }
     if (isEnterpriseInstall) {
+      // Scope to the org-level row (userId: null). A bare { teamId } could
+      // return a per-user row — leaking another user's token.
       const byTeam = await prisma.installation.findFirst({
-        where: { teamId },
+        where: { teamId, userId: null },
       });
       if (byTeam) {
         const result = fromDbRecord(byTeam);

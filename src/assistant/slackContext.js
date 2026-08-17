@@ -2,14 +2,47 @@ const { WebClient } = require("@slack/web-api");
 const { buildContextViaMcp } = require("./slackMcpClient");
 const { channelAccessMissingScopeHintLines } = require("../slack/reinstallPrompt");
 
+// user id → display name, cached across turns. users.info is called for every
+// <@U…> mention in fetched context; the same handful of people recur constantly,
+// so a short-TTL cache removes almost all of those calls (E6). Names change
+// rarely, so a few minutes of staleness is fine. Bounded to avoid unbounded growth.
+//
+// The cache key MUST be tenant-scoped. Slack member IDs (U…) are unique only
+// within a workspace / Enterprise-Grid org, NOT globally — this one process
+// serves every installed workspace. Keying on the bare uid would let workspace
+// Y render workspace X's cached display name for a colliding U-id (cross-tenant
+// disclosure). Scope by token + teamId, same as the channel-id cache below.
+const USER_NAME_TTL_MS = 10 * 60 * 1000;
+const USER_NAME_CACHE_MAX = 2000;
+/** @type {Map<string, { name: string, at: number }>} */
+const _userNameCache = new Map();
+
+function userNameCacheGet(key) {
+  const hit = _userNameCache.get(key);
+  if (!hit) return undefined;
+  if (Date.now() - hit.at > USER_NAME_TTL_MS) {
+    _userNameCache.delete(key);
+    return undefined;
+  }
+  return hit.name;
+}
+
+function userNameCacheSet(key, name) {
+  if (_userNameCache.size >= USER_NAME_CACHE_MAX) {
+    const oldest = _userNameCache.keys().next().value;
+    if (oldest !== undefined) _userNameCache.delete(oldest);
+  }
+  _userNameCache.set(key, { name, at: Date.now() });
+}
+
 /**
  * Resolve all <@UXXXXXX> mention tokens in a text string to display names.
- * Uses a simple in-call cache to avoid redundant users.info calls.
+ * Backed by a cross-turn TTL cache; only cache-missing ids hit users.info.
  * @param {import("@slack/web-api").WebClient} apiClient
  * @param {string} text
  * @returns {Promise<string>}
  */
-async function resolveUserMentions(apiClient, text) {
+async function resolveUserMentions(apiClient, text, teamId = null) {
   if (!text || typeof text !== "string") return text;
   const userIdRe = /<@(U[A-Z0-9]+)(?:\|[^>]*)?>/ ;
   if (!userIdRe.test(text)) return text;
@@ -19,20 +52,35 @@ async function resolveUserMentions(apiClient, text) {
   let m;
   while ((m = allRe.exec(text)) !== null) ids.add(m[1]);
 
+  // Tenant-scoped cache key: uid alone is not globally unique (see the cache
+  // declaration above). Fold the token + teamId in so a U-id collision across
+  // workspaces can never surface another tenant's name.
+  const scope = `${tokenCacheKey(apiClient?.token)}:${teamId || "-"}`;
+  const cacheKeyFor = (uid) => `${scope}:${uid}`;
+
   const nameById = {};
+  const misses = [];
+  for (const uid of ids) {
+    const cached = userNameCacheGet(cacheKeyFor(uid));
+    if (cached !== undefined) nameById[uid] = cached;
+    else misses.push(uid);
+  }
+
   await Promise.all(
-    [...ids].map(async (uid) => {
+    misses.map(async (uid) => {
       try {
         const res = await apiClient.users.info({ user: uid });
         const u = res.user;
         if (u) {
-          nameById[uid] =
+          const name =
             u.profile?.display_name_normalized ||
             u.profile?.display_name ||
             u.profile?.real_name_normalized ||
             u.real_name ||
             u.name ||
             uid;
+          nameById[uid] = name;
+          userNameCacheSet(cacheKeyFor(uid), name);
         }
       } catch (_) {
         // Leave unresolved mentions as-is if the API call fails.
@@ -63,11 +111,15 @@ function parseChannelRefs(text) {
   const linkRe = /<#(C[A-Z0-9]+)(?:\|[^>]*)?>/gi;
   let m;
   while ((m = linkRe.exec(text)) !== null) ids.add(m[1].toUpperCase());
-  // Plain #channel-name (exclude channel IDs - they look like #C0AL8UCPULW)
+  // Plain #channel-name (exclude channel IDs - they look like #C0AL8UCPULW).
+  // Require at least one letter so bare "#1", "#2024", "#3-priority" don't
+  // trigger a (costly) channel-name resolution scan for non-channels (E5).
   const plainRe = /#([a-z0-9][a-z0-9._-]*)/gi;
   while ((m = plainRe.exec(text)) !== null) {
     const s = m[1];
-    if (!isChannelId(s)) names.add(s.toLowerCase());
+    if (isChannelId(s)) continue;
+    if (!/[a-z]/i.test(s)) continue; // purely numeric/symbolic → not a channel ref
+    names.add(s.toLowerCase());
   }
   return { ids: [...ids], names: [...names] };
 }
@@ -102,8 +154,53 @@ function includeMessageInHistory(m) {
   return !m.subtype || INCLUDE_SUBTYPES.has(m.subtype);
 }
 
+// Channel name → id resolution scans conversations.list, which paginates over
+// the caller's entire channel membership. That's expensive and often repeated
+// (same name across turns, several names in one message). Memoize results with a
+// short TTL, keyed by the reading token + team + name so we never serve one
+// user's private-channel resolution to another. Bounded so it can't grow without
+// limit. (E5)
+const CHANNEL_ID_TTL_MS = 5 * 60 * 1000;
+const CHANNEL_ID_CACHE_MAX = 500;
+/** @type {Map<string, { id: string|null, at: number }>} */
+const _channelIdCache = new Map();
+
+/** Stable, non-reversible cache key for a token (don't hold raw tokens in a Map key). */
+function tokenCacheKey(token) {
+  const t = String(token || "");
+  if (!t) return "bot";
+  // Cheap fold — collision-resistance isn't needed, just separation per token.
+  let h = 0;
+  for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0;
+  return `u${h}`;
+}
+
+function channelCacheGet(key) {
+  const hit = _channelIdCache.get(key);
+  if (!hit) return undefined;
+  if (Date.now() - hit.at > CHANNEL_ID_TTL_MS) {
+    _channelIdCache.delete(key);
+    return undefined;
+  }
+  return hit.id;
+}
+
+function channelCacheSet(key, id) {
+  if (_channelIdCache.size >= CHANNEL_ID_CACHE_MAX) {
+    // Evict the oldest inserted entry (Map preserves insertion order).
+    const oldest = _channelIdCache.keys().next().value;
+    if (oldest !== undefined) _channelIdCache.delete(oldest);
+  }
+  _channelIdCache.set(key, { id, at: Date.now() });
+}
+
 /** Resolve a channel name to channel ID via conversations.list (uses provided client: user or bot). */
 async function resolveChannelByName(client, name, teamId) {
+  if (!client) return null;
+  const cacheKey = `${tokenCacheKey(client?.token)}:${teamId || "-"}:${String(name).toLowerCase()}`;
+  const cached = channelCacheGet(cacheKey);
+  if (cached !== undefined) return cached;
+
   const tryList = async (tid) => {
     try {
       let cursor;
@@ -128,6 +225,7 @@ async function resolveChannelByName(client, name, teamId) {
   };
   let cid = await tryList(teamId);
   if (!cid && teamId) cid = await tryList(null); // Enterprise: try without team_id (other workspaces)
+  channelCacheSet(cacheKey, cid);
   return cid;
 }
 
@@ -164,23 +262,35 @@ async function buildSlackContext(client, opts = {}) {
     channelAccessErrors = null,
   } = opts;
 
-  // Use user token (xoxp) for all Slack data reads when available; else bot (xoxb)
-  const apiClient = userToken && userToken.trim()
-    ? new WebClient(userToken)
-    : client;
+  const hasUserToken = !!(userToken && userToken.trim());
+  // User-delegated client (xoxp): only set when we actually hold a user token.
+  // Reads that could reach content the *requesting* user can't see — channels
+  // they merely named, and workspace-wide search — MUST use this, never the bot
+  // token. The bot may belong to channels the user doesn't; falling back to it
+  // would let "summarize #private-channel" leak content across the auth boundary
+  // (S6). userApiClient is null when there's no user token, and those reads are
+  // then refused (recorded as an access problem that prompts authorization).
+  const userApiClient = hasUserToken ? new WebClient(userToken) : null;
+  // For reads of the *current* conversation (the channel/thread the request came
+  // from, or the "this channel" the Assistant was opened from) the user is
+  // demonstrably present, so the bot token is an acceptable fallback.
+  const apiClient = userApiClient || client;
 
   const { ids: requestedIds, names: requestedNames } = parseChannelRefs(userMessage);
   if (DEBUG) {
     console.log("[slackContext] userToken:", !!userToken, "contextChannelId:", contextChannelId, "requestedIds:", requestedIds, "requestedNames:", requestedNames, "teamId:", teamId);
   }
 
-  /** Fetch history for a channel by ID (e.g. context channel from "this channel"). */
-  async function addChannelById(sectionsArray, cid, label) {
+  /**
+   * Fetch history for a channel by ID.
+   * @param {WebClient} readClient - which token reads this channel (user vs bot)
+   */
+  async function addChannelById(sectionsArray, cid, label, readClient = apiClient) {
     if (!cid || cid === channelId) return; // skip if same as current (e.g. Assistant DM)
     try {
-      const conv = await apiClient.conversations.info({ channel: cid });
+      const conv = await readClient.conversations.info({ channel: cid });
       const name = conv.channel?.name ? `#${conv.channel.name}` : cid;
-      const res = await apiClient.conversations.history({
+      const res = await readClient.conversations.history({
         channel: cid,
         limit: Math.min(maxChannelMessages, 30),
       });
@@ -212,14 +322,28 @@ async function buildSlackContext(client, opts = {}) {
 
   /** Fetch history for channels mentioned in the message (IDs from <#C...|name>, names from #channel-name). */
   async function addRequestedChannels(sectionsArray) {
+    // Channels the user merely *named* (not the conversation they're in) must be
+    // read with their own token — the bot may see channels they can't (S6).
+    if ((requestedIds.length || requestedNames.length) && !userApiClient) {
+      if (Array.isArray(channelAccessErrors)) {
+        for (const cid of requestedIds) {
+          channelAccessErrors.push({ channelId: cid, error: "not_authorized_without_user_token" });
+        }
+        for (const name of requestedNames) {
+          channelAccessErrors.push({ channelLabel: `#${name}`, error: "not_authorized_without_user_token" });
+        }
+      }
+      if (DEBUG) console.log("[slackContext] refusing named-channel read without user token");
+      return;
+    }
     for (const cid of requestedIds) {
-      await addChannelById(sectionsArray, cid, null);
+      await addChannelById(sectionsArray, cid, null, userApiClient);
     }
     for (const name of requestedNames) {
-      let cid = await resolveChannelByName(apiClient, name, teamId);
+      let cid = await resolveChannelByName(userApiClient, name, teamId);
       if (cid) {
         try {
-          const res = await apiClient.conversations.history({
+          const res = await userApiClient.conversations.history({
             channel: cid,
             limit: Math.min(maxChannelMessages, 30),
           });
@@ -251,9 +375,9 @@ async function buildSlackContext(client, opts = {}) {
         continue;
       }
       // Fallback: search in channel by name when we can't resolve (e.g. channel in other workspace)
-      if (userToken && userToken.trim()) {
+      if (userApiClient) {
         try {
-          const searchRes = await apiClient.search.messages({
+          const searchRes = await userApiClient.search.messages({
             query: `in:${name}`,
             count: Math.min(maxChannelMessages, 20),
             sort: "timestamp",
@@ -296,7 +420,7 @@ async function buildSlackContext(client, opts = {}) {
         ? mcpContext.replace("--- End Slack context ---", `${tail}\n--- End Slack context ---`)
         : mcpContext;
       try {
-        return await resolveUserMentions(apiClient, mcpResult);
+        return await resolveUserMentions(apiClient, mcpResult, teamId);
       } catch (_) {
         return mcpResult;
       }
@@ -363,10 +487,13 @@ async function buildSlackContext(client, opts = {}) {
     }
 
     // ----- Search (when user message looks like a question) -----
+    // Workspace search must use the user's token so results are scoped to what
+    // they can see (search:read is a user scope; a bot-token call would fail
+    // anyway). Skip entirely without a user token (S6).
     const query = (userMessage || "").trim();
-    if (includeSearch && query.length >= 3) {
+    if (includeSearch && query.length >= 3 && userApiClient) {
       try {
-        const searchRes = await apiClient.search.messages({ query, count: 20, sort: "score" });
+        const searchRes = await userApiClient.search.messages({ query, count: 20, sort: "score" });
         const matches = searchRes.messages?.matches ?? [];
         if (matches.length > 0) {
           const lines = matches.map((m) => {
@@ -397,10 +524,15 @@ async function buildSlackContext(client, opts = {}) {
   const body = [sections.join("\n\n"), accessProblems].filter(Boolean).join("\n\n");
   const raw = `${header}${body}\n--- End Slack context ---\n`;
   try {
-    return await resolveUserMentions(apiClient, raw);
+    return await resolveUserMentions(apiClient, raw, teamId);
   } catch (_) {
     return raw;
   }
 }
 
-module.exports = { buildSlackContext, parseChannelRefs };
+module.exports = {
+  buildSlackContext,
+  parseChannelRefs,
+  // exported for tests
+  resolveUserMentions,
+};

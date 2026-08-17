@@ -1,11 +1,13 @@
 require("dotenv").config();
 
-// Heroku: if GCP_SERVICE_ACCOUNT_JSON is set (JSON string), write to temp file for Vertex AI
+// Heroku: if GCP_SERVICE_ACCOUNT_JSON is set (JSON string), write to temp file for Vertex AI.
+// Write it 0600 (owner read/write only) so the service-account credential isn't
+// left world-readable for other processes on a shared host.
 if (process.env.GCP_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   const fs = require("fs");
   const path = require("path");
   const tmp = path.join(process.env.TMPDIR || "/tmp", "gcp-sa-" + Date.now() + ".json");
-  fs.writeFileSync(tmp, process.env.GCP_SERVICE_ACCOUNT_JSON);
+  fs.writeFileSync(tmp, process.env.GCP_SERVICE_ACCOUNT_JSON, { mode: 0o600 });
   process.env.GOOGLE_APPLICATION_CREDENTIALS = tmp;
 }
 
@@ -14,7 +16,7 @@ const { receiver } = require("./slack/receiver");
 const { getAiResponse } = require("./assistant/respond");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
-const { getTableauMcpUrlOverride, getInternetSearchEnabled } = require("./preferences/userPreferences");
+const { getUserPreferences } = require("./preferences/userPreferences");
 const { resolveTableauMcpUrl } = require("./assistant/tableauMcpClient");
 const { registerAppHome } = require("./slack/appHome");
 const { registerAskAiWorkflowStep } = require("./slack/workflowAskAi");
@@ -58,15 +60,15 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
   try {
     const userMessage = event.text?.replace(/<@[A-Z0-9]+>/g, "").trim() || "";
     const installQuery = installQueryFromBoltContext(body, {}, event);
-    const [installation, tableauMcpUrlOverride, useInternetSearch] = await Promise.all([
+    const [installation, prefs] = await Promise.all([
       getInstallation(installQuery),
-      getTableauMcpUrlOverride(installQuery),
-      getInternetSearchEnabled(installQuery),
+      getUserPreferences(installQuery),
     ]);
+    const useInternetSearch = prefs.internetSearch;
     // Effective URL = per-user override, else the host default (TABLEAU_MCP_SERVER).
     // Gating (tableauEnabled) must use this, not the raw override, or a deployment-wide
     // default never enables the skill.
-    const tableauMcpBaseUrl = resolveTableauMcpUrl(tableauMcpUrlOverride);
+    const tableauMcpBaseUrl = resolveTableauMcpUrl(prefs.tableauMcpUrl);
     if (process.env.SLACK_CONTEXT_DEBUG === "1") {
       console.log(`[slack-mcp-agent] app_mention useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }
@@ -74,14 +76,28 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       body?.team_id || body?.authorizations?.[0]?.team_id || event?.team || event?.team_id || null;
     const userToken = installation?.user?.token;
 
-    // If the mention is inside a thread, pull prior turns so a keyword-less
-    // follow-up ("what about last quarter?") stays routed to Tableau.
+    // If the mention is inside a thread, pull prior turns ONCE so a keyword-less
+    // follow-up ("what about last quarter?") stays routed to Tableau. Reuse the
+    // same fetch as conversation history for the model and set skipChannelAndThread
+    // so the Slack skill doesn't fetch the identical thread again (E6).
     let mentionThreadHint = "";
-    if (event.thread_ts) {
+    let threadHistory = [];
+    const inThread = !!event.thread_ts;
+    if (inThread) {
       const priorReplies = await client.conversations
         .replies({ channel: event.channel, ts: event.thread_ts, oldest: event.thread_ts })
         .catch(() => ({ messages: [] }));
-      mentionThreadHint = (priorReplies.messages || []).map((m) => m.text || "").join("\n");
+      const msgs = priorReplies.messages || [];
+      mentionThreadHint = msgs.map((m) => m.text || "").join("\n");
+      // self:true marks turns authored by the invoking user — those stay
+      // authoritative; any other participant's turn is fenced as untrusted data
+      // downstream (buildContents) so a third party can't inject instructions
+      // via shared-thread history.
+      threadHistory = msgs.map((m) => ({
+        role: m.bot_id ? "assistant" : "user",
+        text: m.text || "",
+        self: !m.bot_id && !!event.user && m.user === event.user,
+      }));
     }
 
     const { useFullModel, intents } = classifyIntent(
@@ -104,12 +120,15 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       getUserLocaleContext(client, installQuery.userId),
       executeActiveSkills(activeSkills, intents, {
         userMessage,
+        threadHistory,
         client,
         sessionOpts: {
           userToken,
           channelId: event.channel,
           threadTs: event.thread_ts || event.ts,
           userMessage,
+          // Thread already fetched above → don't re-fetch it in the Slack skill.
+          skipChannelAndThread: inThread,
           tableauMcpBaseUrl,
           threadHint: mentionThreadHint,
           defaultChannelId: event.channel,
@@ -120,6 +139,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
     const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
     const response = await getAiResponse({
       userMessage,
+      threadHistory,
       skillContext: skillContext || undefined,
       uploads: skillResult.uploads,
       sideEffects: skillResult.sideEffects,
@@ -142,6 +162,8 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       text: notifyText,
       blocks,
     });
+    // Reply is out — now run the deferred canvas side effects (title + write).
+    const canvasUpdates = await response.runSideEffects();
     if (response.uploads?.length) {
       try {
         const imageRefs = await postThreadFileUploads(client, {
@@ -149,10 +171,10 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
           threadTs,
           uploads: response.uploads,
         });
-        if (response.canvasUpdates?.length && imageRefs.length && userToken) {
+        if (canvasUpdates?.length && imageRefs.length && userToken) {
           const embedded = await embedImagesInCanvases({
             userToken,
-            canvasUpdates: response.canvasUpdates,
+            canvasUpdates,
             imageRefs,
             teamId,
             defaultChannelId: event.channel,
@@ -229,13 +251,13 @@ const assistant = new Assistant({
     const { channel, thread_ts } = message;
     const text = message.text.trim();
     const installQuery = installQueryFromBoltContext(body, context, { user: message?.user });
-    const [installation, tableauMcpUrlOverride, useInternetSearch] = await Promise.all([
+    const [installation, prefs] = await Promise.all([
       getInstallation(installQuery),
-      getTableauMcpUrlOverride(installQuery),
-      getInternetSearchEnabled(installQuery),
+      getUserPreferences(installQuery),
     ]);
+    const useInternetSearch = prefs.internetSearch;
     // Effective URL = per-user override, else the host default (TABLEAU_MCP_SERVER).
-    const tableauMcpBaseUrl = resolveTableauMcpUrl(tableauMcpUrlOverride);
+    const tableauMcpBaseUrl = resolveTableauMcpUrl(prefs.tableauMcpUrl);
     if (process.env.SLACK_CONTEXT_DEBUG === "1") {
       console.log(`[slack-mcp-agent] assistant useInternetSearch=${useInternetSearch} userId=${installQuery.userId ?? "(none)"}`);
     }
@@ -273,9 +295,13 @@ const assistant = new Assistant({
         .replies({ channel, ts: thread_ts, oldest: thread_ts })
         .catch(() => ({ messages: [] }));
 
+      // self:true marks the invoking user's own prior turns (authoritative);
+      // other participants' turns are fenced as untrusted data in buildContents.
+      const invokingUserId = message?.user || null;
       const threadHistory = (repliesRes.messages || []).map((m) => ({
         role: m.bot_id ? "assistant" : "user",
         text: m.text || "",
+        self: !m.bot_id && !!invokingUserId && m.user === invokingUserId,
       }));
       const threadHint = threadHistory.map((m) => m.text || "").join("\n");
 
@@ -309,7 +335,8 @@ const assistant = new Assistant({
             threadTs: thread_ts,
             userMessage: text,
             skipChannelAndThread: true,
-            includeSearch: true,
+            // includeSearch omitted → the Slack skill runs workspace search only
+            // when the turn has a slack_search intent (E4).
             contextChannelId,
             teamId,
             tableauMcpBaseUrl,
@@ -339,6 +366,8 @@ const assistant = new Assistant({
         installation ? response.text : `${response.text}\n\n---\n${getAuthorizeMessage()}`;
       const { text: notifyText, blocks } = mrkdwnStringToBlocks(replyText);
       await say({ text: notifyText, blocks });
+      // Reply is out — now run the deferred canvas side effects (title + write).
+      const canvasUpdates = await response.runSideEffects();
       if (response.uploads?.length) {
         try {
           const imageRefs = await postThreadFileUploads(client, {
@@ -348,10 +377,10 @@ const assistant = new Assistant({
           });
           // If a canvas was written this turn, embed the same rendered images
           // into it as file-unfurl links (no re-upload). Best-effort.
-          if (response.canvasUpdates?.length && imageRefs.length && userToken) {
+          if (canvasUpdates?.length && imageRefs.length && userToken) {
             const embedded = await embedImagesInCanvases({
               userToken,
-              canvasUpdates: response.canvasUpdates,
+              canvasUpdates,
               imageRefs,
               teamId,
               defaultChannelId: contextChannelId || channel,

@@ -25,7 +25,11 @@ function createReceiver() {
       installPath: "/slack/install",
       redirectUriPath: "/slack/oauthcallback",
       directInstall: true,
-      stateVerification: false,
+      // stateVerification defaults to true — the OAuth `state` param (signed with
+      // stateSecret and bound to a browser cookie) is validated on the callback so
+      // an attacker can't forge/replay the install flow (OAuth CSRF). Do not set
+      // this to false; if the state cookie ever fails to survive the redirect,
+      // fix the cookie/redirect config rather than disabling the check.
       userScopes: userScopes.length > 0 ? userScopes : undefined,
     },
 

@@ -9,6 +9,7 @@
  */
 
 const { parseMcpResponse, streamableMcpPost } = require("./mcpHttpTransport");
+const { validateUserMcpUrl, assertSafeOutboundUrl, allowPrivateMcpTargets } = require("./urlSafety");
 
 const SESSION_TTL_MS = 25 * 60 * 1000;
 
@@ -40,21 +41,15 @@ function getTableauMcpUrl() {
 }
 
 /**
- * Validate a user-supplied MCP base URL (App Home settings).
+ * Validate a user-supplied MCP base URL (App Home settings). Requires https AND
+ * a public host — blocks loopback/RFC-1918/link-local/metadata/.internal to
+ * prevent SSRF, since this value is attacker-controllable. See urlSafety.js.
  * @returns {{ ok: true, url: string | null } | { ok: false, error: string }}
  */
 function validateTableauMcpUserUrl(raw) {
-  const s = (raw || "").trim();
-  if (!s) return { ok: true, url: null };
-  try {
-    const u = new URL(s);
-    if (u.protocol !== "https:") {
-      return { ok: false, error: "URL must use https://" };
-    }
-    return { ok: true, url: normalizeTableauBaseUrl(s) };
-  } catch {
-    return { ok: false, error: "Invalid URL" };
-  }
+  const result = validateUserMcpUrl(raw);
+  if (result.ok && result.url) result.url = normalizeTableauBaseUrl(result.url);
+  return result;
 }
 
 function sessionValid(entry) {
@@ -71,6 +66,9 @@ function clearSession(baseUrl) {
 async function postMcp(baseUrl, sessionId, bodyObj) {
   const url = normalizeTableauBaseUrl(baseUrl);
   if (!url) throw new Error("TABLEAU_MCP_SERVER is not set");
+  // Re-validate on every request (SSRF): the URL may be a per-user override.
+  // An operator may allow a private deployment default via TABLEAU_MCP_ALLOW_PRIVATE=1.
+  assertSafeOutboundUrl(url, { allowPrivate: allowPrivateMcpTargets() });
   const headers = {};
   if (sessionId) headers["Mcp-Session-Id"] = sessionId;
   return streamableMcpPost(url, headers, bodyObj);

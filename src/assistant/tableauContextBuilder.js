@@ -9,6 +9,24 @@
 const { mcpRequest, resolveTableauMcpUrl, ensureSession, clearSession, textFromToolResult } = require("./tableauMcpClient");
 const { lexicalWantTableau } = require("../router/intentRouter");
 
+// The MCP server's tool catalog (tools/list) is effectively static for a given
+// server, but was re-fetched on every turn. Cache it per base URL with a TTL so
+// most turns skip that round-trip (E6). clearSession-style invalidation isn't
+// needed — a stale list at worst omits a just-added tool for a few minutes.
+const TOOLS_LIST_TTL_MS = 15 * 60 * 1000;
+/** @type {Map<string, { tools: unknown[], at: number }>} */
+const _toolsListCache = new Map();
+
+async function getToolsList(baseUrl, sessionId) {
+  const hit = _toolsListCache.get(baseUrl);
+  if (hit && Date.now() - hit.at < TOOLS_LIST_TTL_MS) return hit.tools;
+  const toolsResult = await mcpRequest(baseUrl, sessionId, "tools/list", {});
+  const tools = toolsResult?.tools ?? [];
+  // Only cache a non-empty catalog; an empty result is likely a transient error.
+  if (tools.length) _toolsListCache.set(baseUrl, { tools, at: Date.now() });
+  return tools;
+}
+
 /** VizQL query example from Tableau MCP docs (query object only). */
 const TABLEAU_QUERY_VIZQL_EXAMPLE = `{
   "fields": [
@@ -446,6 +464,7 @@ async function tryDatasourceMetadata(baseUrl, sessionId, datasourceLuid) {
  *   threadHint?: string,
  *   tableauMcpBaseUrl?: string,
  *   wantTableau?: boolean,
+ *   liveToolsActive?: boolean,
  * }} [opts]
  * @returns {Promise<{ context: string, datasourceUrls: Record<string, string> }>}
  */
@@ -458,8 +477,7 @@ async function buildTableauContext(userMessage = "", opts = {}) {
 
   try {
     const sessionId = await ensureSession(baseUrl);
-    const toolsResult = await mcpRequest(baseUrl, sessionId, "tools/list", {});
-    const tools = toolsResult?.tools ?? [];
+    const tools = await getToolsList(baseUrl, sessionId);
     const toolSummary = summarizeTools(tools);
 
     const parts = [
@@ -473,6 +491,27 @@ async function buildTableauContext(userMessage = "", opts = {}) {
           ? `Available Tableau tools:\n${toolSummary}`
           : `MCP server tools (this agent can call list/metadata/query/list-views/view-image via Gemini when TABLEAU_MCP_QUERY_TOOLS is not 0): ${toolSummary}`
       );
+    }
+
+    // When the model will call Tableau tools live in-turn (Bedrock), it fetches
+    // the datasource catalog/metadata itself with a proper name filter. Skip the
+    // large unfiltered pre-fetch here — keep only the tool summary + query
+    // contract below, which tell the model what to call (E3).
+    if (opts.liveToolsActive) {
+      const wantQueryHelp = queryContractInTableauContextEnabled();
+      if (wantQueryHelp) {
+        const qh = formatQueryDatasourceContractHelp(tools);
+        if (qh) parts.push(qh);
+      }
+      const body = parts.filter(Boolean).join("\n\n");
+      if (!body) return { context: "", datasourceUrls: {} };
+      return {
+        context:
+          `\n--- Tableau context (from MCP endpoint) ---\n` +
+          `${body}\n` +
+          `--- End Tableau context ---\n`,
+        datasourceUrls: {},
+      };
     }
 
     // wantTableau from caller (intent router) takes precedence; fall back to lexical detection.

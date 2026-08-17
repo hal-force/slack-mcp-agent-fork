@@ -16,22 +16,40 @@ function userPreferenceId(q) {
   return null;
 }
 
+/** Normalize the stored tableauMcpUrl value to an override string or undefined. */
+function normalizeStoredMcpUrl(v) {
+  if (v == null || String(v).trim() === "") return undefined;
+  return String(v).trim().replace(/\/$/, "");
+}
+
 /**
+ * Read BOTH per-user preferences in a single query. Handlers need the Tableau
+ * URL override and the internet-search flag together on every turn; fetching
+ * them separately did two findUnique round-trips for the same row (E6).
  * @param {{ teamId?: string|null, enterpriseId?: string|null, isEnterpriseInstall?: boolean, userId?: string|null }} installQuery
- * @returns {Promise<string|undefined>} Stored override URL, or undefined to use host default
+ * @returns {Promise<{ tableauMcpUrl: string|undefined, internetSearch: boolean }>}
  */
-async function getTableauMcpUrlOverride(installQuery) {
+async function getUserPreferences(installQuery) {
   const id = userPreferenceId({
     isEnterpriseInstall: installQuery.isEnterpriseInstall,
     enterpriseId: installQuery.enterpriseId ?? null,
     teamId: installQuery.teamId ?? null,
     userId: installQuery.userId ?? null,
   });
-  if (!id) return undefined;
+  if (!id) return { tableauMcpUrl: undefined, internetSearch: false };
   const row = await getPrisma().userPreference.findUnique({ where: { id } });
-  const v = row?.tableauMcpUrl;
-  if (v == null || String(v).trim() === "") return undefined;
-  return String(v).trim().replace(/\/$/, "");
+  return {
+    tableauMcpUrl: normalizeStoredMcpUrl(row?.tableauMcpUrl),
+    internetSearch: row?.internetSearch === true,
+  };
+}
+
+/**
+ * @param {{ teamId?: string|null, enterpriseId?: string|null, isEnterpriseInstall?: boolean, userId?: string|null }} installQuery
+ * @returns {Promise<string|undefined>} Stored override URL, or undefined to use host default
+ */
+async function getTableauMcpUrlOverride(installQuery) {
+  return (await getUserPreferences(installQuery)).tableauMcpUrl;
 }
 
 /**
@@ -69,20 +87,7 @@ async function setTableauMcpUrlOverride(installQuery, url) {
  * @returns {Promise<boolean>}
  */
 async function getInternetSearchEnabled(installQuery) {
-  const id = userPreferenceId({
-    isEnterpriseInstall: installQuery.isEnterpriseInstall,
-    enterpriseId: installQuery.enterpriseId ?? null,
-    teamId: installQuery.teamId ?? null,
-    userId: installQuery.userId ?? null,
-  });
-  if (!id) {
-    if (process.env.SLACK_CONTEXT_DEBUG === "1") {
-      console.warn("[userPreferences] getInternetSearchEnabled: no userId — returning false");
-    }
-    return false;
-  }
-  const row = await getPrisma().userPreference.findUnique({ where: { id } });
-  return row?.internetSearch === true;
+  return (await getUserPreferences(installQuery)).internetSearch;
 }
 
 /**
@@ -120,6 +125,7 @@ function installQueryFromInteractiveBody(body) {
 
 module.exports = {
   userPreferenceId,
+  getUserPreferences,
   getTableauMcpUrlOverride,
   setTableauMcpUrlOverride,
   getInternetSearchEnabled,

@@ -4,7 +4,9 @@ const assert = require("node:assert/strict");
 const {
   cleanTitle,
   deriveTitleFromText,
+  deriveTitleFromReportText,
   titledCanvasMarkdown,
+  generateCanvasTitle,
 } = require("../src/canvas/canvasTitle");
 
 // ---- cleanTitle: normalize a raw model/heuristic string into one title line ----
@@ -69,4 +71,42 @@ test("titledCanvasMarkdown does not double-title when the body already starts wi
 test("titledCanvasMarkdown returns the body unchanged when there is no title", () => {
   assert.equal(titledCanvasMarkdown("Body only.", ""), "Body only.");
   assert.equal(titledCanvasMarkdown("Body only.", null), "Body only.");
+});
+
+// ---- deriveTitleFromReportText: pick a specific heading from the report body ----
+
+test("deriveTitleFromReportText skips a generic first heading for a specific one", () => {
+  const report =
+    "*EXECUTIVE SUMMARY*\nThe fund did well.\n\n*OTF GRANT FUNDING TRENDS*\nDetails here.";
+  // Skips EXECUTIVE SUMMARY; keeps the first specific ALL-CAPS heading verbatim
+  // (title-casing it would corrupt the "OTF" acronym).
+  assert.equal(deriveTitleFromReportText(report), "OTF GRANT FUNDING TRENDS");
+});
+
+test("deriveTitleFromReportText falls back to the first non-empty line", () => {
+  assert.equal(deriveTitleFromReportText("Quarterly revenue rose sharply this year."), "Quarterly Revenue Rose Sharply This Year");
+});
+
+test("deriveTitleFromReportText returns Untitled Canvas for empty input", () => {
+  assert.equal(deriveTitleFromReportText(""), "Untitled Canvas");
+  assert.equal(deriveTitleFromReportText("   \n  \n"), "Untitled Canvas");
+});
+
+// ---- generateCanvasTitle: deterministic, no LLM call ----
+
+test("generateCanvasTitle prefers the user's own request phrasing (preserves acronyms)", async () => {
+  const title = await generateCanvasTitle("*EXECUTIVE SUMMARY*\nBig report body.", {
+    userMessage: "please create a report on OTF grant funding by program",
+  });
+  assert.equal(title, "Create a Report on OTF Grant Funding by");
+});
+
+test("generateCanvasTitle falls back to the report body when no user message", async () => {
+  const title = await generateCanvasTitle("*EXECUTIVE SUMMARY*\nBody.\n\n*YOUTH FUND OUTCOMES*\nMore.", {});
+  assert.equal(title, "YOUTH FUND OUTCOMES");
+});
+
+test("generateCanvasTitle never throws and never returns empty", async () => {
+  assert.equal(await generateCanvasTitle("", {}), "Untitled Canvas");
+  assert.equal(await generateCanvasTitle(null, { userMessage: "" }), "Untitled Canvas");
 });

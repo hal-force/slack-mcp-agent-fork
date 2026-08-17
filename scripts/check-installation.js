@@ -35,8 +35,10 @@ async function main() {
     console.log("  enterpriseId:", r.enterpriseId);
     console.log("  teamId:", r.teamId);
     console.log("  userId:", r.userId, r.userId ? "(per-user)" : "(org-level)");
-    console.log("  botToken:", r.botToken ? `${r.botToken.slice(0, 12)}...` : "(none)");
-    console.log("  userToken:", r.userToken ? `${r.userToken.slice(0, 12)}...` : "(none)");
+    // Never print token material (even a prefix leaks the key type + real bytes
+    // into console/log history). Presence only.
+    console.log("  botToken:", r.botToken ? "(present)" : "(none)");
+    console.log("  userToken:", r.userToken ? "(present)" : "(none)");
     console.log("  installerUser:", r.installerUser);
     console.log("  userScope:", r.userScope ? r.userScope.slice(0, 60) + "..." : "(none)");
     console.log("  installedAt:", r.installedAt);
