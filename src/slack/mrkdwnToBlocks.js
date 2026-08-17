@@ -143,8 +143,12 @@ function mrkdwnStringToBlocks(mrkdwn) {
     }
   }
 
+  // Build blocks UNBOUNDED here — do not cap at MAX_BLOCKS during construction.
+  // A previous version hard-stopped here, which silently dropped every segment
+  // past the 50-block ceiling (and since segments break at section titles, the
+  // cut always landed on a heading). collapseBlocksIfNeeded() below is what fits
+  // the result into Slack's limit, packing text instead of discarding it.
   function pushBlock(block) {
-    if (blocks.length >= MAX_BLOCKS) return false;
     blocks.push(block);
     return true;
   }
@@ -152,26 +156,26 @@ function mrkdwnStringToBlocks(mrkdwn) {
   let segStart = 0;
   if (useFirstAsHeader) {
     const plain = stripMrkdwnForPlain(segments[0]);
-    if (plain && pushBlock(headerBlock(plain))) {
+    if (plain) {
+      pushBlock(headerBlock(plain));
       segStart = 1;
     }
   }
 
   for (let i = segStart; i < segments.length; i++) {
-    if (blocks.length >= MAX_BLOCKS) break;
-    if (i > segStart && blocks.length < MAX_BLOCKS) {
+    if (i > segStart) {
       pushBlock({ type: "divider" });
     }
     const chunks = chunkByMaxLen(segments[i], MAX_MRKDWN_CHARS);
     for (const chunk of chunks) {
       if (!chunk.trim()) continue;
-      if (!pushBlock(sectionMrkdwn(chunk))) break;
+      pushBlock(sectionMrkdwn(chunk));
     }
   }
 
   if (blocks.length === 0) {
     chunkByMaxLen(full, MAX_MRKDWN_CHARS).forEach((c) => {
-      if (blocks.length < MAX_BLOCKS && c.trim()) blocks.push(sectionMrkdwn(c));
+      if (c.trim()) blocks.push(sectionMrkdwn(c));
     });
   }
 
@@ -185,7 +189,26 @@ function mrkdwnStringToBlocks(mrkdwn) {
 }
 
 /**
- * If block count exceeds Slack limit, merge section bodies into fewer section blocks (keep leading header).
+ * Count lines that look like BOLD ALL CAPS section titles — used to report how
+ * many sections were omitted when a report genuinely overflows the block budget.
+ * @param {string} text
+ * @returns {number}
+ */
+function countHeadingLines(text) {
+  let n = 0;
+  for (const line of String(text || "").split(/\r?\n/)) {
+    if (looksLikeHeaderLine(line)) n++;
+  }
+  return n;
+}
+
+/**
+ * Fit blocks into Slack's 50-block limit WITHOUT silently dropping content.
+ * Drops the cosmetic dividers (they otherwise burn ~half the block budget) and
+ * densely packs the section text into as few section blocks as possible. Only
+ * when the packed text still overflows (~150KB) do we truncate — and then we
+ * keep as much as fits and append a VISIBLE indicator with the count of omitted
+ * sections, never a silent cut.
  * @param {object[]} blocks
  * @returns {object[]}
  */
@@ -196,19 +219,41 @@ function collapseBlocksIfNeeded(blocks) {
   const parts = [];
   for (let i = sliceFrom; i < blocks.length; i++) {
     const b = blocks[i];
+    // Dividers are intentionally dropped here — they are cosmetic and each one
+    // consumes a block slot that content needs when we're over the limit.
     if (b.type === "section" && b.text?.type === "mrkdwn" && b.text.text) {
       parts.push(b.text.text);
     }
   }
   const joined = parts.join("\n\n");
   const maxSections = MAX_BLOCKS - (header ? 1 : 0);
-  const chunks = chunkByMaxLen(joined, MAX_MRKDWN_CHARS).slice(0, maxSections);
+  const chunks = chunkByMaxLen(joined, MAX_MRKDWN_CHARS);
+
   const out = [];
   if (header) out.push(header);
-  for (const c of chunks) {
+
+  if (chunks.length <= maxSections) {
+    // Everything fits once dividers are dropped and text is packed — no loss.
+    for (const c of chunks) {
+      if (c.trim()) out.push(sectionMrkdwn(c));
+    }
+    return out.length > 0 ? out : [sectionMrkdwn(joined.slice(0, MAX_MRKDWN_CHARS))];
+  }
+
+  // Genuine overflow: reserve the final block for a visible truncation notice so
+  // the user knows the reply was cut (and can ask to continue / open the canvas).
+  const kept = chunks.slice(0, maxSections - 1);
+  const omitted = chunks.slice(maxSections - 1).join("\n\n");
+  for (const c of kept) {
     if (c.trim()) out.push(sectionMrkdwn(c));
   }
-  return out.length > 0 ? out : [sectionMrkdwn(joined.slice(0, MAX_MRKDWN_CHARS))];
+  const omittedSections = countHeadingLines(omitted);
+  const note =
+    omittedSections > 0
+      ? `_…(message truncated — ${omittedSections} more ${omittedSections === 1 ? "section" : "sections"} omitted; ask me to continue or open the canvas for the full report.)_`
+      : "_…(message truncated — the rest was omitted; ask me to continue or open the canvas for the full report.)_";
+  out.push(sectionMrkdwn(note));
+  return out;
 }
 
 module.exports = {
