@@ -217,14 +217,45 @@ async function generateWithBedrock({
   const toolConfig = toolSpecsToConverseToolConfig(tools);
   const canDispatch = toolConfig && typeof dispatchTool === "function";
 
+  // Some newer Claude models on Bedrock (e.g. Sonnet 5) reject the `temperature`
+  // inference parameter outright ("`temperature` is deprecated for this model").
+  // Include it only when it's a finite number, and fall back to sending without
+  // it if the model rejects it — so we don't have to hardcode per-model support.
+  const includeTemperature = Number.isFinite(temperature);
   const baseParams = {
     modelId: cfg.model,
     ...(systemInstruction && systemInstruction.trim()
       ? { system: [{ text: systemInstruction.trim() }] }
       : {}),
-    inferenceConfig: { maxTokens: maxOutputTokens, temperature },
+    inferenceConfig: {
+      maxTokens: maxOutputTokens,
+      ...(includeTemperature ? { temperature } : {}),
+    },
     ...(toolConfig ? { toolConfig } : {}),
   };
+
+  // Send a Converse request; if the model complains that `temperature` is
+  // deprecated/unsupported, strip it and retry once. The retry result is cached
+  // in a flag so subsequent loop iterations skip temperature entirely.
+  let temperatureUnsupported = false;
+  async function sendConverse(params) {
+    const stripTemp = (p) => {
+      const ic = { ...(p.inferenceConfig || {}) };
+      delete ic.temperature;
+      return { ...p, inferenceConfig: ic };
+    };
+    if (temperatureUnsupported) params = stripTemp(params);
+    try {
+      return await client.send(new ConverseCommand(params));
+    } catch (err) {
+      const msg = (err && (err.message || String(err))) || "";
+      if (!temperatureUnsupported && /temperature/i.test(msg) && /deprecat|unsupport|not support|invalid|remove/i.test(msg)) {
+        temperatureUnsupported = true;
+        return await client.send(new ConverseCommand(stripTemp(params)));
+      }
+      throw err;
+    }
+  }
 
   // Agentic loop: keep servicing tool_use stops until the model produces a final
   // answer (or we hit the round cap). Without tools this runs exactly once, so
@@ -233,7 +264,7 @@ async function generateWithBedrock({
   let rounds = 0;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    out = await client.send(new ConverseCommand({ ...baseParams, messages }));
+    out = await sendConverse({ ...baseParams, messages });
     const stopReason = out.stopReason || null;
     const assistantMsg = out.output?.message;
 
@@ -269,9 +300,7 @@ async function generateWithBedrock({
     if (rounds >= BEDROCK_MAX_TOOL_ROUNDS) {
       // Safety valve: ask for a final answer with tools disabled so we don't
       // loop forever if the model keeps requesting tools.
-      out = await client.send(
-        new ConverseCommand({ ...baseParams, toolConfig: undefined, messages }),
-      );
+      out = await sendConverse({ ...baseParams, toolConfig: undefined, messages });
       break;
     }
   }

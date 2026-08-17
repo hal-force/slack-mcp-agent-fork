@@ -305,3 +305,63 @@ test("generateWithBedrock without tools makes exactly one call (unchanged path)"
   assert.equal(calls, 1);
   assert.equal(result.text, "hi");
 });
+
+test("generateWithBedrock retries without temperature when the model rejects it", async () => {
+  process.env.BEDROCK_MODEL_ID = "us.anthropic.claude-sonnet-5";
+  process.env.BEDROCK_REGION = "us-west-2";
+  process.env.AWS_ACCESS_KEY_ID = "ASIATEST";
+
+  const sent = [];
+  let call = 0;
+  const fakeClient = {
+    async send(cmd) {
+      sent.push(cmd.input);
+      call += 1;
+      // First attempt (with temperature) is rejected exactly like Sonnet 5 does.
+      if (call === 1) {
+        const err = new Error("The model returned the following errors: `temperature` is deprecated for this model.");
+        err.name = "ValidationException";
+        throw err;
+      }
+      return { stopReason: "end_turn", output: { message: { role: "assistant", content: [{ text: "recovered" }] } } };
+    },
+  };
+
+  const result = await generateWithBedrock({
+    systemInstruction: "sys",
+    contents: [{ role: "user", parts: [{ text: "hello" }] }],
+    maxOutputTokens: 128,
+    temperature: 0.7,
+    __client: fakeClient,
+  });
+
+  // Two calls: the rejected one and the temperature-stripped retry.
+  assert.equal(sent.length, 2);
+  assert.equal(sent[0].inferenceConfig.temperature, 0.7, "first attempt includes temperature");
+  assert.equal(sent[1].inferenceConfig.temperature, undefined, "retry omits temperature");
+  assert.equal(result.text, "recovered");
+});
+
+test("generateWithBedrock omits temperature when not a finite number", async () => {
+  process.env.BEDROCK_MODEL_ID = "m";
+  process.env.BEDROCK_REGION = "us-west-2";
+  process.env.AWS_ACCESS_KEY_ID = "ASIATEST";
+
+  const sent = [];
+  const fakeClient = {
+    async send(cmd) {
+      sent.push(cmd.input);
+      return { stopReason: "end_turn", output: { message: { role: "assistant", content: [{ text: "ok" }] } } };
+    },
+  };
+  await generateWithBedrock({
+    systemInstruction: "",
+    contents: [{ role: "user", parts: [{ text: "hi" }] }],
+    maxOutputTokens: 64,
+    temperature: undefined,
+    __client: fakeClient,
+  });
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].inferenceConfig.temperature, undefined);
+  assert.equal(sent[0].inferenceConfig.maxTokens, 64);
+});

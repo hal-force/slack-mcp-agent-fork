@@ -249,15 +249,29 @@ async function getAiResponse({
     if (msg.includes("LLM gateway")) {
       return aiReply("The AI gateway is unavailable right now. Please try again in a moment.", uploads);
     }
+    // Only the credential-specific errors should blame expired creds — the old
+    // catch-all mislabeled unrelated Bedrock failures (e.g. an unsupported
+    // inference param) as "credentials may have expired", which sent debugging
+    // the wrong way. Match the actual AWS auth error names/messages.
     if (
-      provider === "bedrock" ||
-      msg.includes("Bedrock") ||
       msg.includes("ExpiredToken") ||
+      msg.includes("ExpiredTokenException") ||
       msg.includes("UnrecognizedClient") ||
-      msg.includes("security token")
+      msg.includes("InvalidSignature") ||
+      msg.includes("AccessDenied") ||
+      msg.includes("security token") ||
+      msg.includes("credential")
     ) {
       return aiReply(
         "The AI service (AWS Bedrock) is unavailable right now — its credentials may have expired. Please try again shortly.",
+        uploads,
+      );
+    }
+    if (provider === "bedrock" || msg.includes("Bedrock")) {
+      // Non-credential Bedrock failure — surface a generic message but log the
+      // real error above so it's diagnosable from the logs.
+      return aiReply(
+        "The AI service hit an error on that request. Please try again in a moment.",
         uploads,
       );
     }
