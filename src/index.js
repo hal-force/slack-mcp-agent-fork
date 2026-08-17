@@ -24,6 +24,7 @@ const { resolveActiveSkills, executeActiveSkills } = require("./skills/registry"
 const { installQueryFromBoltContext } = require("./install-kit/installQuery");
 const { mrkdwnStringToBlocks } = require("./slack/mrkdwnToBlocks");
 const { postThreadFileUploads } = require("./slack/postThreadFileUploads");
+const { embedImagesInCanvases } = require("./canvas/canvasImages");
 const {
   authorizeMessageWithOptionalInstallUrl,
   modelContextChannelAccessReinstallNote,
@@ -143,11 +144,23 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
     });
     if (response.uploads?.length) {
       try {
-        await postThreadFileUploads(client, {
+        const imageRefs = await postThreadFileUploads(client, {
           channelId: event.channel,
           threadTs,
           uploads: response.uploads,
         });
+        if (response.canvasUpdates?.length && imageRefs.length && userToken) {
+          const embedded = await embedImagesInCanvases({
+            userToken,
+            canvasUpdates: response.canvasUpdates,
+            imageRefs,
+            teamId,
+            defaultChannelId: event.channel,
+          });
+          logger.info(
+            `[canvas-images] app_mention embedded ${imageRefs.length} image(s) into ${embedded} canvas(es)`,
+          );
+        }
       } catch (uploadErr) {
         logger.error("app_mention Tableau file upload error", uploadErr);
         await postFileUploadReinstallHintIfNeeded({
@@ -328,11 +341,25 @@ const assistant = new Assistant({
       await say({ text: notifyText, blocks });
       if (response.uploads?.length) {
         try {
-          await postThreadFileUploads(client, {
+          const imageRefs = await postThreadFileUploads(client, {
             channelId: channel,
             threadTs: thread_ts,
             uploads: response.uploads,
           });
+          // If a canvas was written this turn, embed the same rendered images
+          // into it as file-unfurl links (no re-upload). Best-effort.
+          if (response.canvasUpdates?.length && imageRefs.length && userToken) {
+            const embedded = await embedImagesInCanvases({
+              userToken,
+              canvasUpdates: response.canvasUpdates,
+              imageRefs,
+              teamId,
+              defaultChannelId: contextChannelId || channel,
+            });
+            logger.info(
+              `[canvas-images] embedded ${imageRefs.length} image(s) into ${embedded} canvas(es)`,
+            );
+          }
         } catch (uploadErr) {
           logger.error("Assistant Tableau file upload error", uploadErr);
           await postFileUploadReinstallHintIfNeeded({

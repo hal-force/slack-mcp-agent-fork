@@ -32,10 +32,15 @@ const TABLEAU_FUNCTION_DECLARATIONS = [
   {
     name: "tableau_list_datasources",
     description:
-      "List published Tableau data sources from the connected MCP server. Use when the user asks what sources exist or you need a datasource_luid for metadata/query.",
+      "List published Tableau data sources from the connected MCP server. Use when the user asks what sources exist or you need a datasource_luid for metadata/query. This server has MANY data sources and the raw catalog can be truncated — ALWAYS pass **filter** with a name pattern when you know the topic (e.g. the user asks about grants → filter \"name:eq:*Grant*\"). Multiple sources may match the same topic (e.g. several grant datasets); when they do, do NOT silently pick one — inspect them (project name, metadata description) and either use the most authoritative/complete one or ask the user which they mean. If the result is flagged truncated, narrow with filter rather than trusting the partial list.",
     parameters: {
       type: T.OBJECT,
       properties: {
+        filter: {
+          type: T.STRING,
+          description:
+            "Strongly recommended. Tableau REST filter on data sources (e.g. name:eq:Grants Data - SLED, name:eq:*Grant*, name:eq:*Trillium*, name:eq:*OTF* — wildcards supported). Narrows a large catalog to the relevant sources and avoids result truncation. Omit only to browse everything.",
+        },
         limit: {
           type: T.NUMBER,
           description:
@@ -225,6 +230,42 @@ function truncateToolText(text) {
   );
 }
 
+/**
+ * Decide whether an unfiltered list-datasources response should carry a
+ * "this list is incomplete" warning. Pure so it's unit-testable without a
+ * live MCP server.
+ *
+ * The server has hundreds of data sources but every tool result is capped at
+ * MAX_TOOL_TEXT_CHARS. An unfiltered list can therefore be either:
+ *   - truncated: cut off mid-JSON (some sources invisible), or
+ *   - at its row ceiling: parsed fine but `limit` sources returned when more exist.
+ * In both cases the model must not treat it as the complete catalog. A filtered
+ * list never warns — the caller has already narrowed to what they want.
+ *
+ * @param {{ rawText: string, filter?: string, limit: number, maxChars?: number }} p
+ * @returns {string|null} warning text, or null when no warning is needed
+ */
+function datasourceListWarning({ rawText, filter, limit, maxChars = MAX_TOOL_TEXT_CHARS }) {
+  if (filter && String(filter).trim()) return null;
+  const raw = rawText == null ? "" : String(rawText);
+  const truncated = raw.length > maxChars;
+  let rowCount = null;
+  try {
+    const d = JSON.parse(raw);
+    if (Array.isArray(d && d.data)) rowCount = d.data.length;
+  } catch (_) {
+    // Unparseable — almost always because it was truncated mid-JSON.
+  }
+  const hitCeiling = rowCount != null && Number.isFinite(limit) && rowCount >= limit;
+  if (truncated) {
+    return "This datasource list was TRUNCATED (the full catalog exceeds the result cap) and was cut off mid-list, so some data sources are MISSING from this response. Do not assume this is the complete set or that a topic is absent. Re-call tableau_list_datasources with a `filter` (e.g. name:eq:*Grant*) to reliably find the relevant source.";
+  }
+  if (hitCeiling) {
+    return `This is a PARTIAL catalog: it returned ${rowCount} data sources (the current maximum for this call) and this server has more that are not shown here. Do not assume a topic is absent because it is not in this list. Re-call tableau_list_datasources with a \`filter\` (e.g. name:eq:*Grant*) to reliably find a specific source.`;
+  }
+  return null;
+}
+
 function parseQueryJson(args) {
   const qj = args.query_json ?? args.queryJson ?? args.query;
   if (qj == null) return { ok: false, error: "query_json is required (JSON string or object in args)." };
@@ -266,11 +307,19 @@ async function dispatchTableauTool(name, args, toolOpts = {}) {
       const configured = getDatasourceListLimit();
       if (!Number.isFinite(limit) || limit < 1) limit = configured;
       limit = Math.max(1, Math.floor(limit));
-      const { text } = await callTableauTool("list-datasources", { limit }, mcpOpts);
+      /** @type {Record<string, unknown>} */
+      const mcpArgs = { limit };
+      const filter = String(a.filter ?? "").trim();
+      if (filter) mcpArgs.filter = filter;
+      const { text } = await callTableauTool("list-datasources", mcpArgs, mcpOpts);
       if (text && toolOpts.datasourceUrlByLuid) {
         mergeDatasourceUrlsFromListText(text, toolOpts.datasourceUrlByLuid);
       }
-      return { ok: true, content: truncateToolText(text || "(empty response)") };
+      const raw = text || "(empty response)";
+      const out = { ok: true, content: truncateToolText(raw) };
+      const warning = datasourceListWarning({ rawText: raw, filter, limit });
+      if (warning) out.warning = warning;
+      return out;
     }
 
     if (name === "tableau_get_datasource_metadata") {
@@ -451,4 +500,5 @@ module.exports = {
   dispatchTableauTool,
   tableauQueryToolsEnabled,
   geminiSchemaToJsonSchema,
+  datasourceListWarning,
 };

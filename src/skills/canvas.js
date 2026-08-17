@@ -17,7 +17,8 @@ const SYSTEM_PROMPT_SECTION = `Slack Canvas Operations:
 - Write your full canvas content as your reply—it will be automatically posted to the canvas.
 - Include a clickable Slack link to the canvas at the end of your message using the URL from context (format: <URL|View Canvas>).
 - Canvas links MUST use Slack format <URL|Display Text>. Never output raw file IDs (like F12345) as links.
-- Do NOT delete canvases. Do not use replace_all unless the user explicitly wants a full rewrite.`;
+- Do NOT delete canvases. Do not use replace_all unless the user explicitly wants a full rewrite.
+- IMAGES: If you render Tableau views (tableau_get_view_image) during a canvas turn, the rendered images are automatically appended into the canvas as an inline "Visualizations" section after your text — you do NOT need to paste image URLs yourself. Just write the narrative/analysis; reference the charts in prose (e.g. "see the funding-trend chart below") and they will appear in the canvas.`;
 
 // Slack canvas/file IDs are uppercase `F` + 8 or more uppercase-alnum chars
 // (the SDK validates `^[F][A-Z0-9]{8,}$`). Match that shape EXACTLY here — a

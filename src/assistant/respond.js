@@ -20,6 +20,8 @@ const BASE_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, 
 2. Handling Context — Priority Order
 - FIRST — Slack workspace: The Slack context block (channel messages, threads, search results) is your primary source. Always answer from it when relevant. If Slack context is present but incomplete, say what you found before noting the gap. If context is entirely empty, state: "I don't see any recent messages for this."
 - SECOND — Tableau data: For analytics questions, use the Tableau context (datasource list, metadata, query results, view images) as the secondary source.
+  - Finding the right data source: this server hosts MANY data sources and the full catalog can exceed the tool's result cap and be silently truncated. When you know the topic, ALWAYS list with a name filter (e.g. tableau_list_datasources with filter "name:eq:*Grant*") instead of scanning an unfiltered list — otherwise the source you need may be missing from the response. If a list is flagged truncated, narrow it with a filter; never conclude a data source doesn't exist from a truncated or unfiltered list.
+  - Disambiguation: when several data sources match the topic (e.g. multiple grant datasets), do NOT silently pick the first one. Compare them — project name, the metadata description, row/record counts — to identify the most authoritative or complete source, and NAME the source you used in your answer (e.g. "based on the *OTF Grants Enriched* datasource"). If two plausible sources give materially different numbers and you can't tell which the user means, say so and ask, rather than presenting one as definitive.
 - THIRD — Internet Search: Only invoke web search when (a) Slack and Tableau sources genuinely cannot answer the question, or (b) the user explicitly asks for current events, public documentation, or knowledge that wouldn't exist in the workspace.
 - Citations: Use <URL|[1]> for external links (web results or Tableau URLs).
 
@@ -40,10 +42,11 @@ const BASE_SYSTEM_PROMPT = `Role: You are the Agency of the Future Slack Agent, 
 /**
  * @param {string} text
  * @param {Array<{ buffer: Buffer, filename: string, title?: string }>} [uploads]
- * @returns {{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }> }}
+ * @param {Array<{ canvas_id: string }>} [canvasUpdates] - canvases written this turn (for image embedding)
+ * @returns {{ text: string, uploads: Array<{ buffer: Buffer, filename: string, title?: string }>, canvasUpdates: Array<{ canvas_id: string }> }}
  */
-function aiReply(text, uploads = []) {
-  return { text: text || "", uploads: uploads || [] };
+function aiReply(text, uploads = [], canvasUpdates = []) {
+  return { text: text || "", uploads: uploads || [], canvasUpdates: canvasUpdates || [] };
 }
 
 function getPrimaryModelId() {
@@ -82,15 +85,16 @@ function buildContents(threadHistory, userMessage, skillContext) {
  * @param {{ userToken?: string, defaultChannelId?: string|null, teamId?: string|null }} opts
  */
 async function dispatchSideEffects(sideEffects, llmReplyText, opts = {}) {
-  if (!sideEffects?.length) return;
+  const written = [];
+  if (!sideEffects?.length) return written;
   const { userToken, defaultChannelId = null, teamId = null } = opts;
-  if (!userToken) return;
+  if (!userToken) return written;
 
   await Promise.all(
     sideEffects.map(async (se) => {
       if (se.type === "canvas_update") {
         try {
-          await dispatchCanvasTool(
+          const res = await dispatchCanvasTool(
             userToken,
             "slack_canvas_update",
             {
@@ -100,6 +104,11 @@ async function dispatchSideEffects(sideEffects, llmReplyText, opts = {}) {
             },
             { defaultChannelId, teamId },
           );
+          // Track successful writes so the handler can embed rendered images
+          // (via file-unfurl links) into the same canvas after uploading them.
+          if (res && res.ok !== false && se.payload.canvas_id) {
+            written.push({ canvas_id: se.payload.canvas_id });
+          }
         } catch (err) {
           if (process.env.NODE_ENV !== "production") {
             console.error("[dispatchSideEffects] canvas_update error:", err?.message || err);
@@ -108,6 +117,7 @@ async function dispatchSideEffects(sideEffects, llmReplyText, opts = {}) {
       }
     }),
   );
+  return written;
 }
 
 /**
@@ -228,15 +238,16 @@ async function getAiResponse({
       : "I didn't get a clear response. Please try again.");
 
     // Dispatch canvas side effects with the LLM's reply as the canvas content.
+    let canvasUpdates = [];
     if (sideEffects.length > 0) {
-      await dispatchSideEffects(sideEffects, finalText, {
+      canvasUpdates = await dispatchSideEffects(sideEffects, finalText, {
         userToken,
         defaultChannelId: defaultCanvasChannelId || null,
         teamId: teamId || null,
       });
     }
 
-    return aiReply(finalText, allUploads);
+    return aiReply(finalText, allUploads, canvasUpdates);
   } catch (err) {
     console.error(`LLM error (${provider}):`, err.message || err);
     const msg = err.message || String(err);

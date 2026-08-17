@@ -38,6 +38,7 @@ const { resolveActiveSkills, executeActiveSkills } = require("../skills/registry
 const { resolveSlackMrkdwnEntities } = require("./resolveSlackMrkdwnEntities");
 const { mrkdwnStringToBlocks } = require("./mrkdwnToBlocks");
 const { postThreadFileUploads } = require("./postThreadFileUploads");
+const { embedImagesInCanvases } = require("../canvas/canvasImages");
 const {
   authorizeMessageWithOptionalInstallUrl,
   modelContextChannelAccessReinstallNote,
@@ -463,11 +464,23 @@ function registerAskAiWorkflowStep(app, { getAiResponse }) {
 
         if (postChannelId && client && aiUploads.length) {
           try {
-            await postThreadFileUploads(client, {
+            const imageRefs = await postThreadFileUploads(client, {
               channelId: postChannelId,
               threadTs: null,
               uploads: aiUploads,
             });
+            if (aiResult.canvasUpdates?.length && imageRefs.length && userToken) {
+              const embedded = await embedImagesInCanvases({
+                userToken,
+                canvasUpdates: aiResult.canvasUpdates,
+                imageRefs,
+                teamId,
+                defaultChannelId: postChannelId,
+              });
+              logger.info(
+                `[workflow_ask_ai] embedded ${imageRefs.length} image(s) into ${embedded} canvas(es)`,
+              );
+            }
           } catch (uploadErr) {
             logger.warn(
               `[workflow_ask_ai] files.uploadV2 failed: ${uploadErr?.message || uploadErr}`,
