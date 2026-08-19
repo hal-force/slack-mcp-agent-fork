@@ -4,12 +4,35 @@
 
 slack-mcp-agent is a Slack app built with the Bolt framework and Prisma for database management. It supports multi-workspace installation via OAuth and stores installation data in PostgreSQL. The assistant grounds replies in **Slack context** (via the Slack MCP server or Web API) and optional **Tableau context** from a Tableau MCP server (`TABLEAU_MCP_SERVER`).
 
+> **This fork.** This repository is a hardened, Tableau-focused fork of
+> [`itsnaseer/slack-mcp-agent`](https://github.com/itsnaseer/slack-mcp-agent). It adds a
+> **pluggable LLM backend** (AWS Bedrock / Claude, an OpenAI-compatible gateway, or Vertex/Gemini),
+> a **live Tableau MCP tool-calling loop**, **Slack canvas reports** with embedded Tableau
+> visualizations, **security hardening** (token encryption at rest, an SSRF guard, prompt-injection
+> fencing, per-user token scoping), and a **health-check framework** with a deterministic
+> release-phase gate. See [`docs/CHANGES-VS-UPSTREAM.md`](docs/CHANGES-VS-UPSTREAM.md) for the full
+> list of differences. The reference deployment (`damp-wave-30118`) runs **AWS Bedrock / Claude
+> Sonnet** as its LLM backend.
+
+### Production architecture (reference deployment)
+
+| Layer | What the reference deployment runs |
+|---|---|
+| **LLM backend** | AWS **Bedrock / Claude Sonnet** (`AI_PROVIDER=bedrock`). The provider layer (`src/assistant/llmProvider.js`) also supports an OpenAI-compatible **gateway** and **Vertex/Gemini**; an incomplete non-Vertex config safely falls back to Vertex. |
+| **Analytics** | **Tableau MCP** over Streamable HTTP, with a real agentic **tool-calling loop** (`list-datasources`, `get-datasource-metadata`, `query-datasource`, `list-views`, `get-view-image`). |
+| **Deliverables** | Slack **canvases** (multi-section documents) with **inline Tableau view images**, driven by the installing user's OAuth token. |
+| **Security** | OAuth **tokens encrypted at rest** (AES-256-GCM), **SSRF guard** on outbound MCP URLs, **prompt-injection fencing** of untrusted context, **per-user token scoping**. |
+| **Quality gates** | A network-free **`configcheck`** health suite runs in the Heroku **release phase** and fails the deploy on a real misconfiguration; **smoke / drift / contextrot** suites run by hand and on a schedule. |
+| **Database** | Amazon Aurora/RDS Postgres via the Prisma `pg` adapter, TLS-encrypted. See [Database TLS](#database-tls-rdsaurora) below. |
+
 ## Features
 
 - **Prisma + PostgreSQL**: Installations and tokens persisted with the Prisma PostgreSQL adapter.
 - **Configuration**: Environment variables via dotenv (local) and config vars (e.g. Heroku).
 - **Slack Bolt**: OAuth v2 install flow, installation store, **@mentions** in channels and **Assistant** threads (side panel / DM), and a **Workflow Builder** custom step **Ask AI** (default callback id `9dec78` in code; override with env) that returns a Slack mrkdwn string for downstream steps.
-- **Vertex AI (Gemini)**: Replies generated with configurable model (`GEMINI_MODEL`); system prompt tuned for Slack mrkdwn, Slack/Tableau context, and canvas behavior.
+- **Pluggable LLM backend** (`src/assistant/llmProvider.js`): one `generateReply()` call fronts three backends — **`bedrock`** (AWS Bedrock / Claude, the production default on the reference deployment), **`gateway`** (any OpenAI-compatible `/v1/chat/completions` endpoint), and **`vertex`** (Vertex AI / Gemini). Select with `AI_PROVIDER`; an incomplete gateway/bedrock config falls back to Vertex so a misconfiguration never silently breaks replies. The Bedrock path runs a real agentic **tool-calling loop** (Converse API) so the model can call Tableau MCP tools mid-reply. System prompt tuned for Slack mrkdwn, Slack/Tableau context, report depth, and canvas behavior.
+- **Security hardening**: OAuth tokens **encrypted at rest** (AES-256-GCM, `src/install-kit/tokenCrypto.js`), an **SSRF guard** on the user-settable Tableau MCP URL (`src/assistant/urlSafety.js`), **prompt-injection fencing** of untrusted Slack/Tableau/web context, and **per-user token scoping** in the installation store.
+- **Health-check framework** (`tests/health/`): a `configcheck` deterministic gate (wired into the Heroku release phase), plus `smoke` / `drift` / `contextrot` suites for post-deploy readiness and ongoing model-drift / context-rot monitoring. See [`tests/health/README.md`](tests/health/README.md).
 - **Slack context**: Builds grounding context from the **Slack MCP** server (`mcp.slack.com`, Streamable HTTP + session) when a **user token** is present, with **Web API** fallback for channel/thread history and search. Requires MCP enabled for the Slack app under Agents & AI Apps when using MCP.
 - **Tableau MCP** (optional): When `TABLEAU_MCP_SERVER` is set, injects compact tool names, can call `list-datasources`, matches user/thread intent for analytics, fetches **`get-datasource-metadata`** when a published source matches, and respects `TABLEAU_MCP_LIST_DATASOURCES` / `TABLEAU_MCP_VERBOSE_TOOLS`.
 - **Slack canvases** (user token): Gemini **function calling** drives `slack_canvas_create`, `slack_canvas_read`, and `slack_canvas_update` using the installing user’s **`xoxp`** token (`canvases:read` / `canvases:write`). Supports **create**, **read** (section outline via `canvases.sections.lookup`), and **update** modes: append end, insert start, replace whole document, and **section-targeted** `insert_after` / `insert_before` / `replace_section` using `section_id` from read. Tool results include **`canvas_url`** and **`slack_mrkdwn_link_example`** (`https://app.slack.com/client/{team}/{canvas}`) so replies can use `<URL|label>` links. Canvas **delete** is not exposed.
@@ -17,7 +40,7 @@ slack-mcp-agent is a Slack app built with the Bolt framework and Prisma for data
 
 ### Agent Skills
 
-The assistant exposes the following skills via Gemini function calling:
+The assistant exposes the following skills via the model's tool/function calling (Bedrock Converse tools on the production path; Gemini function calling on the Vertex path):
 
 | Skill | Tools | When used |
 |---|---|---|
@@ -30,7 +53,7 @@ The assistant exposes the following skills via Gemini function calling:
 | **Tableau view image** | `tableau_get_view_image` | After locating a view; renders a PNG/SVG snapshot uploaded to the Slack thread |
 | **Tableau data query** | `tableau_query_datasource` | User asks for precise numbers; executes a VizQL query with aggregations and filters |
 
-Canvas skills require a user OAuth token (`xoxp`). Tableau skills require `TABLEAU_MCP_SERVER` to be configured. The model selects and chains tools automatically across up to five rounds per message.
+Canvas skills require a user OAuth token (`xoxp`). Tableau skills require `TABLEAU_MCP_SERVER` to be configured. The model selects and chains tools automatically across multiple rounds per message (Bedrock: up to `BEDROCK_MAX_TOOL_ROUNDS`, default 10, after which it is asked for a final answer with tools disabled).
 
 ---
 
@@ -75,10 +98,21 @@ Canvas skills require a user OAuth token (`xoxp`). Tableau skills require `TABLE
    SLACK_USER_SCOPES=users:read.email,...
    # Or legacy: SLACK_SCOPES=app_mentions:read,chat:write,...
 
-   # Vertex AI (Gemini) – required for AI responses
+   # LLM backend – pick ONE (see "LLM backends" below). Falls back to vertex if incomplete.
+   AI_PROVIDER=bedrock            # bedrock | gateway | vertex (unset = vertex)
+
+   # bedrock (production default on the reference deployment)
+   BEDROCK_MODEL_ID=your-claude-sonnet-model-id
+   BEDROCK_REGION=us-west-2
+   AWS_BEARER_TOKEN_BEDROCK=ABSK...   # long-term Bedrock API key (or use AWS_ACCESS_KEY_ID/_SECRET/_SESSION)
+
+   # vertex (code default / fallback) – required if AI_PROVIDER is unset
    GOOGLE_CLOUD_PROJECT=your-gcp-project-id
    VERTEX_LOCATION=us-central1
    GEMINI_MODEL=gemini-2.5-flash
+
+   # Security (recommended in any shared/prod environment)
+   TOKEN_ENC_KEY=            # `openssl rand -base64 32` – encrypts OAuth tokens at rest
 
    # Tableau MCP (optional) – streamable HTTP endpoint, e.g.:
    # TABLEAU_MCP_SERVER=https://federal-tableau-mcp-81e8ca899174.herokuapp.com/tableau-mcp
@@ -123,9 +157,17 @@ In Slack **App Settings**, enable **Agents & AI Apps** for the Assistant UI.
 
 **Slack MCP must be turned on for your app** (separate from the Assistant UI toggle): open [Your Apps](https://api.slack.com/apps) → select this app → **Agents & AI Apps** (or **Assistant**) → enable **Model Context Protocol** / Slack MCP server access. If MCP is off, `mcp.slack.com` returns HTTP 400 with *“App is not enabled for Slack MCP server access”* and the app falls back to the Web API only for Slack context. The error response includes a direct link to `https://api.slack.com/apps/YOUR_APP_ID/app-assistant`.
 
-AI is powered by **Vertex AI (Gemini)** by default. Configure `GOOGLE_CLOUD_PROJECT`, `VERTEX_LOCATION`, and optionally `GEMINI_MODEL` in `.env`; see above. To change the system prompt or model settings, edit `src/assistant/respond.js`.
+### LLM backends
 
-**Alternate backend — LLM gateway (Claude):** Set `AI_PROVIDER=gateway` plus `LLM_GATEWAY_URL`, `LLM_GATEWAY_API_KEY`, and `LLM_GATEWAY_MODEL` to route replies through an OpenAI-compatible `/v1/chat/completions` gateway (e.g. an internal gateway serving Claude models). The provider abstraction lives in `src/assistant/llmProvider.js`; `respond.js` calls it and stays backend-agnostic. If the gateway vars are incomplete the app safely falls back to Vertex/Gemini. **Caveat:** Google Search grounding is a Gemini-only tool, so the *Internet Search* toggle has no effect under the gateway backend — the model answers from Slack/Tableau context and its own knowledge only.
+AI is generated through a single provider abstraction (`src/assistant/llmProvider.js`) selected by **`AI_PROVIDER`**. If the vars for the selected backend are incomplete, the app **falls back to Vertex** so a misconfiguration never silently breaks replies. To change the system prompt or model settings, edit `src/assistant/respond.js`.
+
+**`bedrock` — AWS Bedrock / Claude (production default on the reference deployment).** Set `AI_PROVIDER=bedrock`, `BEDROCK_MODEL_ID` (e.g. a Claude Sonnet model id), and a region (`BEDROCK_REGION` / `AWS_REGION`). Credentials resolve from the AWS SDK's default chain: either a long-term **Bedrock API key** in `AWS_BEARER_TOKEN_BEDROCK` (the SDK auto-selects bearer auth — no STS expiry churn) or classic SigV4 keys (`AWS_ACCESS_KEY_ID` / `_SECRET_ACCESS_KEY` / `_SESSION_TOKEN`). The Bedrock path runs a real **Converse tool-use loop**, so the model can call the Tableau MCP tools mid-answer (capped at `BEDROCK_MAX_TOOL_ROUNDS`, default 10). Newer Claude models that reject the `temperature` parameter are handled automatically (stripped and retried once).
+
+**`gateway` — OpenAI-compatible endpoint (Claude via an internal gateway).** Set `AI_PROVIDER=gateway` plus `LLM_GATEWAY_URL`, `LLM_GATEWAY_API_KEY`, and `LLM_GATEWAY_MODEL` to route replies through an OpenAI-compatible `/v1/chat/completions` gateway. Note: the internal gateway is typically **not reachable from public Heroku dynos** — that is why the reference deployment uses `bedrock` (a public AWS endpoint) instead.
+
+**`vertex` — Vertex AI / Gemini (code default, and the fallback).** Configure `GOOGLE_CLOUD_PROJECT`, `VERTEX_LOCATION`, and optionally `GEMINI_MODEL`; see the `.env` section above. This is the backend used when `AI_PROVIDER` is unset or a non-Vertex backend is incompletely configured.
+
+**Caveat (non-Vertex backends):** Google Search grounding is a Gemini-only tool, so the *Internet Search* toggle has no effect under `gateway` or `bedrock` — the model answers from Slack/Tableau context and its own knowledge only.
 
 **Slack context (Slack MCP server):** The assistant uses Slack as context when answering. For @mentions it fetches recent channel/thread messages and optional search results; for Assistant threads it runs search from the user’s message. This is implemented in `src/assistant/slackContext.js` using the Slack MCP server at `https://mcp.slack.com/mcp` when a user token is present (Streamable HTTP: initialize, `Mcp-Session-Id`, then `tools/list` / `tools/call`), else the Slack Web API ([Slack MCP server](https://docs.slack.dev/ai/mcp-server)). Ensure the app has scopes such as `channels:history`, `groups:history`, `im:history`, `mpim:history`, and `search:read.public` (and other `search:read.*`) for full context. Set `SLACK_MCP_DEBUG=1` (or `SLACK_CONTEXT_DEBUG=1`) to log Slack MCP failures instead of failing silently.
 
@@ -137,7 +179,7 @@ Replies use **Slack mrkdwn** only: pipe-style “markdown tables” are avoided 
 
 ### Workflow Builder (Ask AI step)
 
-The app registers a [custom workflow step](https://docs.slack.dev/tools/bolt-js/concepts/custom-steps) in [`src/slack/workflowAskAi.js`](src/slack/workflowAskAi.js). Default Slack manifest ids (opaque keys from Workflow Steps UI) are **callback `9dec78`**, prompt input **`afd46a`**, optional post channel **`b504c1`**, output **`8f09f2`** — they must match your live manifest. It uses the **same** Vertex model, **system prompt**, **Gemini tool calling** (Tableau MCP, canvas tools when the install has a user `xoxp` token), and the same style of **Slack + Tableau context** prep as `@mentions` and Assistant threads (no Assistant **thread history**—there is no thread in `function_executed`).
+The app registers a [custom workflow step](https://docs.slack.dev/tools/bolt-js/concepts/custom-steps) in [`src/slack/workflowAskAi.js`](src/slack/workflowAskAi.js). Default Slack manifest ids (opaque keys from Workflow Steps UI) are **callback `9dec78`**, prompt input **`afd46a`**, optional post channel **`b504c1`**, output **`8f09f2`** — they must match your live manifest. It uses the **same** LLM backend (`AI_PROVIDER`), **system prompt**, **tool calling** (Tableau MCP, canvas tools when the install has a user `xoxp` token), and the same style of **Slack + Tableau context** prep as `@mentions` and Assistant threads (no Assistant **thread history**—there is no thread in `function_executed`).
 
 **Environment overrides** (when Slack regenerates ids or you use another app): `SLACK_WORKFLOW_ASK_AI_CALLBACK_ID`, `SLACK_WORKFLOW_ASK_AI_PROMPT_INPUT`, `SLACK_WORKFLOW_ASK_AI_RESPONSE_OUTPUT`, `SLACK_WORKFLOW_ASK_AI_POST_CHANNEL_INPUT` (optional channel field `name`, default `b504c1`), `SLACK_WORKFLOW_ASK_AI_POST_CHANNEL_ID` (fixed `C…` to always post Block Kit mrkdwn there without manifest field).
 
@@ -164,7 +206,7 @@ The app registers a [custom workflow step](https://docs.slack.dev/tools/bolt-js/
 | Slack context (history, search, channel refs) | Yes (when user token + bot scopes allow) | **Same `buildSlackContext` path:** optional **post channel** or first `<#C…>` in the prompt anchors “current” channel history; search enabled; user token from the **workflow runner’s** install row when available. |
 | Tableau MCP tools & catalog context | Yes, when configured | **Same** `buildTableauContext` + Gemini tools when `TABLEAU_MCP_SERVER` / per-user URL is configured |
 | Canvas create/read/update tools | Yes, with user `xoxp` | **Same** tools when the runner’s installation includes a user token |
-| Vertex AI model / GCP config | Same `.env` | Same `.env` |
+| LLM backend (Bedrock/gateway/Vertex) | Same `.env` (`AI_PROVIDER`) | Same `.env` |
 | Reply formatting in app UI | mrkdwn → Block Kit (`mrkdwnStringToBlocks`) | Optional channel input or `SLACK_WORKFLOW_ASK_AI_POST_CHANNEL_ID`: same section+mrkdwn blocks via `chat.postMessage` |
 
 **Failure behavior**
@@ -219,13 +261,20 @@ Add these in the dashboard (or via CLI). **Do not commit secrets to git.**
 | `SLACK_STATE_SECRET` | Yes | Random string (e.g. `openssl rand -hex 32`) |
 | `SLACK_BOT_SCOPES` | Yes | Comma-separated, e.g. `app_mentions:read,chat:write,im:history,...` |
 | `SLACK_USER_SCOPES` | Yes | Comma-separated, e.g. `channels:read,channels:history,...` |
-| `GOOGLE_CLOUD_PROJECT` | Yes | GCP project ID for Vertex AI |
-| `VERTEX_LOCATION` | Yes | e.g. `us-central1` |
+| `AI_PROVIDER` | No | `vertex` (default) / `gateway` / `bedrock`. Selects the LLM backend; an incompletely-configured non-Vertex backend falls back to `vertex`. The reference deployment uses `bedrock`. |
+| `BEDROCK_MODEL_ID` | For bedrock | Claude model id on Bedrock (e.g. a Claude Sonnet id) |
+| `BEDROCK_REGION` | For bedrock | AWS region (or `AWS_REGION` / `AWS_DEFAULT_REGION`), e.g. `us-west-2` |
+| `AWS_BEARER_TOKEN_BEDROCK` | For bedrock | Long-term Bedrock API key (`ABSK…`). SDK auto-selects bearer auth — no STS expiry. Alternatively use `AWS_ACCESS_KEY_ID` / `_SECRET_ACCESS_KEY` / `_SESSION_TOKEN`. **Secret.** |
+| `BEDROCK_MAX_TOOL_ROUNDS` | No | Max agentic tool-use rounds on the Bedrock path (default `10`) |
+| `GOOGLE_CLOUD_PROJECT` | For vertex | GCP project ID for Vertex AI |
+| `VERTEX_LOCATION` | For vertex | e.g. `us-central1` |
 | `GEMINI_MODEL` | No | Default `gemini-2.5-flash` |
-| `AI_PROVIDER` | No | `vertex` (default) or `gateway`. `gateway` routes replies to an OpenAI-compatible `/v1/chat/completions` endpoint (e.g. the internal LLM gateway serving Claude). Falls back to `vertex` if gateway vars are incomplete. |
 | `LLM_GATEWAY_URL` | For gateway | Full `/v1/chat/completions` URL of the gateway |
-| `LLM_GATEWAY_API_KEY` | For gateway | Bearer token for the gateway |
+| `LLM_GATEWAY_API_KEY` | For gateway | Bearer token for the gateway. **Secret.** |
 | `LLM_GATEWAY_MODEL` | For gateway | Model id, e.g. `claude-sonnet-4-6` |
+| `TOKEN_ENC_KEY` | Recommended | 32-byte key (base64/hex) that encrypts OAuth tokens at rest (AES-256-GCM). Generate with `openssl rand -base64 32`. Unset = plaintext + one-time warning; **malformed = fail loud** (fix or unset). **Secret.** |
+| `PGSSLROOTCERT` | Prod DB | Path to the RDS CA bundle (`certs/rds-global-bundle.pem`) so DB TLS verification stays on against Aurora/RDS. See [Database TLS](#database-tls-rdsaurora). |
+| `DATABASE_SSL_NO_VERIFY` | Demo only | `1` skips DB TLS **issuer verification** (TLS stays encrypted). Escape hatch for a demo tier where shipping the CA bundle isn't warranted; do **not** use in production. |
 | `LLM_MAX_OUTPUT_TOKENS` | No | Max reply tokens (default `4096`). Applies to both backends; replies that still hit the cap are flagged as truncated rather than cut silently. |
 | `MCP_HTTP_MAX_ATTEMPTS` | No | MCP HTTP retry attempts on transient 5xx/429/network errors (default `3`) |
 | `MCP_HTTP_RETRY_BASE_MS` | No | Base backoff between MCP retries in ms (default `300`, linear) |
@@ -259,7 +308,19 @@ Update your Slack app to use the Heroku URL:
 - **Automatic:** Push to the connected branch; Heroku builds and deploys.
 - **Manual:** **Deploy** tab → **Deploy Branch**.
 
-The `release` phase runs `npm run deploy:migrate` (`prisma migrate deploy`) **before** the new `web` dyno starts. If a migration fails, the release fails and the previous release keeps running—fix the migration or DB, then redeploy. **Commit every file under `prisma/migrations/`** so production applies the same schema as your repo.
+The `release` phase runs **`npm run deploy:migrate && npm run health:configcheck`** (see `Procfile`) **before** the new `web` dyno starts:
+
+1. **`deploy:migrate`** (`prisma migrate deploy`) applies pending migrations. If a migration fails, the release fails and the previous release keeps running — fix the migration or DB, then redeploy. **Commit every file under `prisma/migrations/`** so production applies the same schema as your repo.
+2. **`health:configcheck`** is a deterministic, **network-free** gate: it validates required config, the `TOKEN_ENC_KEY` shape, the SSRF guard, the Tableau URL, and provider-fallback detection. A real misconfiguration (missing secret, malformed key, private/non-https Tableau URL) **fails the release before it takes traffic** — without coupling the deploy to whether an external LLM/Tableau endpoint happens to be up this second. Live reachability lives in the `smoke` suite (run by hand) and the scheduled monitor. See [`tests/health/README.md`](tests/health/README.md).
+
+### Database TLS (RDS/Aurora)
+
+The app connects to Postgres via the Prisma `pg` adapter (`src/install-kit/prisma.js`). TLS is always on in a deployed environment; the choice is whether to **verify the server certificate's issuer**:
+
+- **Production tier — verify (recommended):** Amazon Aurora/RDS presents a certificate whose CA is **not** in Node's default trust store, so strict verification fails with `unable to get local issuer certificate` unless you supply the CA. Set **`PGSSLROOTCERT=certs/rds-global-bundle.pem`** (the public Amazon RDS global CA bundle, committed under `certs/`) to keep `rejectUnauthorized: true` **and** validate. See [`certs/README.md`](certs/README.md).
+- **Demo tier — escape hatch:** set **`DATABASE_SSL_NO_VERIFY=1`** to skip issuer verification (TLS stays encrypted). Fast and reversible for a demo, but do **not** ship this posture to a real production app.
+
+> **History:** enabling strict DB TLS verification against Aurora without shipping the CA bundle caused a demo outage — every installation lookup 401'd. The two-tier pattern above (CA bundle in prod, `DATABASE_SSL_NO_VERIFY=1` in demo) is the resolution; no code fork is needed since `prisma.js` branches on these env vars.
 
 ### 6. Debugging channel access on Heroku
 
@@ -295,6 +356,21 @@ This creates per-user records from org-level rows that have `userToken` and `ins
 2. Create a JSON key and download it
 3. In Heroku **Config Vars**, add `GCP_SERVICE_ACCOUNT_JSON` and paste the **entire** JSON (minify to one line if needed)
 4. The app writes this to a temp file at startup; Vertex AI will use it automatically
+
+## Testing & health checks
+
+- **Unit tests** — `npm test` runs the full offline suite (`node --test`), including the health framework's own judgement logic, the SSE-transport regression, token-crypto loud-fail, SSRF classification, tenant-cache isolation, prompt-injection fencing, canvas/title helpers, and Tableau parse-shape guards.
+- **Deploy gate** — `npm run health:configcheck` (network-free) runs automatically in the Heroku release phase.
+- **Post-deploy readiness** — `npm run health:smoke` adds live LLM + Tableau MCP pings on top of configcheck. Run it by hand after a deploy.
+- **Ongoing monitoring** — `npm run health:drift` (model-drift golden prompts + offline routing goldens) and `npm run health:contextrot` (datasource-catalog growth). Recommended cadence and what each check protects against are documented in [`tests/health/README.md`](tests/health/README.md). Two business-facing companion docs live in `docs/` — see below.
+
+## Additional documentation
+
+- [`docs/CHANGES-VS-UPSTREAM.md`](docs/CHANGES-VS-UPSTREAM.md) — what this fork changed vs. `itsnaseer/slack-mcp-agent` (for technical + leadership review).
+- [`docs/DEPLOYMENT-AND-QUALITY.md`](docs/DEPLOYMENT-AND-QUALITY.md) — plain-language guide to how the app is deployed and how quality is protected automatically.
+- [`docs/GETTING-STARTED-ONE-PAGER.md`](docs/GETTING-STARTED-ONE-PAGER.md) — business-user one-pager: what the connector does, how to use it in Slack, and example prompts.
+- [`tests/health/README.md`](tests/health/README.md) — the health-check framework in detail.
+- [`certs/README.md`](certs/README.md) — the RDS CA bundle and the two-tier DB TLS setup.
 
 ## References
 

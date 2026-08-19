@@ -1,0 +1,180 @@
+{
+  "request": "VHA Localized Metric Review (DEMO). Publish four clean, MCP-legible synthetic sources that turn a partner action-plan tracker into a metric-shaped star schema for a Tableau Pulse + Slack MCP agent demo. The generator (demo-data/vha/generate.js, seed 20260730) already denormalized and sanitized every table, so the Prep flow's job is a governed passthrough publish: land each CSV on the site as its own published data source with clean field captions (no split A-N/O-Z facility columns, no colon/bilingual captions) so get-datasource-metadata returns legible fieldCaptions and Pulse can trend `value` by `snapshot_date`. The two facts (metric_snapshots, action_plans) are published SEPARATELY, never pre-joined, to preserve the Pulse fact grain; the localized agent joins them at query time on facility_name + metric_key. The prompt-injection row is NOT a source here (quarantined in vha_redteam_injection.csv). ALL DATA SYNTHETIC / NOTIONAL — not real VA data.",
+  "sources": [
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/vha/vha_metric_snapshots.csv",
+      "format": "csv",
+      "auth": "none",
+      "name": "VHA Metric Snapshots",
+      "description": "SYNTHETIC. Monthly metric history, one row per facility x metric x month (15 x 6 x 18 = 1,620 rows). THE PULSE SOURCE: measure `value` trended over `snapshot_date`, favorable direction from `direction`, drilldowns facility_name/visn/region, with target, variance_to_target, rag_status, mom_delta and VISN/national medians precomputed. Notional VA facilities.",
+      "extra": {
+        "csv_schema": {
+          "snapshot_date": "datetime",
+          "as_of_date": "datetime",
+          "period_month": "string",
+          "fiscal_quarter": "string",
+          "facility_key": "string",
+          "facility_name": "string",
+          "city": "string",
+          "state": "string",
+          "visn": "string",
+          "region": "string",
+          "metric_key": "string",
+          "metric_caption": "string",
+          "unit": "string",
+          "direction": "string",
+          "value": "decimal",
+          "target": "decimal",
+          "variance_to_target": "decimal",
+          "pct_to_target": "decimal",
+          "rag_status": "string",
+          "prev_value": "decimal",
+          "prev_rag_status": "string",
+          "mom_delta": "decimal",
+          "mom_pct_change": "decimal",
+          "status_change": "string",
+          "direction_of_change": "string",
+          "alert_flag": "boolean",
+          "alert_reason": "string",
+          "visn_median": "decimal",
+          "national_median": "decimal",
+          "vs_visn_median": "decimal",
+          "vs_national_median": "decimal"
+        },
+        "_skip_auto_casts": true
+      }
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/vha/vha_action_plans.csv",
+      "format": "csv",
+      "auth": "none",
+      "name": "VHA Action Plans",
+      "description": "SYNTHETIC. The qualitative 'so-what' layer, one row per action plan (57 rows), cleaned and sanitized from the partner tracker. Joins to VHA Metric Snapshots on facility_name + metric_key. Carries owning_channel, assignee_function, status/is_complete/rag_status, smart_goal, progress_note, barriers, escalation, and data_quality_flag (two rows flag deliberate status contradictions; one row is SANITIZED where a prompt-injection was stripped). Notional VA data.",
+      "extra": {
+        "csv_schema": {
+          "action_plan_id": "string",
+          "action_plan": "string",
+          "facility_name": "string",
+          "city": "string",
+          "state": "string",
+          "visn": "string",
+          "region": "string",
+          "metric_key": "string",
+          "metric_caption": "string",
+          "action_category": "string",
+          "status": "string",
+          "is_complete": "string",
+          "rag_status": "string",
+          "latest_value": "decimal",
+          "target": "decimal",
+          "assignee_user": "string",
+          "assignee_function": "string",
+          "owning_channel": "string",
+          "smart_goal": "string",
+          "progress_note": "string",
+          "barriers": "string",
+          "created_date": "datetime",
+          "start_date": "datetime",
+          "due_date": "datetime",
+          "completed_date": "string",
+          "escalated_group": "string",
+          "escalated_to": "string",
+          "source": "string",
+          "data_quality_flag": "string"
+        },
+        "_skip_auto_casts": true
+      }
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/vha/vha_facilities.csv",
+      "format": "csv",
+      "auth": "none",
+      "name": "VHA Facilities",
+      "description": "SYNTHETIC. Facility dimension (15 rows) across 5 VISNs. facility_key, facility_name, city, state, visn, region, director_user/director_name (model the Slack user + location context the localized agent keys off), and performance_archetype. Notional VA facilities.",
+      "extra": {
+        "csv_schema": {
+          "facility_key": "string",
+          "facility_name": "string",
+          "city": "string",
+          "state": "string",
+          "visn": "string",
+          "region": "string",
+          "director_user": "string",
+          "director_name": "string",
+          "performance_archetype": "string"
+        },
+        "_skip_auto_casts": true
+      }
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/vha/vha_metric_registry.csv",
+      "format": "csv",
+      "auth": "none",
+      "name": "VHA Metric Registry",
+      "description": "SYNTHETIC. Metric definition + routing table (6 rows). metric_key, metric_caption, unit, direction, target, yellow_band_abs, owning_channel, owning_function, action_category, definition. This is the routing table for daily subscriptions/alerts: each off-target metric knows which Slack channel and function owns it. Notional VA metrics.",
+      "extra": {
+        "csv_schema": {
+          "metric_key": "string",
+          "metric_caption": "string",
+          "unit": "string",
+          "direction": "string",
+          "target": "decimal",
+          "yellow_band_abs": "decimal",
+          "owning_channel": "string",
+          "owning_function": "string",
+          "action_category": "string",
+          "definition": "string"
+        },
+        "_skip_auto_casts": true
+      }
+    }
+  ],
+  "transformations": [],
+  "outputs": [
+    {
+      "kind": "published_data_source",
+      "name": "VHA Metric Snapshots",
+      "source": "VHA Metric Snapshots",
+      "project": "VA | Veterans Affairs",
+      "description": "SYNTHETIC / NOTIONAL DEMONSTRATION DATA — NOT real VA data, NOT operational. Monthly VHA metric history (facility x metric x month) built for a Tableau Pulse + Slack MCP agent demo of localized metric review. Measure `value` trended over `snapshot_date`; favorable direction from `direction`; drilldowns facility_name/visn/region. target/variance_to_target/rag_status/mom_delta and VISN+national medians are precomputed for 'off target' filters and subscription triggers. Generated deterministically (seed 20260730). GAP: this is fabricated demo data, not derived from any VA system."
+    },
+    {
+      "kind": "published_data_source",
+      "name": "VHA Action Plans",
+      "source": "VHA Action Plans",
+      "project": "VA | Veterans Affairs",
+      "description": "SYNTHETIC / NOTIONAL. Cleaned, sanitized action-plan layer that supplies the qualitative 'so-what' behind each metric. Joins to VHA Metric Snapshots on facility_name + metric_key. Contains owning_channel, assignee_function, barriers, progress_note, escalation, and data_quality_flag (deliberate status-contradiction and SANITIZED prompt-injection markers for the demo). NOT real VA data."
+    },
+    {
+      "kind": "published_data_source",
+      "name": "VHA Facilities",
+      "source": "VHA Facilities",
+      "project": "VA | Veterans Affairs",
+      "description": "SYNTHETIC / NOTIONAL. Facility dimension (15 facilities, 5 VISNs) with director user/name modeling the Slack-user + location context the localized agent keys off. NOT real VA data."
+    },
+    {
+      "kind": "published_data_source",
+      "name": "VHA Metric Registry",
+      "source": "VHA Metric Registry",
+      "project": "VA | Veterans Affairs",
+      "description": "SYNTHETIC / NOTIONAL. Metric definition + Slack routing table (6 metrics): target, favorable direction, yellow band, owning channel + function. Drives daily off-target subscriptions/alerts. NOT real VA data."
+    }
+  ],
+  "server_publish": {
+    "project": "VA | Veterans Affairs",
+    "flow_name": "VHA Localized Metric Review (Demo)",
+    "overwrite": true,
+    "cadence": "daily",
+    "hour_utc": 11,
+    "minute_utc": 0,
+    "schedule_name_hint": "VHA Localized Metric Review Daily Refresh"
+  },
+  "qa_tier": "none",
+  "eval_strategy": "self_consistency",
+  "deployment": "tableau_server",
+  "refresh_cadence": "daily"
+}

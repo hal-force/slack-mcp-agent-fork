@@ -13,3 +13,12 @@ node_modules/
 
 # Cursor chat transcript — contains a plaintext secret; must never be committed
 cursor_slack_chat.md
+
+# VHA demo — red-team injection fixture must NEVER be committed (planted prompt-injection)
+demo-data/vha/vha_redteam_injection.csv
+
+# VHA demo — Prep build artifacts (Hyper extracts, logs, run outputs); not needed at runtime
+demo-data/vha/.prep-run/
+demo-data/vha/prep-flow/
+demo-data/vha/**/*.hyper
+demo-data/vha/*.log

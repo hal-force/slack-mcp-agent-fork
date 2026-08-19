@@ -1,0 +1,59 @@
+{
+  "_comment": "Synthetic Slack-user roster for the localized-brief demo. Each entry is the SUBSET of a real users.info payload the resolvers read (id, tz, locale, profile.title, profile.fields). It lets vhaDailyBrief.js exercise the (position x location) parameterization in dry-run WITHOUT live Slack users. In production these come straight from users.info; this file is never used when a bot token is present unless VHA_BRIEF_USE_ROSTER=1. Chosen so several roles at the SAME facility (Phoenix) get DIFFERENT briefs, proving position filtering — and so location tiers vary (explicit binding vs tz inference vs tz-ambiguous).",
+  "users": [
+    {
+      "id": "U_PHX_QM",
+      "tz": "America/Phoenix",
+      "locale": "en-US",
+      "profile": {
+        "title": "Quality Manager",
+        "real_name": "Dana Reyes",
+        "fields": { "Xf01": { "label": "VHA Facility", "value": "U_DIR_PHX" } }
+      },
+      "_expect": "Phoenix (explicit binding) x Quality Manager -> SMR30 + OMELOS only"
+    },
+    {
+      "id": "U_PHX_ACCESS",
+      "tz": "America/Phoenix",
+      "locale": "en-US",
+      "profile": {
+        "title": "Chief of Access & Capacity",
+        "real_name": "Marco Ntetsang",
+        "fields": { "Xf01": { "label": "VHA Facility", "value": "U_DIR_PHX" } }
+      },
+      "_expect": "Phoenix (explicit binding) x Access Manager -> RVU_UNUSED only"
+    },
+    {
+      "id": "U_PHX_PX",
+      "tz": "America/Phoenix",
+      "locale": "en-US",
+      "profile": {
+        "title": "Patient Experience Officer",
+        "real_name": "Aisha Bello",
+        "fields": { "Xf01": { "label": "VHA Facility", "value": "U_DIR_PHX" } }
+      },
+      "_expect": "Phoenix (explicit binding) x Patient Experience Officer -> SHEP_EXP only"
+    },
+    {
+      "id": "U_PAL_CTL",
+      "tz": "America/Los_Angeles",
+      "locale": "en-US",
+      "profile": {
+        "title": "Care Transitions Lead",
+        "real_name": "Priya Anand",
+        "fields": { "Xf01": { "label": "VHA Facility", "value": "U_DIR_PAL" } }
+      },
+      "_expect": "Palo Alto (explicit binding; tz alone is ambiguous across CA/OR) x Care Transitions Lead -> READMIT30 only"
+    },
+    {
+      "id": "U_DIR_PHX",
+      "tz": "America/Phoenix",
+      "locale": "en-US",
+      "profile": {
+        "title": "Medical Center Director",
+        "real_name": "Dr. C. Jansen"
+      },
+      "_expect": "Phoenix (director id) x ALL functions -> facility-wide brief (all 5 flagged metrics)"
+    }
+  ]
+}

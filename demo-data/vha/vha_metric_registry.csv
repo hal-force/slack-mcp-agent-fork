@@ -1,0 +1,7 @@
+metric_key,metric_caption,unit,direction,target,yellow_band_abs,owning_channel,owning_function,action_category,definition
+SMR30,30-day Mortality Rate (SMR30),ratio,lower_is_better,0.85,0.07,#vha-quality,Quality Manager,Care coordination and flow,Standardized 30-day post-admission mortality ratio (observed/expected). Lower is better; target <= 0.85.
+READMIT30,30-day Readmission Rate (Unadjusted),%,lower_is_better,11,2,#vha-care-trans,Care Transitions Lead,Care coordination and flow,Share of discharges readmitted within 30 days. Lower is better; target <= 11%.
+OMELOS,Acute Care OMELOS (Observed minus Expected LOS),days,lower_is_better,0.5,0.5,#vha-quality,Quality Manager,Care coordination and flow,"Observed minus expected length of stay, in days. Lower is better; target <= +0.5 days."
+RVU_UNUSED,% Unused RVU Capacity at Target,%,lower_is_better,8,4,#vha-access,Access Manager,Capacity and demand management,Percent of provider RVU capacity left unused against target. Lower is better; target <= 8%.
+PHA_REFERRAL,Admission-to-PHA Referral Favorable Closure,%,higher_is_better,80,6,#vha-vex,Care Transitions Lead,Care coordination and flow,Favorable closure rate for Admission-to-Referral to Public Housing Agency. Higher is better; target >= 80%.
+SHEP_EXP,Patient Experience (SHEP Provider Rating),%,higher_is_better,85,6,#vha-vex,Patient Experience Officer,Governance / accountability,SHEP top-box provider rating. Higher is better; target >= 85% (top quartile).

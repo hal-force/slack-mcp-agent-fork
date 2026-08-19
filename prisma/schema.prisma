@@ -28,6 +28,28 @@ model Installation {
   @@index([userId])
 }
 
+/// Durable dedupe/idempotency ledger for proactive VHA briefs. One row per
+/// (workspace, user, metric, reporting month) that has been delivered. Survives
+/// dyno restarts, so an hourly poll or a repeated datasource-refresh webhook
+/// never re-DMs a metric the user already saw. `contentSig` is a hash of the
+/// brief-worthy state (rag_status, value, status_change, alert_reason); when a
+/// metric WORSENS the signature changes and we re-brief, but a steady state is
+/// suppressed. `id` is the natural key `teamId|userId|metricKey|periodMonth`.
+model BriefDelivery {
+  id           String   @id // teamId|userId|metricKey|periodMonth
+  teamId       String?
+  userId       String
+  facilityName String?
+  metricKey    String
+  periodMonth  String
+  contentSig   String
+  sentAt       DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([teamId, userId])
+  @@index([periodMonth])
+}
+
 /// Per-user settings (same id scheme as per-user Installation rows: E:enterpriseId:userId or T:teamId:userId).
 model UserPreference {
   id            String   @id

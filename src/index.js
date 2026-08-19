@@ -13,6 +13,7 @@ if (process.env.GCP_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CRED
 
 const { App, Assistant } = require("@slack/bolt");
 const { receiver } = require("./slack/receiver");
+const { registerTableauWebhook } = require("./jobs/tableauWebhook");
 const { getAiResponse } = require("./assistant/respond");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
@@ -41,6 +42,12 @@ function getAuthorizeMessage() {
 const app = new App({
   receiver,
 });
+
+// Tableau datasource-refresh webhook → push-triggered localized briefs.
+// Mounts a JSON route on the same Express receiver (separate path from Slack's
+// events endpoint, so it doesn't touch Slack signature verification). No-ops
+// unless TABLEAU_WEBHOOK_SECRET is set. See src/jobs/tableauWebhook.js.
+registerTableauWebhook(receiver);
 
 // function_executed: Bolt skips the immediate Events API ack and relies on app.function's autoAcknowledge,
 // which runs after other global middleware. That can exceed Slack's HTTP ack window while Vertex runs.

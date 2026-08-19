@@ -1,0 +1,16 @@
+facility_key,facility_name,city,state,visn,region,director_user,director_name,performance_archetype
+ALB,"Albany, NY HCS",Albany,NY,V01,Northeast,U_DIR_ALB,Dr. R. Alvarez,improving
+SYR,"Syracuse, NY HCS",Syracuse,NY,V01,Northeast,U_DIR_SYR,Dr. K. Boone,strong
+BAT,"Bath, NY HCS",Bath,NY,V01,Northeast,U_DIR_BAT,Dr. M. Chen,mixed
+PAL,"Palo Alto, CA HCS",Palo Alto,CA,V05,West,U_DIR_PAL,Dr. S. Delgado,struggling_flat
+SFC,"San Francisco, CA HCS",San Francisco,CA,V05,West,U_DIR_SFC,Dr. P. Ellis,improving
+SAC,"Sacramento, CA HCS",Sacramento,CA,V05,West,U_DIR_SAC,Dr. J. Foster,strong
+ANC,"Anchorage, AK HCS",Anchorage,AK,V08,Northwest,U_DIR_ANC,Dr. L. Grant,strong
+FAI,"Fairbanks, AK HCS",Fairbanks,AK,V08,Northwest,U_DIR_FAI,Dr. A. Hayes,mixed
+PDX,"Portland, OR HCS",Portland,OR,V08,Northwest,U_DIR_PDX,Dr. N. Iqbal,improving
+PHX,"Phoenix, AZ HCS",Phoenix,AZ,V18,Southwest,U_DIR_PHX,Dr. C. Jansen,struggling_worsening
+TUC,"Tucson, AZ HCS",Tucson,AZ,V18,Southwest,U_DIR_TUC,Dr. T. Koroma,struggling_flat
+ABQ,"Albuquerque, NM HCS",Albuquerque,NM,V18,Southwest,U_DIR_ABQ,Dr. B. Lund,mixed
+OKC,"Oklahoma City, OK HCS",Oklahoma City,OK,V19,Midwest,U_DIR_OKC,Dr. E. Malik,improving
+DEN,"Denver, CO HCS",Denver,CO,V19,Midwest,U_DIR_DEN,Dr. D. Novak,strong
+SLC,"Salt Lake City, UT HCS",Salt Lake City,UT,V19,Midwest,U_DIR_SLC,Dr. F. Ortiz,mixed

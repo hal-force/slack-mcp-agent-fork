@@ -60,6 +60,7 @@
                 "groups:history",
                 "groups:read",
                 "im:history",
+                "im:write",
                 "mpim:write",
                 "search:read.public",
                 "users:read",
