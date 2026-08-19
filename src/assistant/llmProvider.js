@@ -298,9 +298,18 @@ async function generateWithBedrock({
 
     rounds += 1;
     if (rounds >= BEDROCK_MAX_TOOL_ROUNDS) {
-      // Safety valve: ask for a final answer with tools disabled so we don't
-      // loop forever if the model keeps requesting tools.
-      out = await sendConverse({ ...baseParams, toolConfig: undefined, messages });
+      // Safety valve: nudge for a final answer so we don't loop forever if the
+      // model keeps requesting tools (e.g. a tool that repeatedly errors/times
+      // out). Bedrock REQUIRES toolConfig to stay defined whenever the message
+      // history contains toolUse/toolResult blocks — which it now does — so we
+      // KEEP toolConfig and instruct the model to stop, rather than removing it.
+      // (Sending toolConfig:undefined here throws "The toolConfig field must be
+      // defined when using toolUse and toolResult content blocks.")
+      messages.push({
+        role: "user",
+        content: [{ text: "Provide your final answer now in plain text. Do not call any more tools." }],
+      });
+      out = await sendConverse({ ...baseParams, messages });
       break;
     }
   }

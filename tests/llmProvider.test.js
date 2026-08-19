@@ -283,6 +283,54 @@ test("generateWithBedrock marks a failed tool result with status error", async (
   assert.deepEqual(tr.content[0].json, { ok: false, error: "boom" });
 });
 
+test("generateWithBedrock safety valve keeps toolConfig defined at the round cap (no toolConfig-undefined crash)", async (t) => {
+  process.env.BEDROCK_MODEL_ID = "m";
+  process.env.BEDROCK_REGION = "us-west-2";
+  process.env.AWS_ACCESS_KEY_ID = "ASIATEST";
+  process.env.BEDROCK_MAX_TOOL_ROUNDS = "2"; // small cap so the valve trips fast
+  t.after(() => { delete process.env.BEDROCK_MAX_TOOL_ROUNDS; });
+
+  const sent = [];
+  const fakeClient = {
+    async send(cmd) {
+      sent.push(cmd.input);
+      // Always ask for a tool → forces the loop to burn rounds and hit the valve.
+      return {
+        stopReason: "tool_use",
+        output: {
+          message: {
+            role: "assistant",
+            content: [{ toolUse: { toolUseId: `tu-${sent.length}`, name: "tableau_query_datasource", input: {} } }],
+          },
+        },
+      };
+    },
+  };
+
+  const result = await generateWithBedrock({
+    systemInstruction: "sys",
+    contents: [{ role: "user", parts: [{ text: "loop please" }] }],
+    maxOutputTokens: 256,
+    temperature: 0,
+    tools: [{ name: "tableau_query_datasource", description: "q", inputSchema: { type: "object", properties: {} } }],
+    dispatchTool: async () => ({ ok: false, error: "timeout" }), // tool keeps failing
+    __client: fakeClient,
+  });
+
+  // The final (valve) request must STILL carry toolConfig — Bedrock rejects an
+  // undefined toolConfig once the history has toolUse/toolResult blocks.
+  const last = sent[sent.length - 1];
+  assert.ok(last.toolConfig, "safety-valve request must keep toolConfig defined");
+  assert.ok(last.toolConfig.tools.length >= 1);
+  // And it must include the plain-text "final answer now" nudge as the last user turn.
+  const lastUserTurn = [...last.messages].reverse().find((m) => m.role === "user");
+  assert.ok(
+    (lastUserTurn.content || []).some((c) => c.text && /final answer now/i.test(c.text)),
+    "valve should nudge the model for a final answer",
+  );
+  assert.equal(result.finishReason, "tool_use"); // we broke out at the cap
+});
+
 test("generateWithBedrock without tools makes exactly one call (unchanged path)", async () => {
   process.env.BEDROCK_MODEL_ID = "m";
   process.env.BEDROCK_REGION = "us-west-2";

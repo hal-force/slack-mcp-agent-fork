@@ -594,16 +594,25 @@ async function runFromRefresh(payload) {
 }
 
 if (require.main === module) {
-  // CLI: `node vhaDailyBrief.js`           → scan
+  // CLI: `node vhaDailyBrief.js`           → scan (hour-gated, no dedupe)
+  //      `node vhaDailyBrief.js --daily`   → scheduled daily scan (hour gate OFF, dedupe ON)
   //      `node vhaDailyBrief.js --alert '{"userId":"U_PHX_QM","metricKeys":["SMR30"]}'`
   //      `node vhaDailyBrief.js --refresh '{"event_type":"DatasourceRefreshSucceeded","resource_name":"VHA Metric Snapshots"}'`
   const alertArgIdx = process.argv.indexOf("--alert");
   const refreshArgIdx = process.argv.indexOf("--refresh");
+  const daily = process.argv.includes("--daily");
   let invocation;
   if (alertArgIdx !== -1) {
     invocation = runFromAlert(JSON.parse(process.argv[alertArgIdx + 1] || "{}"));
   } else if (refreshArgIdx !== -1) {
     invocation = runFromRefresh(JSON.parse(process.argv[refreshArgIdx + 1] || "{}"));
+  } else if (daily) {
+    // Heroku Scheduler runs this once/day at a fixed UTC time, so the scheduler
+    // IS the send-time gate → skip the per-user local-hour gate. Dedupe ON so a
+    // same-day re-run (or an overlapping refresh webhook) never double-posts the
+    // same month's brief. To scale to many timezones, switch the Scheduler to
+    // HOURLY and drop --daily so BRIEF_HOUR_LOCAL gates each user's own 7am.
+    invocation = run({ ignoreHour: true, dedupe: true, reason: "scheduled daily scan" });
   } else {
     invocation = run();
   }
