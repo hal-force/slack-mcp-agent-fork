@@ -6,7 +6,7 @@ const { registerTriageAdmissionTrigger } = require("../src/jobs/triageAdmissionT
 
 const quietLogger = { warn() {}, info() {}, error() {} };
 
-async function withServer(t, { secret = "s3cr3t-adm", agentsEnabled = "1", handleAdmission, app } = {}) {
+async function withServer(t, { secret = "s3cr3t-adm", agentsEnabled = "1", handleAdmission, resolvePoster, postMessage } = {}) {
   const prevSecret = process.env.TRIAGE_ADMISSION_SECRET;
   const prevAgents = process.env.AGENTS_ENABLED;
   const prevChan = process.env.TRIAGE_CHANNEL_ID;
@@ -20,12 +20,17 @@ async function withServer(t, { secret = "s3cr3t-adm", agentsEnabled = "1", handl
   const router = express.Router();
   expressApp.use(router);
   const calls = [];
-  const boltApp = app || { client: { chat: { postMessage: async (m) => { return { ok: true, ts: "1", _m: m }; } } } };
+  const posted = [];
+  // Default poster records what would be sent to Slack (no real client / bot token).
+  const defaultPost = async (m) => {
+    posted.push(m);
+    return { ok: true, ts: "1", _m: m };
+  };
   const { mounted } = registerTriageAdmissionTrigger(
     { router },
     {
       logger: quietLogger,
-      app: boltApp,
+      ...(resolvePoster ? { resolvePoster } : { postMessage: postMessage || defaultPost }),
       handleAdmission:
         handleAdmission ||
         (async (params, deps) => {
@@ -60,7 +65,7 @@ async function withServer(t, { secret = "s3cr3t-adm", agentsEnabled = "1", handl
     return { status: res.status, text: await res.text() };
   };
 
-  return { mounted, calls, post };
+  return { mounted, calls, posted, post };
 }
 
 const tick = () => new Promise((r) => setTimeout(r, 30));
@@ -112,4 +117,32 @@ test("explicit channel in the body overrides the default", async (t) => {
   await post("/triage/admission/s3cr3t-adm", { patient_id: "PT9", channel: "C_OVERRIDE" });
   await tick();
   assert.equal(calls[0].params.channel, "C_OVERRIDE");
+});
+
+test("resolves a poster via resolvePoster (bot-token seam) and posts with it", async (t) => {
+  // Guards the not_authed bug: production must resolve the workspace bot token
+  // rather than post through the token-less Bolt app.client. The resolver receives
+  // the teamId and returns the poster; handleAdmission then posts with it.
+  let seenTeamId = null;
+  const posted = [];
+  const resolvePoster = async ({ teamId }) => {
+    seenTeamId = teamId;
+    return async (m) => {
+      posted.push(m);
+      return { ok: true, ts: "9" };
+    };
+  };
+  const { post } = await withServer(t, {
+    resolvePoster,
+    handleAdmission: async (params, deps) => {
+      await deps.postMessage({ channel: params.channel, text: "notice", blocks: [] });
+      return { ranking: [{ nurse_id: "RN7" }] };
+    },
+  });
+  const res = await post("/triage/admission/s3cr3t-adm", { patient_id: "PT5", channel: "C_X", team_id: "T_LIVE" });
+  assert.equal(res.status, 200);
+  await tick();
+  assert.equal(seenTeamId, "T_LIVE", "resolver got the team id for token lookup");
+  assert.equal(posted.length, 1);
+  assert.equal(posted[0].channel, "C_X");
 });

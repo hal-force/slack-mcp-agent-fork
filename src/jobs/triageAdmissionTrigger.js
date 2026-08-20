@@ -27,9 +27,38 @@ const { safeEqual } = require("./tableauWebhook");
 const { agentsEnabled } = require("../agents/supervisor");
 
 /**
+ * Build a channel poster bound to the workspace's bot token.
+ *
+ * WHY NOT app.client: this is an OAuth multi-workspace app (installationStore),
+ * so the Bolt App's own `client` carries NO bot token — chat.postMessage through
+ * it fails `not_authed`. We resolve the installation's bot token the same way the
+ * daily-brief job does (getInstallation({teamId}) → WebClient) and post with that.
+ *
+ * @param {{ teamId: string }} args
+ * @returns {Promise<(msg:object)=>Promise<any>>}
+ */
+async function defaultResolvePoster({ teamId }) {
+  if (!teamId) {
+    throw new Error("cannot resolve a bot token to post: no teamId (set SLACK_TEAM_ID or pass team_id)");
+  }
+  const { getInstallation } = require("../install-kit/installationStore");
+  const installation = await getInstallation({ teamId });
+  const botToken = installation?.bot?.token;
+  if (!botToken) {
+    throw new Error(`no bot token for team ${teamId} — is the app installed there?`);
+  }
+  const { WebClient } = require("@slack/web-api");
+  const client = new WebClient(botToken);
+  return (msg) => client.chat.postMessage(msg);
+}
+
+/**
  * @param {import("@slack/bolt").ExpressReceiver} receiver
  * @param {object} [deps]
- * @param {import("@slack/bolt").App} [deps.app]  Bolt app (for client.chat.postMessage)
+ * @param {(args:{teamId:string})=>Promise<(msg:object)=>Promise<any>>} [deps.resolvePoster]
+ *   Resolve the channel poster (test seam). Defaults to a bot-token-bound WebClient.
+ * @param {(msg:object)=>Promise<any>} [deps.postMessage]
+ *   A ready-made poster (shortcut test seam; wins over resolvePoster).
  * @param {(params:object, d:object)=>Promise<any>} [deps.handleAdmission]  injectable for tests
  * @param {{ run:(env:object)=>Promise<any> }} [deps.specialist]
  * @param {object} [deps.logger]
@@ -47,7 +76,14 @@ function registerTriageAdmissionTrigger(receiver, deps = {}) {
   }
 
   const handleAdmission = deps.handleAdmission || ((p, d) => require("../agents/triageAdmission").handleAdmission(p, d));
-  const app = deps.app || null;
+  // Poster resolution: tests inject a ready poster (deps.postMessage) or a resolver
+  // (deps.resolvePoster); production resolves the installation's bot token per request.
+  const resolvePoster =
+    typeof deps.resolvePoster === "function"
+      ? deps.resolvePoster
+      : typeof deps.postMessage === "function"
+        ? async () => deps.postMessage
+        : defaultResolvePoster;
 
   const express = require("express");
   const jsonParser = express.json({ limit: "16kb" });
@@ -66,29 +102,25 @@ function registerTriageAdmissionTrigger(receiver, deps = {}) {
     const patientId = String(body.patient_id || body.patientId || "").trim();
     const channel = String(body.channel || process.env.TRIAGE_CHANNEL_ID || "").trim();
     const unit = body.unit ? String(body.unit).trim() : undefined;
+    const teamId = String(body.team_id || process.env.SLACK_TEAM_ID || "").trim();
 
     if (!patientId) return res.status(400).json({ ok: false, error: "patient_id is required" });
     if (!channel) {
       return res.status(400).json({ ok: false, error: "channel is required (set TRIAGE_CHANNEL_ID or pass channel)" });
     }
-    if (!app || !app.client) {
-      logger.error?.("[triage-admission] no Bolt app/client wired — cannot post");
-      return res.status(500).json({ ok: false, error: "server not configured to post" });
-    }
 
-    // Fast-ack, then post in the background (posting can call the specialist LLM).
+    // Fast-ack, then resolve the bot token + post in the background (posting can call
+    // the specialist LLM). A resolution/post failure is logged, not returned (we've acked).
     res.status(200).json({ ok: true, patient_id: patientId, channel });
 
     Promise.resolve()
-      .then(() =>
-        handleAdmission(
+      .then(async () => {
+        const postMessage = await resolvePoster({ teamId });
+        return handleAdmission(
           { patientId, channel, unit },
-          {
-            postMessage: (m) => app.client.chat.postMessage(m),
-            specialist: deps.specialist || undefined,
-          },
-        ),
-      )
+          { postMessage, specialist: deps.specialist || undefined },
+        );
+      })
       .then((r) => logger.info?.(`[triage-admission] posted for ${patientId}: top=${r?.ranking?.[0]?.nurse_id || "none"}`))
       .catch((err) => logger.error?.("[triage-admission] failed:", err?.message || err));
   });
@@ -97,4 +129,4 @@ function registerTriageAdmissionTrigger(receiver, deps = {}) {
   return { mounted: true };
 }
 
-module.exports = { registerTriageAdmissionTrigger };
+module.exports = { registerTriageAdmissionTrigger, defaultResolvePoster };

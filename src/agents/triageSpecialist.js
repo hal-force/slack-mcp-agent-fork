@@ -26,6 +26,25 @@ const { defineAgent } = require("./defineAgent");
 const { TRIAGE_TOOL_SPECS, dispatchTriageTool } = require("./triageTools");
 const { buildContents } = require("../assistant/respond");
 
+/**
+ * Choose the tool backend. Default is the local-CSV dispatcher (deterministic, offline —
+ * what the eval and every test rely on). When TRIAGE_MCP_DATASOURCES is set (a JSON
+ * table→datasourceLuid map from the M4 publish), the SAME tools run against the published
+ * Tableau datasources via the MCP instead — the specialist prompt and tool specs are
+ * identical either way. An explicit opts.dispatchTool always wins (tests / callers).
+ * @param {object} opts
+ * @returns {(name:string, input:object)=>Promise<object>}
+ */
+function resolveDispatchTool(opts = {}) {
+  if (typeof opts.dispatchTool === "function") return opts.dispatchTool;
+  const dsRaw = String(process.env.TRIAGE_MCP_DATASOURCES || "").trim();
+  if (dsRaw) {
+    const { makeMcpDispatchTool } = require("./triageMcpData");
+    return makeMcpDispatchTool();
+  }
+  return (name, input) => dispatchTriageTool(name, input);
+}
+
 const TRIAGE_SYSTEM_PROMPT = `Role: You are the Nurse-Triage Specialist, a clinical-operations analyst for an AI-assisted nurse assignment program. All data is SYNTHETIC. Your output is advisory and human-in-the-loop — you never take clinical action.
 
 You answer two kinds of question about one hospital's data, which you reach ONLY through your tools (triage_query, triage_skill_gap, triage_list_nurses_on_shift):
@@ -94,7 +113,8 @@ function triageModelId() {
  *
  * @param {object} [opts]
  * @param {(name:string, input:object)=>Promise<object>} [opts.dispatchTool]
- *   Override the tool backend (M4 injects the Tableau MCP dispatcher here).
+ *   Force a specific tool backend (tests). When unset, the backend is chosen by
+ *   resolveDispatchTool: Tableau MCP if TRIAGE_MCP_DATASOURCES is set, else local CSV.
  * @param {string} [opts.modelId]  Override the model pin (tests).
  * @param {number} [opts.maxOutputTokens]
  * @returns {{ name: string, run: (envelope:object)=>Promise<object> }}
@@ -104,10 +124,7 @@ function createTriageSpecialist(opts = {}) {
     name: "triage-specialist",
     systemPrompt: TRIAGE_SYSTEM_PROMPT,
     tools: TRIAGE_TOOL_SPECS,
-    dispatchTool:
-      typeof opts.dispatchTool === "function"
-        ? opts.dispatchTool
-        : (name, input) => dispatchTriageTool(name, input),
+    dispatchTool: resolveDispatchTool(opts),
     modelId: opts.modelId || triageModelId(),
     maxOutputTokens:
       Number(opts.maxOutputTokens) ||
@@ -131,4 +148,4 @@ function createTriageSpecialist(opts = {}) {
   return { name: "triage-specialist", run };
 }
 
-module.exports = { createTriageSpecialist, TRIAGE_SYSTEM_PROMPT, triageModelId };
+module.exports = { createTriageSpecialist, TRIAGE_SYSTEM_PROMPT, triageModelId, resolveDispatchTool };

@@ -69,9 +69,9 @@ registerDailyBriefTrigger(receiver);
 // Admission → #nurse-triage HTTP trigger. An admission event POSTs here; the
 // multi-agent layer announces the patient and posts a ranked nurse recommendation.
 // No-ops unless TRIAGE_ADMISSION_SECRET is set, and refuses to post unless
-// AGENTS_ENABLED=1. Needs the Bolt `app` for client.chat.postMessage.
-// See src/jobs/triageAdmissionTrigger.js.
-registerTriageAdmissionTrigger(receiver, { app });
+// AGENTS_ENABLED=1. Resolves the workspace bot token itself (OAuth install store),
+// so it doesn't need the Bolt app. See src/jobs/triageAdmissionTrigger.js.
+registerTriageAdmissionTrigger(receiver);
 
 // function_executed: Bolt skips the immediate Events API ack and relies on app.function's autoAcknowledge,
 // which runs after other global middleware. That can exceed Slack's HTTP ack window while Vertex runs.

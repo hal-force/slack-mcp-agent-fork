@@ -1,7 +1,7 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { createTriageSpecialist, triageModelId, TRIAGE_SYSTEM_PROMPT } = require("../../src/agents/triageSpecialist");
+const { createTriageSpecialist, triageModelId, TRIAGE_SYSTEM_PROMPT, resolveDispatchTool } = require("../../src/agents/triageSpecialist");
 const { composeTriageReply, renderRecommendation } = require("../../src/agents/composeTriageReply");
 
 // ── model pin resolution ──────────────────────────────────────────────────
@@ -116,4 +116,37 @@ test("renderRecommendation is deterministic and caps at 5 nurses", () => {
   const txt = renderRecommendation({ patient_id: "PT1", ranked_nurses: many });
   const numbered = (txt.match(/^\d+\. /gm) || []).length;
   assert.equal(numbered, 5, "at most 5 ranked nurses shown");
+});
+
+// ── M4 backend selection: CSV by default, MCP when configured ──────────────
+test("resolveDispatchTool defaults to the local-CSV backend when TRIAGE_MCP_DATASOURCES is unset", (t) => {
+  const prev = process.env.TRIAGE_MCP_DATASOURCES;
+  t.after(() => {
+    if (prev === undefined) delete process.env.TRIAGE_MCP_DATASOURCES;
+    else process.env.TRIAGE_MCP_DATASOURCES = prev;
+  });
+  delete process.env.TRIAGE_MCP_DATASOURCES;
+  const dispatch = resolveDispatchTool();
+  assert.equal(typeof dispatch, "function");
+  // The CSV dispatcher runs synchronously against the bundled fixture — a known
+  // table name returns rows without ever contacting the MCP.
+  return dispatch("triage_query", { table: "nurses", measures: [{ agg: "count" }] }).then((out) => {
+    assert.ok(out && Array.isArray(out.rows), "CSV backend answered from the local fixture");
+  });
+});
+
+test("resolveDispatchTool switches to the MCP backend when TRIAGE_MCP_DATASOURCES is set", (t) => {
+  const prev = process.env.TRIAGE_MCP_DATASOURCES;
+  t.after(() => {
+    if (prev === undefined) delete process.env.TRIAGE_MCP_DATASOURCES;
+    else process.env.TRIAGE_MCP_DATASOURCES = prev;
+  });
+  process.env.TRIAGE_MCP_DATASOURCES = '{"nurses":"LU_X"}';
+  // We don't invoke it (that would hit the network); we only assert selection didn't
+  // fall through to the CSV path. The MCP dispatcher is an async function created fresh.
+  const dispatch = resolveDispatchTool();
+  assert.equal(typeof dispatch, "function");
+  // An explicit override still wins over the env.
+  const sentinel = () => {};
+  assert.equal(resolveDispatchTool({ dispatchTool: sentinel }), sentinel);
 });

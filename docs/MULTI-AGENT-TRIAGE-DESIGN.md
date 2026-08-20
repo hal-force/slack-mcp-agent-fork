@@ -378,11 +378,49 @@ can be written to these rules at M2.
      could mis-score a live run.
    - Full suite **236/236 green** (was 204). Live specialist-vs-baseline scoring is
      M4 (needs the pinned Sonnet 5 + published datasources).
-3. **M3 — recommendation mode + Slack card:** operational "which nurse" surface
-   in `#nurse-triage` (admission → ranked recommendation).
-4. **M4 — publish datasources via Prep Agent skill + live run** against the MCP;
-   swap the triage tools' local-CSV backend for the Tableau MCP; score a live
-   transcript (specialist vs. baseline).
+3. **M3 — recommendation mode + Slack card:** ✓ DONE (2026-08-19). Operational
+   "which nurse" surface in `#nurse-triage`: a secret-gated HTTP trigger
+   `src/jobs/triageAdmissionTrigger.js` (`POST /triage/admission/<secret>`,
+   `safeEqual` path secret, refuses to arm without the secret env, 404 on a bad
+   secret, 409 when `AGENTS_ENABLED` is off, fast-ack 200 then background work,
+   injectable handler for tests) → runs the specialist in recommendation mode and
+   posts the ranked-nurse card via `client.chat.postMessage`. Wired in `index.js`
+   (needs the Bolt `app`); `TRIAGE_ADMISSION_SECRET` / `TRIAGE_CHANNEL_ID` in
+   `.env.example`. Tests: `tests/triageAdmissionTrigger.test.js` (6).
+4. **M4 — publish datasources via Prep Agent skill + live run:** ✓ DONE (2026-08-20).
+   - **M4a** MCP backend `src/agents/triageMcpData.js`: pre-fetches all 8 tables
+     once per turn into `{table: rows[]}` and delegates to the UNCHANGED
+     `dispatchTriageTool({tables})` — tools + prompt untouched. Selected at runtime
+     by `resolveDispatchTool` (CSV default; Tableau MCP when `TRIAGE_MCP_DATASOURCES`
+     is set; explicit override always wins).
+   - **M4b/M4c** Published 8 passthrough datasources to Tableau Cloud `usfederaldemos`
+     (project "50 - Nurse Triage Ops Demo") via the `tableau-prep-etl` skill, from a
+     spec whose `patients` source is the FILTERED CSV (no `mean_skill_match_pct`).
+     Invariant verified on the live DS: `patients` has 16 fields, forbidden column
+     absent; belt-and-suspenders strip on read retained. See
+     `[[triage-datasources-published]]` in memory for LUIDs + recipe.
+   - **Two live-only bugs found & fixed during M4d** (the offline mock couldn't
+     surface either): (1) `loadTablesFromMcp` fired all 8 fetches via `Promise.all`
+     and collided on the single-PAT MCP session (concurrent Tableau signins
+     terminate each other → only the race-winner returned rows) — now **sequential**;
+     (2) `parseMetadataCaptions` didn't read the real Tableau v4 VDS
+     `{fieldGroups:[{fields:[{name}]}]}` shape — now handled. Two regression tests
+     added. Suite **263/263 green** (was 261).
+   - **M4d live scoring** (pinned Sonnet 5, MCP-backed, real Bedrock): the specialist
+     reproduced both planted effects exactly through the live datasources (AI 75.0 /
+     Manual 33.1; adverse 17.1 / 27.9). **Specialist 87.5/100 vs single-call baseline
+     17.5/100 (+70 pp).** HONEST read of the gap: 75 of the 100 points are the
+     structured effect criteria, which the baseline auto-zeros because it emits **no
+     `json` block** (it is the general Slack assistant, not contracted to) — its
+     *prose* did find effect 1 (q1) and handle acuity confounding (q2), so the raw
+     gap overstates pure analytic skill. Two findings are genuine, not scoring
+     artefacts: the baseline lost the thread on the open-ended synthesis question
+     (asked which catalog dataset was meant — it queries the whole tenant, not a
+     scoped tool surface), and the **specialist over-claimed two planted nulls**
+     (`unit_risk`, `age`) as real effects, scoring only 2.5/15 on traps vs the
+     baseline's 7.5/15-by-silence. That over-claim is precisely the failure mode the
+     deferred adversarial-Reviewer slice is meant to catch.
 
-Later slices (separate docs): Reviewer adversarial gate, Analyst/Writer split,
-channel-scoped personas, then the event-driven/case-management primitives.
+Later slices (separate docs): Reviewer adversarial gate (directly motivated by the
+M4d trap over-claim above), Analyst/Writer split, channel-scoped personas, then the
+event-driven/case-management primitives.

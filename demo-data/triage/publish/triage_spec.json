@@ -1,0 +1,169 @@
+{
+  "request": "Publish the synthetic nurse-triage operations fixture to Tableau as 8 independent passthrough published data sources (one per table: patients, nurses, nurse_skills, patient_required_skills, assignments, unit_snapshots, clinical_notes, skills_reference). NO joins and NO transforms: the downstream triage analysis agent queries each table on its own LUID via the Tableau MCP and deliberately never fans the skill bridges out, so each table must stay a separate 1:1 source. The patients source is the FILTERED csv with mean_skill_match_pct removed (a validation aid that would let the agent read a planted effect off a circular column). All data is SYNTHETIC (data_classification=SYNTHETIC on every row). Target the usfederaldemos Prep Agent demo collection.",
+  "sources": [
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/publish/patients_filtered.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Patients",
+      "description": "SYNTHETIC nurse-triage fixture: one row per patient admission (acuity, diagnosis, comorbidity, length of stay, adverse-outcome flag). mean_skill_match_pct is intentionally EXCLUDED (validation aid). Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/out/nurses.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Nurses",
+      "description": "SYNTHETIC nurse-triage fixture: one row per nurse (home unit, certification, experience, shift pattern, max caseload, skill count). Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/out/nurse_skills.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Nurse Skills",
+      "description": "SYNTHETIC nurse-triage fixture: the nurse→skill bridge (one row per nurse per skill). Kept as its own source so the analysis agent never fans it into patients or assignments. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/out/patient_required_skills.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Patient Required Skills",
+      "description": "SYNTHETIC nurse-triage fixture: the patient→required-skill bridge (one row per patient per required skill). Kept separate to avoid row fan-out. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/out/assignments.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Assignments",
+      "description": "SYNTHETIC nurse-triage fixture: one row per nurse×patient×shift assignment (assignment_method AI-Recommended|Manual, skill_match_pct, workload_score, caseload_at_assignment). The honest source for the skill-match analysis. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/out/unit_snapshots.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Unit Snapshots",
+      "description": "SYNTHETIC nurse-triage fixture: hourly per-unit census/occupancy/ratio/risk snapshots. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/out/clinical_notes.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Clinical Notes",
+      "description": "SYNTHETIC nurse-triage fixture: free-text H&P/progress/discharge notes for some patients, internally consistent with the structured record. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/triage/out/skills_reference.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "Triage Skills Reference",
+      "description": "SYNTHETIC nurse-triage fixture: the skill taxonomy (skill_id → name, category). Advisory demo data only."
+    }
+  ],
+  "transformations": [],
+  "outputs": [
+    {
+      "kind": "published_data_source",
+      "name": "Triage Patients",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA — NOT real patient data. One row per patient admission for the AI-assisted nurse-assignment demo. mean_skill_match_pct is deliberately excluded so downstream analysis can't read a planted effect off a circular validation column.",
+      "source": "Triage Patients",
+      "project": "50 - Nurse Triage Ops Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "Triage Nurses",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. One row per nurse for the AI-assisted nurse-assignment demo.",
+      "source": "Triage Nurses",
+      "project": "50 - Nurse Triage Ops Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "Triage Nurse Skills",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Nurse→skill bridge for the AI-assisted nurse-assignment demo.",
+      "source": "Triage Nurse Skills",
+      "project": "50 - Nurse Triage Ops Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "Triage Patient Required Skills",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Patient→required-skill bridge for the AI-assisted nurse-assignment demo.",
+      "source": "Triage Patient Required Skills",
+      "project": "50 - Nurse Triage Ops Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "Triage Assignments",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. One row per nurse×patient×shift assignment for the AI-assisted nurse-assignment demo.",
+      "source": "Triage Assignments",
+      "project": "50 - Nurse Triage Ops Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "Triage Unit Snapshots",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Hourly per-unit census/occupancy/risk snapshots for the AI-assisted nurse-assignment demo.",
+      "source": "Triage Unit Snapshots",
+      "project": "50 - Nurse Triage Ops Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "Triage Clinical Notes",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Free-text clinical notes for the AI-assisted nurse-assignment demo.",
+      "source": "Triage Clinical Notes",
+      "project": "50 - Nurse Triage Ops Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "Triage Skills Reference",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Skill taxonomy for the AI-assisted nurse-assignment demo.",
+      "source": "Triage Skills Reference",
+      "project": "50 - Nurse Triage Ops Demo"
+    }
+  ],
+  "qa_tier": "none",
+  "eval_strategy": "self_consistency",
+  "deployment": "tableau_server",
+  "refresh_cadence": "daily",
+  "parameterize_query": false,
+  "server_publish": {
+    "project": "50 - Nurse Triage Ops Demo",
+    "parent_project": "Prep Agent",
+    "flow_name": "Nurse Triage Ops Fixture",
+    "overwrite": true,
+    "cadence": "daily",
+    "hour_utc": 8,
+    "minute_utc": 0,
+    "schedule_name_hint": "Nurse Triage Ops Daily Refresh"
+  },
+  "confidence": 1.0,
+  "open_questions": []
+}

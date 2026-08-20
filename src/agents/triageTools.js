@@ -304,10 +304,30 @@ function runSkillGap(input, tables) {
 
 // ── nurses on shift (recommendation support) ─────────────────────────────────
 
+/**
+ * CURRENT caseload per nurse = assignments on that nurse's MOST RECENT shift, not
+ * every assignment they have ever had. The assignments table is a month-long log
+ * (hundreds of shifts), so a naive count yields absurd loads (100+), which both
+ * reads as broken on the recommendation card and corrupts the ranker's workload
+ * penalty (every nurse clamps to a full load, so the penalty cancels out and the
+ * ranking degenerates to skill-match-only). We take each nurse's latest shift_start
+ * and count only the assignments on it. When shift_start is absent (mini fixtures),
+ * all of a nurse's rows share an undefined "latest shift" and are counted — the
+ * previous behaviour, so small fixtures are unaffected.
+ */
 function nurseCaseload(tables) {
+  const assignments = tables.assignments || [];
+  const latestShift = new Map();
+  for (const a of assignments) {
+    const s = a.shift_start;
+    const cur = latestShift.get(a.nurse_id);
+    if (cur === undefined || String(s) > String(cur)) latestShift.set(a.nurse_id, s);
+  }
   const m = new Map();
-  for (const a of tables.assignments || []) {
-    m.set(a.nurse_id, (m.get(a.nurse_id) || 0) + 1);
+  for (const a of assignments) {
+    if (a.shift_start === latestShift.get(a.nurse_id)) {
+      m.set(a.nurse_id, (m.get(a.nurse_id) || 0) + 1);
+    }
   }
   return m;
 }

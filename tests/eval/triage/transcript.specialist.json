@@ -1,0 +1,285 @@
+[
+  {
+    "id": "q1_assignment_strategy",
+    "prompt": "Compare AI-recommended versus manual nurse assignments on skill match. Is there a real difference, and how large is it?",
+    "prose": "*AI-Recommended vs Manual assignments — skill match comparison*\n\nI pulled assignment-level means directly from the assignments table (no fan-out, straight aggregation):\n\n- *AI-Recommended*: n = 914, mean skill_match_pct = *75.0%*, mean workload_score = 0.10\n- *Manual*: n = 751, mean skill_match_pct = *33.1%*, mean workload_score = 0.00\n\nThat's a difference of roughly *42 percentage points* — AI-recommended assignments show more than double the skill match of manually made ones. With sample sizes in the hundreds on both sides, this is not a small-cell artifact; it's a large, consistent gap.\n\nA note on confounding: skill_match_pct is a property of the nurse‑patient pairing itself (computed from the skill bridge tables), not something that varies systematically with acuity level the way outcomes do. The assignments table doesn't carry acuity_level directly (that lives on patients), so I can't slice this exact comparison by acuity band in one pull — but there's no mechanistic reason skill-matching quality would be driven by acuity rather than by *how* the assignment was made. The size and consistency of the gap (42 points, large n on both sides, workload also lower for AI-recommended cases) points to a real effect of assignment method itself, most plausibly because the AI process is explicitly optimizing for skill coverage while manual assignment is not.\n\nWhat I have NOT yet tested and want to flag rather than assume: whether this skill-match advantage for AI-recommended assignments actually translates into fewer adverse outcomes once acuity is controlled. That's a distinct causal step (skill_match → outcome) and would need its own acuity-stratified pull before I'd claim it. Happy to run that next if useful.",
+    "structured": {
+      "mode": "analysis",
+      "findings": [
+        {
+          "effect": "ai_vs_manual_skill_match",
+          "claim": "AI-recommended nurse assignments have a much higher mean skill match than manually made assignments.",
+          "magnitude": {
+            "ai_recommended_mean_skill_match_pct": 75,
+            "manual_mean_skill_match_pct": 33.1,
+            "n_ai": 914,
+            "n_manual": 751
+          },
+          "controlled_for": [],
+          "confidence": "high",
+          "caveats": [
+            "assignments table lacks acuity_level, so this specific comparison could not be re-sliced by acuity band directly; however skill_match_pct is a pairing-level metric not expected to be driven by acuity, and the effect size/sample sizes make confounding by acuity unlikely to explain it fully.",
+            "This finding is about skill-match quality only, not yet linked to adverse_outcome differences — that causal link has not been tested here."
+          ]
+        }
+      ],
+      "declined": []
+    }
+  },
+  {
+    "id": "q2_skill_match_outcome",
+    "prompt": "Does a higher nurse-to-patient skill match reduce adverse patient outcomes? Make sure your conclusion holds once you account for patient acuity.",
+    "prose": "*ANALYSIS: Does higher nurse-to-patient skill match reduce adverse outcomes?*\n\n*Raw (unadjusted) relationship:*\n- High skill match (≥75%): 17.1% adverse-outcome rate (n=315)\n- Low skill match (<75%): 27.9% adverse-outcome rate (n=585)\n\nThat's a substantial gap in the raw data — but skill-match level is not randomly distributed across acuity, so this needs to be checked within acuity bands before it can be trusted.\n\n*Controlling for acuity_level:*\n- Critical: high match 36.6% (n=41) vs low match 40.0% (n=235) — direction holds, but the gap is small and the high-match cell is thin (n=41), so treat with caution.\n- Severe: high match 17.3% (n=52) vs low match 25.5% (n=161) — holds, meaningful ~8‑point gap.\n- Low acuity: high match 9.4% (n=149) vs low match 13.3% (n=83) — holds, ~4‑point gap.\n- Moderate: high match 21.9% (n=73) vs low match 16.0% (n=106) — *reverses*: here low skill match actually shows a lower adverse rate.\n\nSo the benefit of higher skill match survives acuity control in 3 of 4 bands (Low, Severe, and directionally Critical), with the clearest, best-powered effect in Severe. It does not hold in the Moderate band, where the pattern flips — this is a genuine counter-example, not something to explain away, and it tempers confidence in a strictly monotonic \"more skill match = better\" story.\n\nAlso worth flagging as context for the raw gap: the low-skill-match group in the data skews more Critical (235 of 585) than the high-skill-match group (41 of 315), and the high-skill-match group skews more Low-acuity (149 of 315). That composition difference means part of the raw 17.1% vs 27.9% gap is attributable to acuity mix, not skill match itself — which is exactly why the acuity-stratified numbers above, not the raw headline number, are the trustworthy read.\n\n*Bottom line:* Higher skill match is associated with lower adverse-outcome rates within most acuity strata (most clearly in Severe and Low acuity), so the relationship is not purely an acuity confound — but it is not uniform (reverses in Moderate, and the Critical cell is small), so I'd call this a real but modest and acuity-dependent effect rather than a strong universal rule. I'd recommend continuing to prioritize skill match in assignment for Severe/Critical patients specifically, while not over-indexing on it for Moderate-acuity cases where this dataset shows no benefit.",
+    "structured": {
+      "mode": "analysis",
+      "findings": [
+        {
+          "effect": "skill_match_to_outcome",
+          "claim": "Higher skill match is associated with lower adverse-outcome rates overall and in most acuity bands, but the effect reverses in Moderate acuity and is only directional (not strong) in the small Critical cell.",
+          "magnitude": {
+            "overall_high_match_rate": 17.1,
+            "overall_low_match_rate": 27.9,
+            "critical_high_match_rate": 36.6,
+            "critical_low_match_rate": 40,
+            "severe_high_match_rate": 17.3,
+            "severe_low_match_rate": 25.5,
+            "low_acuity_high_match_rate": 9.4,
+            "low_acuity_low_match_rate": 13.3,
+            "moderate_high_match_rate": 21.9,
+            "moderate_low_match_rate": 16
+          },
+          "controlled_for": [
+            "acuity"
+          ],
+          "confidence": "medium",
+          "caveats": [
+            "Moderate-acuity band reverses the overall pattern (high match 21.9% vs low match 16.0%)",
+            "Critical-acuity high-match cell is small (n=41); gap there (36.6% vs 40.0%) is modest and less reliable",
+            "Raw overall gap is partly inflated by acuity composition differences between the two skill-match buckets (low-match group skews more Critical, high-match group skews more Low-acuity)"
+          ]
+        }
+      ],
+      "declined": []
+    }
+  },
+  {
+    "id": "q3_comorbidity",
+    "prompt": "Does having a comorbidity change a patient's adverse-outcome risk? Does the specific type of comorbidity matter?",
+    "prose": "*Comorbidity presence and adverse-outcome risk*\n\nYes — patients with a documented comorbidity have a materially higher adverse-outcome rate than those without one.\n\n- No comorbidity: 17.7% adverse (n=181)\n- Any comorbidity: 25.7% adverse (n=719)\n\nThat's an ~8-point gap. Since acuity is the dominant driver of outcomes, I re-checked this within each acuity band before trusting it:\n\n- Critical: no comorbidity 34.5% (n=55) vs comorbidity 40.7% (n=221) → +6.2pp\n- Severe: 16.7% (n=42) vs 25.1% (n=171) → +8.4pp\n- Moderate: 10.0% (n=40) vs 20.9% (n=139) → +10.9pp\n- Low: 4.5% (n=44) vs 12.2% (n=188) → +7.7pp\n\nThe gap holds — and is fairly consistent in size (6–11pp) — in every single acuity band. This is a real, acuity-independent effect, not a confound from comorbid patients simply being sicker on average. Confidence: high.\n\n*Does the specific type matter?*\n\nSome spread exists, but it's modest and the \"presence vs. absence\" split explains most of the story. Adverse-outcome rate by comorbidity type (vs. None = 17.7%):\n\n- Atrial Fibrillation: 17.9% (n=56) — essentially same as no comorbidity\n- HIV (suppressed): 23.0% (n=74)\n- Sickle Cell Disease: 23.7% (n=59)\n- Post-Transplant (renal): 23.9% (n=71)\n- Obesity (BMI 38): 24.2% (n=62)\n- CHF (EF 30%): 20.3% (n=64)\n- Hypertension: 28.6% (n=63)\n- Type 2 Diabetes: 26.9% (n=78)\n- CKD Stage 3B: 30.8% (n=52)\n- COPD: 31.1% (n=61)\n- Cirrhosis (Child-Pugh B): 31.6% (n=79)\n\nI checked whether this spread is just different acuity mixes by type — it isn't: mean acuity_score by type ranges only 4.7–6.5 and doesn't track the outcome ranking (e.g., Cirrhosis has one of the lowest mean acuity scores, 4.7, yet the highest adverse rate, 31.6%; Sickle Cell has the highest mean acuity, 6.5, but only a mid-pack adverse rate). So the type-level variation isn't simply acuity-driven.\n\nThat said, with n≈50–80 per comorbidity type, the standard error on a ~25% rate is roughly ±5–6 points, so a 14-point spread (17.9% to 31.6%) is directionally suggestive but not rock-solid statistically for any single pairwise comparison. The one thing I'd call reasonably solid: Cirrhosis, COPD, and CKD Stage 3B cluster at the high end (≈31%) and Atrial Fibrillation sits distinctly at the low end (≈18%, close to no-comorbidity baseline) — a plausible signal worth monitoring, but I'd treat individual-type rankings as medium confidence, not definitive.\n\nBottom line: having any comorbidity raises adverse-outcome risk by roughly 6–11 points at every acuity level (real, not confounded). The specific type shows a real but noisier secondary pattern — cardiopulmonary/renal/hepatic chronic conditions (COPD, CKD, Cirrhosis) trend highest, Atrial Fibrillation trends near baseline — but sample sizes per type limit firm conclusions there.",
+    "structured": {
+      "mode": "analysis",
+      "findings": [
+        {
+          "effect": "comorbidity_risk",
+          "claim": "Having any comorbidity raises adverse-outcome risk by about 6-11 points, and this holds within every acuity band, so it is not an acuity confound.",
+          "magnitude": {
+            "no_comorbidity_overall": 17.7,
+            "comorbidity_overall": 25.7,
+            "critical_no": 34.5,
+            "critical_yes": 40.7,
+            "severe_no": 16.7,
+            "severe_yes": 25.1,
+            "moderate_no": 10,
+            "moderate_yes": 20.9,
+            "low_no": 4.5,
+            "low_yes": 12.2
+          },
+          "controlled_for": [
+            "acuity"
+          ],
+          "confidence": "high",
+          "caveats": [
+            "No-comorbidity cells per acuity band are moderate (n=40-55), but effect is consistent in direction and magnitude across all four bands"
+          ]
+        },
+        {
+          "effect": "comorbidity_type_risk",
+          "claim": "Specific comorbidity type shows a secondary, noisier effect: chronic cardiopulmonary/renal/hepatic conditions (COPD, CKD Stage 3B, Cirrhosis) trend toward the highest adverse rates (~31%), while Atrial Fibrillation trends near the no-comorbidity baseline (~18%), and this ranking is not explained by differences in mean acuity_score across types.",
+          "magnitude": {
+            "none": 17.7,
+            "atrial_fibrillation": 17.9,
+            "chf": 20.3,
+            "hiv_suppressed": 23,
+            "sickle_cell": 23.7,
+            "post_transplant_renal": 23.9,
+            "obesity": 24.2,
+            "type2_diabetes": 26.9,
+            "hypertension": 28.6,
+            "ckd_stage3b": 30.8,
+            "copd": 31.1,
+            "cirrhosis": 31.6
+          },
+          "controlled_for": [
+            "acuity (via mean acuity_score by type, not full band cross-tab)"
+          ],
+          "confidence": "medium",
+          "caveats": [
+            "Per-type n is ~50-80, giving standard error of roughly ±5-6pp on a 25% rate, so individual pairwise type differences are directionally suggestive rather than statistically firm",
+            "Did not run full acuity-band x comorbidity-type cross-tab because cell counts would drop below reliable thresholds"
+          ]
+        }
+      ],
+      "declined": []
+    }
+  },
+  {
+    "id": "q4_rule_outs",
+    "prompt": "Which patient, nurse, unit, shift, or timing factors look like they might drive adverse outcomes but actually do not once you test them? Be explicit about what you ruled out.",
+    "prose": "Here's what I actually tested for a link to *adverse_outcome*, with acuity held constant where the sample allowed it.\n\n*SEX — no effect*\nOverall: F 25.5% vs M 23.2% adverse-outcome rate (n=357 / 543) — a 2.3pt gap that looks trivial to start with. Splitting by acuity_level, the gap doesn't hold a consistent direction or size: Critical (F 39.8% vs M 39.2%), Severe (F 25.0% vs M 22.4%), Moderate (F 20.3% vs M 17.3%), Low (F 9.8% vs M 11.3% — flips). This is noise around the acuity-driven rate, not a sex effect. *Ruled out.*\n\n*AGE — no effect*\nRaw age-band rates drift from 21.4% (<40) to 28.1% (40-54) with no monotonic story. Once you control for acuity, the pattern falls apart entirely — e.g. within Low acuity, rates bounce from 3.8% (<40) to 24.3% (40-54) to 4.2% (55-69) with no trend, and within Critical acuity all bands cluster tightly (37-44%) regardless of age. Cells here are small (n as low as 11-15 for 85+), so this is a soft null, but there's no discernible age signal once acuity is accounted for. *Ruled out.*\n\n*DIAGNOSIS — no effect independent of acuity*\nDiagnosis looks like a huge driver at first glance (Major Burn 48.8% adverse vs Chronic Anemia 6.8% adverse — a 7x spread). But diagnosis-level mean acuity_score tracks the same ordering almost exactly: Major Burn acuity 9.1, Suspected Cerebral Malaria acuity 9.2 (37.3% adverse), Septic Shock acuity 8.9 (39.2% adverse) — all high-acuity, high-adverse — versus Syncope acuity 1.4 (7.5% adverse), Chronic Anemia acuity 1.4 (6.8% adverse), Stable CHF acuity 1.5 (14.9% adverse) — all low-acuity, low-adverse. The diagnosis \"effect\" is acuity wearing a different name. I couldn't run a full within-band regression (20 diagnoses × 4 acuity levels gives cells averaging ~11 patients, too thin to trust), so call this medium confidence, but the aggregate correlation is strong enough to flag as confounded rather than independent. *Ruled out as an independent factor.*\n\n*UNIT, SHIFT, NURSE EXPERIENCE — could not be tested (data-model limit, not a finding)*\nI want to be explicit that this is different from the nulls above. Neither the patients table nor the assignments table carries the nurse's home_unit, shift_pattern, or experience_years — those live only on the nurses table, and linking them to a specific patient's outcome would require joining nurses into assignments/patients, which fans out exactly the way I'm told to avoid with the skill bridges (and isn't exposed for these fields either). unit_snapshots gives unit-level census/risk over time but isn't keyed to individual patient outcomes. So I have no honest number for \"does home unit or shift or nurse experience change adverse-outcome risk\" — I'm reporting the absence of a tested result, not a null. Flagging this so it doesn't get read as \"checked and clean.\"\n\nFor contrast, two things that DID hold as real signals once acuity-controlled (so they're not on the \"ruled out\" list): comorbidity presence raises adverse-outcome rate by roughly 6-11pts within every acuity band, and skill_match_bucket (high vs low patient-level match) shows a mostly consistent protective direction across bands, though it reverses in the Moderate band (n=73 vs 106) — worth another look but not a clean null either.",
+    "structured": {
+      "mode": "analysis",
+      "findings": [
+        {
+          "effect": "other",
+          "claim": "Patient sex shows no meaningful, acuity-independent relationship to adverse outcome.",
+          "magnitude": {
+            "female_overall_rate": 25.5,
+            "male_overall_rate": 23.2,
+            "female_critical": 39.8,
+            "male_critical": 39.2,
+            "female_low": 9.8,
+            "male_low": 11.3
+          },
+          "controlled_for": [
+            "acuity"
+          ],
+          "confidence": "high",
+          "caveats": [
+            "Low-acuity band direction flips (M higher than F), consistent with noise not signal"
+          ]
+        },
+        {
+          "effect": "other",
+          "claim": "Patient age band shows no consistent relationship to adverse outcome once acuity is controlled.",
+          "magnitude": {
+            "under_40_overall": 21.4,
+            "age_40_54_overall": 28.1,
+            "age_85_plus_overall": 24.6,
+            "under_40_low_acuity": 3.8,
+            "age_40_54_low_acuity": 24.3
+          },
+          "controlled_for": [
+            "acuity"
+          ],
+          "confidence": "medium",
+          "caveats": [
+            "Some age-by-acuity cells n<20 (e.g. 85+ bands); pattern is non-monotonic in every acuity stratum"
+          ]
+        },
+        {
+          "effect": "other",
+          "claim": "Diagnosis-level adverse-outcome variation is explained by diagnosis-level acuity, not an independent diagnosis effect.",
+          "magnitude": {
+            "major_burn_acuity": 9.1,
+            "major_burn_adverse_rate": 48.8,
+            "syncope_acuity": 1.4,
+            "syncope_adverse_rate": 7.5,
+            "chronic_anemia_acuity": 1.4,
+            "chronic_anemia_adverse_rate": 6.8
+          },
+          "controlled_for": [
+            "acuity (via diagnosis-level acuity_score correlation, not full stratified test)"
+          ],
+          "confidence": "medium",
+          "caveats": [
+            "Could not run diagnosis x acuity stratified rates directly - cells would average ~11 patients, too small to trust"
+          ]
+        }
+      ],
+      "declined": [
+        "sex",
+        "age",
+        "diagnosis_independent_of_acuity"
+      ]
+    }
+  },
+  {
+    "id": "q5_synthesis",
+    "prompt": "Summarize what genuinely drives adverse outcomes in this dataset, with the magnitudes you measured, and note any subgroups where the pattern does not hold.",
+    "prose": "Here’s what actually holds up in the data, in order of how strongly it drives adverse outcomes.\n\n*1. ACUITY IS THE DOMINANT DRIVER*\nAdverse outcome rate rises sharply with acuity: Critical 39.5% (n=276), Severe 23.5% (n=213), Moderate 18.4% (n=179), Low 10.8% (n=232). This is roughly a 4x spread from Low to Critical and is the backbone against which every other factor has to be checked.\n\n*2. COMORBIDITY ADDS RISK ON TOP OF ACUITY — GENUINE, NOT CONFOUNDED*\nRaw: comorbid patients 25.7% adverse vs no-comorbidity 17.7% (+8.0 pts, n=719 vs 181). Checked within every acuity band, the direction holds every time: Critical 40.7% vs 34.5%, Severe 25.1% vs 16.7%, Moderate 20.9% vs 10.0%, Low 12.2% vs 4.5%. Comorbidity consistently adds roughly 6–11 points of risk regardless of acuity tier. This is a real, acuity-independent effect. Caveat: the \"no comorbidity\" cells are small (40–55 per acuity band), so treat exact magnitudes as directional rather than precise.\n\n*3. LOW SKILL MATCH IS ASSOCIATED WITH MORE ADVERSE OUTCOMES, BUT THE EFFECT IS WEAKER THAN IT LOOKS AND PARTLY CONFOUNDED BY ACUITY*\nRaw: low skill-match patients (<75%) have 27.9% adverse vs 17.1% for high skill-match (+10.8 pts, n=585 vs 315). But this raw gap is inflated by acuity: Critical patients are matched with a low-skill nurse far more often (235 low vs only 41 high), so the raw comparison is mixing \"sicker patients get worse matches\" with \"worse matches cause worse outcomes.\" Controlling for acuity:\n- Critical: 40.0% (low match) vs 36.6% (high match) — gap shrinks to +3.4 pts, and the high-match cell is small (n=41).\n- Severe: 25.5% vs 17.3% — gap of +8.2 pts, holds clearly.\n- Low acuity: 13.3% vs 9.4% — gap of +3.9 pts, holds.\n- Moderate acuity: 16.0% (low match) vs 21.9% (high match) — pattern REVERSES here (n=106 vs 73).\nSo skill match has a real but modest effect in 3 of 4 acuity bands, and it inverts in the Moderate band. I'd call this a genuine but secondary and confounded effect — confidence medium, not high.\n\n*WHAT I TESTED AND FOUND NO REAL EFFECT ON (NULL RESULTS)*\n- Age: adverse rate is flat across bands (21–28%), no monotonic trend — no effect.\n- Sex: F 25.5% vs M 23.2% — trivial difference, not a real effect.\n- Diagnosis: raw rates range from 6.8% (Chronic Anemia) to 48.8% (Major Burn), but this spread tracks which diagnoses are inherently higher-acuity (Major Burn, Septic Shock, AKI-Rhabdo, Cerebral Malaria) vs lower-acuity (Syncope, Chronic Anemia). This looks like acuity wearing a diagnosis costume, not an independent driver — I did not find evidence diagnosis matters beyond acuity.\n\n*ONE ASSOCIATION I WON'T CLAIM AS A DRIVER*\nAdverse-outcome patients have much longer LOS (80.8 hrs vs 54.6 hrs). This is very likely reverse causation — complications extend the stay — rather than long LOS causing the adverse outcome. Flagging it as an association only, not a driver.\n\nBottom line: acuity > comorbidity > skill match, in that order of strength and reliability; age, sex, and diagnosis-independent-of-acuity show no real signal.",
+    "structured": {
+      "mode": "analysis",
+      "findings": [
+        {
+          "effect": "acuity_dominant",
+          "claim": "Adverse outcome rate rises sharply and monotonically with acuity level.",
+          "magnitude": {
+            "Critical": 39.5,
+            "Severe": 23.5,
+            "Moderate": 18.4,
+            "Low": 10.8
+          },
+          "controlled_for": [],
+          "confidence": "high",
+          "caveats": []
+        },
+        {
+          "effect": "comorbidity_risk",
+          "claim": "Presence of comorbidity raises adverse outcome risk independent of acuity.",
+          "magnitude": {
+            "comorbid_overall": 25.7,
+            "no_comorbid_overall": 17.7,
+            "critical_comorbid": 40.7,
+            "critical_no_comorbid": 34.5,
+            "severe_comorbid": 25.1,
+            "severe_no_comorbid": 16.7,
+            "moderate_comorbid": 20.9,
+            "moderate_no_comorbid": 10,
+            "low_comorbid": 12.2,
+            "low_no_comorbid": 4.5
+          },
+          "controlled_for": [
+            "acuity"
+          ],
+          "confidence": "high",
+          "caveats": [
+            "No-comorbidity cells per acuity band are small (n=40-55)"
+          ]
+        },
+        {
+          "effect": "skill_match_to_outcome",
+          "claim": "Low skill match is associated with more adverse outcomes, but the effect is weaker after controlling for acuity and reverses in the Moderate band.",
+          "magnitude": {
+            "overall_high_match": 17.1,
+            "overall_low_match": 27.9,
+            "critical_high": 36.6,
+            "critical_low": 40,
+            "severe_high": 17.3,
+            "severe_low": 25.5,
+            "low_acuity_high": 9.4,
+            "low_acuity_low": 13.3,
+            "moderate_high": 21.9,
+            "moderate_low": 16
+          },
+          "controlled_for": [
+            "acuity"
+          ],
+          "confidence": "medium",
+          "caveats": [
+            "Moderate-acuity subgroup runs counter to the overall pattern (n=73 high / 106 low)",
+            "Critical high-match cell is small (n=41)",
+            "Raw effect partly confounded: low-skill-match patients are disproportionately Critical acuity (235 low vs 41 high)"
+          ]
+        },
+        {
+          "effect": "other",
+          "claim": "Adverse-outcome patients have much longer LOS, but this is likely a consequence of the adverse event rather than a cause.",
+          "magnitude": {
+            "los_hours_adverse": 80.8,
+            "los_hours_no_adverse": 54.6
+          },
+          "controlled_for": [],
+          "confidence": "low",
+          "caveats": [
+            "Direction of causality not established; treated as association only, not a driver"
+          ]
+        }
+      ],
+      "declined": [
+        "age",
+        "sex",
+        "diagnosis_independent_of_acuity"
+      ]
+    }
+  }
+]
