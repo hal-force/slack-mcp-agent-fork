@@ -78,6 +78,13 @@ const {
   positionCoversFunction,
   ALL_FUNCTIONS,
 } = require("./resolveUserPosition");
+const { metricView, viewDeepLink, fetchMetricViewImage } = require("./vhaMetricViews");
+const { postThreadFileUploads } = require("../slack/postThreadFileUploads");
+
+// Attach the per-metric Tableau view (deep link always; a rendered PNG when we
+// can reach the MCP). Live runs fetch+upload; a dry-run can opt in with
+// VHA_BRIEF_FETCH_VIEWS=1 to prove the image round-trip without DMing.
+const FETCH_VIEWS = process.env.VHA_BRIEF_FETCH_VIEWS === "1";
 
 const DATA_DIR =
   process.env.VHA_BRIEF_DATA_DIR ||
@@ -198,12 +205,18 @@ function composeBriefBody({ facility, positionResolution, latest, trigger, secti
     `:sunny: *${triggerLabel} — ${facility.facility_name}*  (${facility.visn}, ${facility.region})`,
     `_As of ${latest}. Role: ${posLabel}. ${sections.length} metric(s) need your attention._`,
   ];
-  for (const { snap, narrative } of sections) {
+  for (const { snap, narrative, viewLink, viewImage } of sections) {
     parts.push(
       `\n:rotating_light: *${snap.metric_caption}* — *${snap.rag_status}*` +
         (snap.alert_reason ? ` (${snap.alert_reason})` : ""),
       narrative,
     );
+    if (viewLink) {
+      // The rendered chart (when present) uploads under the message; the link is
+      // always offered so the user can open the live, interactive view.
+      const chart = viewImage ? "chart below · " : "";
+      parts.push(`:bar_chart: ${chart}<${viewLink}|Open ${snap.metric_caption} in Tableau>`);
+    }
   }
   return parts.join("\n");
 }
@@ -238,15 +251,32 @@ async function narrateSections({ rows, facility, dims, latest, ctx }) {
       narrative = `_(dry-run so-what placeholder)_  value ${snap.value} vs target ${snap.target}; ` +
         `${snap.status_change}; ${snap.alert_reason}.`;
     }
-    sections.push({ snap, narrative });
+
+    // Attach the metric's Tableau view. The deep link is pure (always available
+    // when the metric is mapped); the rendered PNG is fetched live (or in a
+    // dry-run opting into FETCH_VIEWS) and uploaded under the DM by deliver().
+    const vmap = metricView(snap.metric_key);
+    const viewLink = vmap ? viewDeepLink(vmap.contentUrl) : null;
+    let viewImage = null;
+    if (vmap && (ctx.web || FETCH_VIEWS)) {
+      viewImage = await fetchMetricViewImage(snap.metric_key, {
+        metricCaption: snap.metric_caption,
+        facilityName: facility.facility_name,
+        tableauMcpBaseUrl: ctx.tableauMcpBaseUrl,
+      });
+      console.log(`[vha-brief] view ${snap.metric_key}: link=${viewLink ? "yes" : "no"}, image=${viewImage ? `${viewImage.buffer.length}b` : "none"}`);
+    }
+    sections.push({ snap, narrative, viewLink, viewImage });
   }
   return sections;
 }
 
 /** Deliver a composed body to a user's DM (or preview in dry-run). */
-async function deliver({ userId, body, facility, ctx }) {
+async function deliver({ userId, body, facility, sections = [], ctx }) {
+  const images = sections.map((s) => s.viewImage).filter((v) => v && v.buffer);
   if (!ctx.web) {
-    console.log(`\n===== would DM ${userId} (${facility.facility_name}) =====\n${body}\n`);
+    const imgNote = images.length ? `\n[+ ${images.length} metric view PNG(s): ${images.map((i) => i.filename).join(", ")}]` : "";
+    console.log(`\n===== would DM ${userId} (${facility.facility_name}) =====\n${body}${imgNote}\n`);
     return true;
   }
   const opened = await ctx.web.conversations.open({ users: userId });
@@ -256,7 +286,22 @@ async function deliver({ userId, body, facility, ctx }) {
     return false;
   }
   const { text: notifyText, blocks } = ctx.mrkdwnStringToBlocks(body);
-  await ctx.web.chat.postMessage({ channel: dmChannel, text: notifyText, blocks, unfurl_links: false });
+  const posted = await ctx.web.chat.postMessage({ channel: dmChannel, text: notifyText, blocks, unfurl_links: false });
+
+  // Upload the rendered metric charts in a thread under the brief so the DM stays
+  // readable. Non-fatal: the brief text has already delivered, and each section
+  // still carries an "Open in Tableau" link even if the image upload fails.
+  if (images.length) {
+    try {
+      await postThreadFileUploads(ctx.web, {
+        channelId: dmChannel,
+        threadTs: posted?.ts || null,
+        uploads: images.map((i) => ({ buffer: i.buffer, filename: i.filename, title: i.title })),
+      });
+    } catch (err) {
+      console.error(`[vha-brief] metric-view upload failed for ${userId}: ${err?.message || err}`);
+    }
+  }
   return true;
 }
 
@@ -479,7 +524,7 @@ async function run({ ignoreHour = IGNORE_HOUR, dedupe = false, reason = "schedul
     const sections = await narrateSections({ rows, facility: sel.facility, dims, latest: sel.latest, ctx });
     const body = composeBriefBody({ facility: sel.facility, positionResolution: sel.positionResolution,
       latest: sel.latest, trigger: { kind: "scan" }, sections });
-    if (await deliver({ userId, body, facility: sel.facility, ctx })) {
+    if (await deliver({ userId, body, facility: sel.facility, sections, ctx })) {
       sent++;
       if (dedupe) {
         // Mark ONLY after a successful DM, so a post failure can retry next run.
@@ -535,7 +580,7 @@ async function runFromAlert(alert) {
   const sections = await narrateSections({ rows: sel.rows, facility: sel.facility, dims, latest: sel.latest, ctx });
   const body = composeBriefBody({ facility: sel.facility, positionResolution: sel.positionResolution,
     latest: sel.latest, trigger: { kind: "alert" }, sections });
-  const ok = await deliver({ userId: alert.userId, body, facility: sel.facility, ctx });
+  const ok = await deliver({ userId: alert.userId, body, facility: sel.facility, sections, ctx });
   return { sent: ok };
 }
 
