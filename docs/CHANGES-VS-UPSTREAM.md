@@ -17,8 +17,10 @@ answers questions in Slack, grounded in Slack conversation history and (optional
 Tableau server through the Model Context Protocol (MCP).
 
 The original is a solid starting point. This fork turned it into a **hardened, Tableau-focused,
-production-style deployment**. Across **17 commits** (~9,800 lines added, ~700 removed, 60 files),
-the changes fall into six themes:
+production-style deployment** — and then extended it from a *reactive* question-answering assistant
+into one that also delivers **proactive, role-targeted briefs** and coordinates **role-specialized
+agents**. Across **26 commits** (~35,800 lines added, ~700 removed, 155 files), the changes fall into
+eight themes:
 
 1. **A pluggable LLM backend** — run on AWS Bedrock (Claude), an internal gateway, or Google Vertex/Gemini.
 2. **A live Tableau tool-calling loop** — the assistant actually queries Tableau mid-answer, not just from a pre-fetched snapshot.
@@ -26,8 +28,12 @@ the changes fall into six themes:
 4. **Security hardening** — token encryption at rest, an SSRF guard, prompt-injection defenses, and per-user access scoping.
 5. **A health-check framework** — automated quality gates at deploy time and on an ongoing schedule.
 6. **Reliability and correctness fixes** — response truncation, datasource discovery, canvas errors, and a database-TLS outage.
+7. **Proactive, localized briefs** — a scheduled/event-driven job that DMs each user only the metrics they own for their facility, with the "so-what" and the metric's Tableau chart attached.
+8. **Multi-agent scaffolding** — a reusable `defineAgent` primitive, a flag-gated supervisor, and a first role-specialized **Triage Specialist** with an in-repo evaluation harness.
 
-The reference deployment (`damp-wave-30118`) runs the **AWS Bedrock / Claude Sonnet** backend.
+The reference deployment (`damp-wave-30118`) runs the **AWS Bedrock / Claude Sonnet** backend. Themes
+1–6 are the hardened chat/canvas assistant; themes 7–8 (the partner package) run behind their own
+env flags and triggers and do not change the baseline chat behavior.
 
 ---
 
@@ -146,12 +152,87 @@ than discovered through user complaints.
 
 ---
 
+## 7. Proactive, localized VHA brief (scheduled + event-driven)
+
+**Original:** the assistant was purely **reactive** — it answered when asked. Nothing reached out.
+
+**This fork:** a proactive briefing job (`src/jobs/vhaDailyBrief.js`) that delivers each user a DM
+containing **only the metrics they own, for their facility**, with a short "so-what" and the metric's
+Tableau chart attached. Every brief is a function of three independently-resolved inputs:
+
+- **TRIGGER — what fired.** Either a scheduled **daily scan** of flagged metrics (Heroku Scheduler)
+  or a reactive **datasource-refresh webhook** — Tableau Cloud pushes the app the moment new snapshot
+  data lands, which is the natural instant to (re)brief. A third path handles an inbound alert naming
+  a specific metric.
+- **POSITION — which metrics the user owns.** The user's Slack role/title maps to the metric
+  registry's owning functions, so a Quality Manager gets mortality + length-of-stay, an Access
+  Manager gets capacity, and a Director gets the whole facility. This is what turns a metric *dump*
+  into a role-relevant nudge.
+- **LOCATION — which facility.** Inferred from Slack timezone + identity (with an explicit binding
+  override for named users).
+
+**Per-metric Tableau views** (newest): each flagged metric section carries its own
+"Metric Target Select" view from a published Tableau workbook — an always-present *"Open in Tableau"*
+deep link plus a **rendered PNG** fetched via the `get-view-image` MCP tool and uploaded in a thread
+beneath the DM. View resolution is sequential (single-PAT-safe) and non-fatal: if a chart can't be
+rendered, the text brief and link still deliver. A single facility-filter hook (`viewFiltersForFacility`)
+is the one place to extend when the views gain a per-facility parameter.
+
+**Reliability details that make it safe to run unattended:**
+
+- **Durable, per-metric dedupe.** A Postgres ledger (`BriefDelivery`) records what was delivered.
+  A metric is re-sent only when it's **new or has worsened** (a content signature over its status /
+  value / change changed); an unchanged metric is suppressed. Rows are marked sent **only after a
+  successful DM**, so a failed post retries next run. It survives dyno restarts and is **fail-open**
+  — if the database is unavailable, briefs still deliver.
+- **Injection fencing carried through.** Untrusted action-plan free text stays inside the same
+  injection-fenced context path as the chat assistant, so a planted instruction in a plan note can't
+  hijack the brief.
+
+**Why it matters:** this is the shift from "ask and receive" to "the right person is told the one
+thing that changed, in their lane, with the chart — automatically."
+
+---
+
+## 8. Multi-agent scaffolding + Triage Specialist (evaluation-backed)
+
+**Original:** a single reasoning call answered every message.
+
+**This fork:** a reusable **`defineAgent`** primitive and a lightweight **supervisor**
+(`src/agents/`), both **flag-gated (`AGENTS_ENABLED`, default off)** so the baseline single-call path
+is untouched when the flag is off. The first role-specialized agent built on it is a **Triage
+Specialist**: given a newly-admitted (synthetic) patient, it produces a ranked nurse recommendation
+justified by skill fit and current workload, with a deterministic "why this pick" rationale, posted
+as a Slack card into an operations channel behind a secret-gated trigger.
+
+What makes this more than a demo is that its **analytical** quality is **objectively measured**. A
+self-contained evaluation harness (`tests/eval/triage/`) grades the specialist against a fixture with
+a **quarantined answer key** — the agent under test structurally never sees the ground truth (planted
+effects, magnitudes, and rubric live in a separate directory read only by the scorer). This is the
+concrete first step of a broader role-specialized-agent roadmap; the same primitive is intended to be
+reused by later specialists.
+
+**Why it matters:** it establishes a pattern for adding specialized, *measurable* agent capabilities
+without destabilizing the general assistant — new behavior ships behind a flag and is proven against a
+known answer key before it's trusted.
+
+---
+
 ## Commit-level appendix (for engineers)
 
 Fork point: upstream `95e2829`. Newest first.
 
 | Commit | Summary |
 |---|---|
+| `e7986c5` | VHA brief: attach per-metric Tableau views (deep link + rendered PNG) |
+| `418ac51` | Triage card: deterministic "why this pick" rationale on the recommendation |
+| `f3c970f` | Triage specialist (M4): repointed onto published Tableau datasources via MCP |
+| `e3dc103` | Triage (M3): admission → operations-channel recommendation card, secret-gated trigger |
+| `f5a1c7b` | Multi-agent (M2): triage specialist (analysis + recommendation) + eval harness |
+| `8cadaaf` | Multi-agent (M1): `defineAgent` primitive + flag-gated supervisor (baseline-neutral) |
+| `33c2d60` | AWS partner package: containerized deploy + Terraform + daily-brief trigger |
+| `a64e1c3` | Bedrock tool-loop safety-valve fix + `--daily` scheduler entry point |
+| `1d944c6` | VHA localized brief: (trigger × position × location) + refresh webhook + durable dedupe |
 | `7c31219` | Remove dead root `installationStore.js`; add RDS CA bundle for prod TLS |
 | `5106adb` | Surface reply preview on drift-check failures (adjudication aid) |
 | `711633d` | Fix two negation-blind golden drift checks (false positives) |

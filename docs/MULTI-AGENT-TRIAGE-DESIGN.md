@@ -1,11 +1,27 @@
 # Multi-Agent Architecture — Triage Specialist (first vertical slice)
 
-**Status:** DRAFT for review · **Author:** design pass 2026-08-19 · **Flag:** `AGENTS_ENABLED` (default off)
+**Status:** BUILT (M1–M4) · **Author:** design pass 2026-08-19, updated 2026-08-20 · **Flag:** `AGENTS_ENABLED` (default off)
 
-> This doc is a proposal. Nothing beyond the fixture copy-in is built yet. It maps
-> the multi-agent evolution onto the *current* code and asks the design questions
-> that need settling before implementation — per the "raise the design questions
-> first" rule the triage fixture itself asks for.
+> **Update 2026-08-20 — this is now built and deployed.** What began as the proposal
+> below shipped as milestones M1–M4 on the reference deployment:
+>
+> - **M1** — the reusable `defineAgent` primitive + a flag-gated supervisor
+>   (`src/agents/defineAgent.js`, `supervisor.js`), baseline-neutral when
+>   `AGENTS_ENABLED` is off.
+> - **M2** — the triage specialist (analysis + recommendation) + the in-repo
+>   evaluation harness (`src/agents/triageSpecialist.js`, `triageTools.js`,
+>   `tests/eval/triage/`).
+> - **M3** — admission → operations-channel recommendation card, behind a
+>   secret-gated HTTP trigger (`src/agents/triageAdmission.js`, `triageCard.js`,
+>   `src/jobs/triageAdmissionTrigger.js`).
+> - **M4** — the specialist repointed onto **published Tableau datasources** via the
+>   MCP (`src/agents/triageMcpData.js`), so it runs on live server data rather than
+>   local CSVs. The recommendation card also carries a deterministic "why this pick"
+>   rationale.
+>
+> The material below is the original design pass. The "Decisions locked" table held;
+> the "Still open" items in §11 were resolved during implementation. Read it as the
+> rationale behind the shipped code, not a to-do list.
 
 ## Decisions locked (2026-08-19)
 

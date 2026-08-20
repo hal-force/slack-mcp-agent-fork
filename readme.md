@@ -24,6 +24,8 @@ slack-mcp-agent is a Slack app built with the Bolt framework and Prisma for data
 | **Security** | OAuth **tokens encrypted at rest** (AES-256-GCM), **SSRF guard** on outbound MCP URLs, **prompt-injection fencing** of untrusted context, **per-user token scoping**. |
 | **Quality gates** | A network-free **`configcheck`** health suite runs in the Heroku **release phase** and fails the deploy on a real misconfiguration; **smoke / drift / contextrot** suites run by hand and on a schedule. |
 | **Database** | Amazon Aurora/RDS Postgres via the Prisma `pg` adapter, TLS-encrypted. See [Database TLS](#database-tls-rdsaurora) below. |
+| **Proactive briefs** | A scheduled + webhook-driven job DMs each user only the metrics they own for their facility, with the "so-what" and the metric's Tableau chart attached. Behind its own env config. See [Proactive & multi-agent capabilities](#proactive--multi-agent-capabilities-partner-package). |
+| **Multi-agent** | A reusable `defineAgent` primitive + flag-gated supervisor, with a first role-specialized **Triage Specialist** and an in-repo evaluation harness. Off by default (`AGENTS_ENABLED`). |
 
 ## Features
 
@@ -54,6 +56,20 @@ The assistant exposes the following skills via the model's tool/function calling
 | **Tableau data query** | `tableau_query_datasource` | User asks for precise numbers; executes a VizQL query with aggregations and filters |
 
 Canvas skills require a user OAuth token (`xoxp`). Tableau skills require `TABLEAU_MCP_SERVER` to be configured. The model selects and chains tools automatically across multiple rounds per message (Bedrock: up to `BEDROCK_MAX_TOOL_ROUNDS`, default 10, after which it is asked for a final answer with tools disabled).
+
+### Proactive & multi-agent capabilities (partner package)
+
+Beyond the reactive chat/canvas assistant above, this fork adds two opt-in capability sets that run behind their own env flags and triggers. They **do not change the baseline @mention / Assistant / Workflow behavior** — when their flags/triggers are unset, the app behaves exactly as documented above.
+
+**Proactive localized brief** (`src/jobs/vhaDailyBrief.js`). A job that DMs each user only the metrics they own, for their facility, with a short "so-what" and the metric's Tableau chart attached. Each brief is a function of three independently-resolved inputs:
+
+- **TRIGGER** — a scheduled daily **scan** (Heroku Scheduler), a Tableau **datasource-refresh webhook** (`POST /webhooks/tableau/refresh/:secret`, `src/jobs/tableauWebhook.js` — fires the moment new data lands), or an inbound **alert** naming a metric.
+- **POSITION** — the user's Slack role/title → the metric registry's owning functions (a Quality Manager sees mortality/LOS; a Director sees the whole facility). Turns a metric dump into a role-relevant nudge.
+- **LOCATION** — the facility, from Slack timezone + identity, with an explicit `VHA_BRIEF_BINDINGS` override for named users.
+
+Each flagged metric section carries its Tableau view (`src/jobs/vhaMetricViews.js`): an always-present *"Open in Tableau"* deep link plus a rendered PNG (via the `get-view-image` MCP tool) uploaded in a thread beneath the DM. View resolution is **non-fatal** — the text brief and link still deliver if a chart can't render. Delivery is **deduped durably** per metric via a Postgres `BriefDelivery` ledger: a metric re-posts only when it's new or has worsened; the ledger is fail-open (briefs still deliver if the DB is down). See [`demo-data/vha/DAILY-BRIEF-DESIGN.md`](demo-data/vha/DAILY-BRIEF-DESIGN.md). Requires `im:write` (DM) and `files:write` (chart upload) bot scopes.
+
+**Multi-agent scaffolding** (`src/agents/`). A reusable `defineAgent` primitive and a lightweight supervisor, **flag-gated by `AGENTS_ENABLED` (default off)**. The first role-specialized agent is a **Triage Specialist** that produces a ranked, workload-aware nurse recommendation (with a deterministic "why this pick" rationale) as a Slack card, behind a secret-gated trigger. Its analytical quality is measured by an in-repo evaluation harness (`tests/eval/triage/`) against a fixture whose answer key is **structurally quarantined** from the agent under test. See [`docs/MULTI-AGENT-TRIAGE-DESIGN.md`](docs/MULTI-AGENT-TRIAGE-DESIGN.md).
 
 ---
 

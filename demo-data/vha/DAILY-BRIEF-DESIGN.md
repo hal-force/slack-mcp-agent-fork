@@ -82,12 +82,17 @@ live sources on `usfederaldemos → VA | Veterans Affairs`.
   │    Per flagged metric, the agent pulls the 6-mo trend + the   │
   │    linked action plan (barriers/owner/progress) and writes a  │
   │    short narrative. Action-plan free text is injection-fenced.│
+  │    Also resolve the metric's Tableau view (vhaMetricViews.js):│
+  │    an "Open in Tableau" deep link + a rendered PNG via the    │
+  │    get-view-image MCP tool. Non-fatal: text still delivers.   │
   └─────────────────────────────────────────────────────────────┘
         │
         ▼
   ┌─────────────────────────────────────────────────────────────┐
   │ 5. DELIVER.  Post to the metric's owning_channel (registry),  │
   │    or DM the user. Header carries alert_reason + as_of_date.  │
+  │    Each section shows the view deep link; the rendered PNGs   │
+  │    upload in a thread under the message (files.uploadV2).     │
   └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -158,6 +163,50 @@ string `"true"` — the string throws `400803 "Unable to convert value true for
 Filter on Field alert_flag"`. Confirmed live. Either emit the JSON boolean, or
 omit the filter and let the code read `alert_flag`/`alert_reason` and filter
 client-side (what the CSV-path digest does today).
+
+---
+
+## Per-metric Tableau views in the brief ✅
+
+Each flagged-metric section carries its own chart, so the "so-what" prose is
+backed by the actual view. Josh published one **"Metric Target Select - <metric>"**
+sheet per metric in the workbook **"VHA Metrics Views and Dashboards"**
+(project `VA | Veterans Affairs`, site `usfederaldemos`); these default to
+Phoenix today and will gain a facility parameter as other facilities come online.
+
+`src/jobs/vhaMetricViews.js` owns the mapping and rendering:
+
+- **`METRIC_VIEWS`** — `metric_key → { viewId, contentUrl }` for all 6 registry
+  metrics (SMR30, READMIT30, OMELOS, RVU_UNUSED, PHA_REFERRAL, SHEP_EXP). The two
+  generic sheets (Date-Focus, Sparkline) are intentionally unmapped.
+- **`viewDeepLink(contentUrl)`** — the human-clickable Tableau Cloud view URL
+  (drops the `/sheets/` segment; base overridable via `VHA_TABLEAU_VIEW_BASE`).
+- **`fetchMetricViewImage(metricKey, …)`** — calls the **`get-view-image`** MCP
+  tool (`{ viewId, width 1200, height 800, PNG }`) and returns an upload
+  descriptor. Every failure is non-fatal (returns null).
+- **`viewFiltersForFacility(facilityName)`** — the SINGLE hook for the future
+  facility parameter. Returns `{}` today (views default to Phoenix); when the
+  views gain a facility filter, map `name → { field: value }` here and it's
+  forwarded as `get-view-image`'s `viewFilters`. Nothing else in the brief
+  changes. (The tool's schema accepts `viewFilters` — confirmed live.)
+
+Wiring in `vhaDailyBrief.js`: `narrateSections` resolves each section's view
+(deep link always; PNG when `ctx.web`, or in a dry-run opting into
+`VHA_BRIEF_FETCH_VIEWS=1`), `composeBriefBody` renders `:bar_chart: … <link|Open … in Tableau>`,
+and `deliver()` uploads the PNGs **threaded under the DM** via
+`postThreadFileUploads` / `files.uploadV2` (needs the `files:write` bot scope).
+All fetches are **sequential** (the MCP server holds a single PAT on its HTTP
+transport, so concurrent signins collide) and **non-fatal** — the text brief
+always delivers, and a section keeps its "Open in Tableau" link even if the image
+upload fails.
+
+Verified live 2026-08-20: a brief to the Phoenix director rendered all 5 flagged
+metrics' charts (78–97 KB PNGs) plus deep links, `{sent:1}`.
+
+> Dedupe note: the scheduled `--daily` path will *suppress* a brief whose metrics
+> were already delivered unchanged this month (working as designed). To force a
+> re-send while testing (e.g. to see a newly-added view), run the plain scan
+> (`node src/jobs/vhaDailyBrief.js`, no `--daily`) which runs with dedupe off.
 
 ---
 
@@ -295,12 +344,14 @@ immediately regardless of the clock.
 | Facility resolver (tz + identity) — LOCATION | ✅ `resolveUserFacility.js` (tiered, tested) |
 | Position resolver (role → owning_function) — POSITION | ✅ `resolveUserPosition.js` (tiered, tested) |
 | So-what narrative + injection fencing | ✅ `vhaLocalizedDigest.js` |
-| Brief job: (trigger × position × location), scan + alert paths | ✅ `vhaDailyBrief.js` (dry-run verified) |
+| Brief job: (trigger × position × location), scan + alert paths | ✅ `vhaDailyBrief.js` (live DM verified) |
 | Demo roster fixture (non-director roles) | ✅ `demo_roster.json` |
 | Datasource-refresh webhook (push trigger) | ✅ `tableauWebhook.js` + `runFromRefresh` (7 tests pass) |
 | Durable per-metric dedupe (survives dyno restart) | ✅ `BriefDelivery` model + `briefDeliveryStore.js` (5 tests) |
-| Register webhook on Tableau site + set `TABLEAU_WEBHOOK_SECRET` | ▷ ops step (commands above) |
-| Run `prisma migrate deploy` (adds BriefDelivery table) | ▷ auto on next Heroku release (release phase) |
-| Heroku Scheduler (poll fallback) | ▷ optional |
-| `im:write` manifest reinstall (proactive DM) | ▷ pending reinstall |
+| Per-metric Tableau views (deep link + rendered PNG) | ✅ `vhaMetricViews.js` (live DM verified 2026-08-20; 4 tests) |
+| Register webhook on Tableau site + set `TABLEAU_WEBHOOK_SECRET` | ✅ registered on `usfederaldemos`; receiver verified live |
+| Run `prisma migrate deploy` (adds BriefDelivery table) | ✅ applied in the Heroku release phase |
+| `im:write` reinstall (proactive DM) | ✅ reinstalled; live DM delivered |
+| Heroku Scheduler (poll fallback) | ▷ optional (job + `--daily` flag ready; add the schedule in the dashboard) |
+| Per-facility view parameter (beyond Phoenix) | ▷ `viewFiltersForFacility` hook ready; fill in when views gain the filter |
 | Per-column metadata enrichment | ▷ needs `LLM_GATEWAY_URL/KEY/MODEL` |
