@@ -12,7 +12,7 @@ const {
 test("public hostnames and IPs are safe", () => {
   for (const h of [
     "example.com",
-    "federal-tableau-mcp-81e8ca899174.herokuapp.com",
+    "example-tableau-mcp.herokuapp.com",
     "8.8.8.8",
     "1.1.1.1",
     "93.184.216.34",

@@ -197,7 +197,7 @@ function ssrfGuardSelfTest() {
     "::1",
     "foo.internal",
   ];
-  const mustAllow = ["example.com", "federal-tableau-mcp-81e8ca899174.herokuapp.com", "8.8.8.8"];
+  const mustAllow = ["example.com", "example-tableau-mcp.herokuapp.com", "8.8.8.8"];
 
   const leaked = mustBlock.filter((h) => classifyHost(h).safe === true);
   const broke = mustAllow.filter((h) => classifyHost(h).safe !== true);

@@ -131,7 +131,7 @@ Each flagged metric section carries its Tableau view (`src/jobs/vhaMetricViews.j
    TOKEN_ENC_KEY=            # `openssl rand -base64 32` – encrypts OAuth tokens at rest
 
    # Tableau MCP (optional) – streamable HTTP endpoint, e.g.:
-   # TABLEAU_MCP_SERVER=https://federal-tableau-mcp-81e8ca899174.herokuapp.com/tableau-mcp
+   # TABLEAU_MCP_SERVER=https://<your-tableau-mcp-host>/tableau-mcp
    # TABLEAU_MCP_LIST_DATASOURCES=1   # always try to attach a datasource catalog sample (noisier)
    # TABLEAU_DATASOURCE_BROWSE_URL_TEMPLATE=https://your-server/#/site/SiteName/datasources/{luid}
    ```
@@ -187,7 +187,7 @@ AI is generated through a single provider abstraction (`src/assistant/llmProvide
 
 **Slack context (Slack MCP server):** The assistant uses Slack as context when answering. For @mentions it fetches recent channel/thread messages and optional search results; for Assistant threads it runs search from the user’s message. This is implemented in `src/assistant/slackContext.js` using the Slack MCP server at `https://mcp.slack.com/mcp` when a user token is present (Streamable HTTP: initialize, `Mcp-Session-Id`, then `tools/list` / `tools/call`), else the Slack Web API ([Slack MCP server](https://docs.slack.dev/ai/mcp-server)). Ensure the app has scopes such as `channels:history`, `groups:history`, `im:history`, `mpim:history`, and `search:read.public` (and other `search:read.*`) for full context. Set `SLACK_MCP_DEBUG=1` (or `SLACK_CONTEXT_DEBUG=1`) to log Slack MCP failures instead of failing silently.
 
-**Tableau context:** Implemented in `src/assistant/tableauMcpClient.js` — same Streamable HTTP pattern. It injects a compact tool name list, calls `list-datasources` when the message (or recent Assistant thread) looks analytics-related, and when a published source name matches the user text it calls `get-datasource-metadata` so the model sees real field captions. **`buildTableauContext`** returns `{ context, datasourceUrls }` so replies can include browse links keyed by data source LUID when the MCP catalog exposes `webpageUrl` / `contentUrl`. Gemini tools also include **`tableau_list_views`** and **`tableau_get_view_image`**; snapshots are uploaded via **`files.uploadV2`** after the text message (requires **`files:write`**). Set `TABLEAU_MCP_SERVER` to your deployment’s default MCP base URL (example: `https://federal-tableau-mcp-81e8ca899174.herokuapp.com/tableau-mcp`). Each user can override that default from the app **Home** → **Settings** → **Set URL**; overrides are stored in Postgres (`UserPreference`). Optional: `TABLEAU_MCP_VERBOSE_TOOLS=1` for long per-tool descriptions in context. If neither the host default nor a user override is set, Tableau context and Tableau Gemini tools are disabled for that user. If MCP list/metadata responses omit browse URLs, set **`TABLEAU_DATASOURCE_BROWSE_URL_TEMPLATE`** to your site’s pattern with a literal `{luid}` placeholder so query/metadata tool results can still expose **source_url** for Slack links (pattern varies by Tableau Cloud / Server—confirm in your environment).
+**Tableau context:** Implemented in `src/assistant/tableauMcpClient.js` — same Streamable HTTP pattern. It injects a compact tool name list, calls `list-datasources` when the message (or recent Assistant thread) looks analytics-related, and when a published source name matches the user text it calls `get-datasource-metadata` so the model sees real field captions. **`buildTableauContext`** returns `{ context, datasourceUrls }` so replies can include browse links keyed by data source LUID when the MCP catalog exposes `webpageUrl` / `contentUrl`. Gemini tools also include **`tableau_list_views`** and **`tableau_get_view_image`**; snapshots are uploaded via **`files.uploadV2`** after the text message (requires **`files:write`**). Set `TABLEAU_MCP_SERVER` to your deployment’s default MCP base URL (example: `https://<your-tableau-mcp-host>/tableau-mcp`). Each user can override that default from the app **Home** → **Settings** → **Set URL**; overrides are stored in Postgres (`UserPreference`). Optional: `TABLEAU_MCP_VERBOSE_TOOLS=1` for long per-tool descriptions in context. If neither the host default nor a user override is set, Tableau context and Tableau Gemini tools are disabled for that user. If MCP list/metadata responses omit browse URLs, set **`TABLEAU_DATASOURCE_BROWSE_URL_TEMPLATE`** to your site’s pattern with a literal `{luid}` placeholder so query/metadata tool results can still expose **source_url** for Slack links (pattern varies by Tableau Cloud / Server—confirm in your environment).
 
 Replies use **Slack mrkdwn** only: pipe-style “markdown tables” are avoided in the system prompt because Slack does not render them.
 
@@ -249,9 +249,20 @@ These skills help humans and agents work consistently across chat and analytics:
 - Workflow Builder Ask AI step: `src/slack/workflowAskAi.js`; manifest fragment: [slack/ask-ai-workflow-manifest.partial.json](slack/ask-ai-workflow-manifest.partial.json).
 - Adjust the schema in `prisma/schema.prisma` and add migrations as needed.
 
-## Deploying to Heroku
+## Deploying
 
-### 1. Create the app and add Postgres
+Two supported targets:
+
+- **Heroku** (the reference deployment, `damp-wave-30118`) — a public web dyno + Heroku
+  Postgres, with the MCP server hosted separately. Steps below.
+- **AWS App Runner** (partner package) — a private Tableau MCP + public agent, Aurora
+  Serverless v2, Secrets Manager, and a daily EventBridge trigger, all via Terraform.
+  Two ways in, same stack: drive it conversationally with Claude Code
+  ([`deploy/aws/DEPLOY-WITH-AGENT.md`](deploy/aws/DEPLOY-WITH-AGENT.md)) or run the
+  commands by hand ([`deploy/aws/DEPLOY-SCRIPTED.md`](deploy/aws/DEPLOY-SCRIPTED.md)).
+  The infrastructure detail is in [`deploy/aws/terraform/README.md`](deploy/aws/terraform/README.md).
+
+### Heroku — 1. Create the app and add Postgres
 
 In the [Heroku Dashboard](https://dashboard.heroku.com/):
 
@@ -385,6 +396,9 @@ This creates per-user records from org-level rows that have `userToken` and `ins
 - [`docs/CHANGES-VS-UPSTREAM.md`](docs/CHANGES-VS-UPSTREAM.md) — what this fork changed vs. `itsnaseer/slack-mcp-agent` (for technical + leadership review).
 - [`docs/DEPLOYMENT-AND-QUALITY.md`](docs/DEPLOYMENT-AND-QUALITY.md) — plain-language guide to how the app is deployed and how quality is protected automatically.
 - [`docs/GETTING-STARTED-ONE-PAGER.md`](docs/GETTING-STARTED-ONE-PAGER.md) — business-user one-pager: what the connector does, how to use it in Slack, and example prompts.
+- [`docs/MULTI-AGENT-TRIAGE-DESIGN.md`](docs/MULTI-AGENT-TRIAGE-DESIGN.md) — design rationale for the multi-agent scaffolding + Triage Specialist.
+- [`docs/TRIAGE-METHODS-AND-SCORING.md`](docs/TRIAGE-METHODS-AND-SCORING.md) — reviewer's guide to the triage flow, methods, and the evaluation/scoring harness.
+- **AWS App Runner deployment** — [`deploy/aws/DEPLOY-WITH-AGENT.md`](deploy/aws/DEPLOY-WITH-AGENT.md) (agent-guided) and [`deploy/aws/DEPLOY-SCRIPTED.md`](deploy/aws/DEPLOY-SCRIPTED.md) (by-hand command runbook); infra detail in [`deploy/aws/terraform/README.md`](deploy/aws/terraform/README.md).
 - [`tests/health/README.md`](tests/health/README.md) — the health-check framework in detail.
 - [`certs/README.md`](certs/README.md) — the RDS CA bundle and the two-tier DB TLS setup.
 

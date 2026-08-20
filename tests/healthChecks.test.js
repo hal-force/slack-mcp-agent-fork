@@ -29,7 +29,7 @@ const GOOD_ENV = {
   SLACK_STATE_SECRET: "ss",
   SLACK_BOT_SCOPES: "chat:write",
   DATABASE_URL: "postgres://x",
-  TABLEAU_MCP_SERVER: "https://federal-tableau-mcp-81e8ca899174.herokuapp.com/tableau-mcp",
+  TABLEAU_MCP_SERVER: "https://example-tableau-mcp.herokuapp.com/tableau-mcp",
   PUBLIC_BASE_URL: "https://example.com",
   GOOGLE_CLOUD_PROJECT: "proj",
 };
