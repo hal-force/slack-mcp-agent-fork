@@ -76,6 +76,70 @@ function nurseLine(n, idx) {
 }
 
 /**
+ * Deterministic "why this pick" rationale for the top-ranked nurse — 2–3 sentences
+ * grounded ONLY in fields already on the card: the patient's acuity/diagnosis/
+ * comorbidity (how complex the case is) and the top candidate's skill match, missing
+ * skills, credentials, caseload headroom, and score margin over the runner-up. No LLM:
+ * it always renders, adds no latency, and can't over-claim beyond the data. Returns ""
+ * when there is no candidate.
+ *
+ * @param {object} patient
+ * @param {object[]} ranking  best-first nurse candidates
+ * @returns {string}
+ */
+function buildTopPickRationale(patient = {}, ranking = []) {
+  const top = ranking[0];
+  if (!top) return "";
+  const pid = patient.patient_id || "The patient";
+  const acuity = String(patient.acuity_level || "").trim();
+  const dx = String(patient.diagnosis || "").trim();
+  const comoRaw = String(patient.comorbidity || "").trim();
+  const como = comoRaw && comoRaw.toLowerCase() !== "none" ? comoRaw : "";
+  const who = top.nurse_name ? `${top.nurse_name} (${top.nurse_id})` : top.nurse_id || "the top candidate";
+
+  // 1) The case — how complex is it.
+  const caseDesc = acuity ? `${acuity}-acuity admission` : "new admission";
+  let detail = "";
+  if (dx && como) detail = ` (${truncate(dx, 60)}; comorbidity: ${truncate(como, 40)})`;
+  else if (dx) detail = ` (${truncate(dx, 60)})`;
+  else if (como) detail = ` (comorbidity: ${truncate(como, 40)})`;
+  const s1 = `${pid} is a ${caseDesc}${detail}.`;
+
+  // 2) Nurse ↔ issue alignment.
+  const match = typeof top.skill_match_pct === "number" ? top.skill_match_pct : null;
+  const missing = Array.isArray(top.missing_skills) ? top.missing_skills : [];
+  const creds = [];
+  if (top.certification && String(top.certification).toLowerCase() !== "none") creds.push(String(top.certification));
+  if (typeof top.experience_years === "number" && top.experience_years > 0) creds.push(`${top.experience_years} yrs`);
+  const credStr = creds.length ? ` (${creds.join(", ")})` : "";
+  const load =
+    typeof top.current_caseload === "number" && typeof top.max_caseload === "number" && top.max_caseload > 0
+      ? ` and has caseload headroom (${top.current_caseload}/${top.max_caseload})`
+      : "";
+  let fit;
+  if (match !== null && missing.length === 0) {
+    fit = `${who}${credStr} is the strongest fit, covering all of the patient's required skills (${match}% match)${load}`;
+  } else if (match !== null) {
+    const ids = missing.slice(0, 3).join(", ") + (missing.length > 3 ? "…" : "");
+    fit = `${who}${credStr} leads at ${match}% skill match — short ${missing.length} competenc${missing.length === 1 ? "y" : "ies"} (${ids})${load}`;
+  } else {
+    fit = `${who}${credStr} is the top-ranked available nurse${load}`;
+  }
+  const s2 = `${fit}.`;
+
+  // 3) Trade-off vs the runner-up, plus an honest gap caveat.
+  let s3 = "";
+  const rup = ranking[1];
+  if (rup && typeof top.score === "number" && typeof rup.score === "number" && top.score > rup.score) {
+    s3 += ` It edges ${rup.nurse_id || "the next candidate"} on the combined skill/workload score (${top.score} vs ${rup.score}) while keeping the assignment within a safe caseload.`;
+  }
+  if (missing.length) {
+    s3 += ` Pair with a resource nurse for the uncovered skill${missing.length > 1 ? "s" : ""}.`;
+  }
+  return `${s1} ${s2}${s3}`.trim();
+}
+
+/**
  * @param {object[]} ranking  best-first nurse candidates
  * @param {object} patient
  * @param {{ unitRiskNote?: string, analysisNote?: string }} [extra]
@@ -100,6 +164,10 @@ function buildRecommendationCard(ranking = [], patient = {}, extra = {}) {
   } else {
     const lines = ranking.slice(0, 5).map((n, i) => nurseLine(n, i));
     blocks.push({ type: "section", text: { type: "mrkdwn", text: `*RANKED CANDIDATES*\n${lines.join("\n")}` } });
+    const rationale = buildTopPickRationale(patient, ranking);
+    if (rationale) {
+      blocks.push({ type: "section", text: { type: "mrkdwn", text: `*WHY THIS PICK*\n${truncate(rationale, 700)}` } });
+    }
   }
 
   if (extra.unitRiskNote) {
@@ -113,4 +181,4 @@ function buildRecommendationCard(ranking = [], patient = {}, extra = {}) {
   return { text: headline, blocks };
 }
 
-module.exports = { buildAdmissionNotice, buildRecommendationCard, nurseLine, SYNTH_TAG };
+module.exports = { buildAdmissionNotice, buildRecommendationCard, buildTopPickRationale, nurseLine, SYNTH_TAG };

@@ -1,7 +1,7 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { buildAdmissionNotice, buildRecommendationCard, SYNTH_TAG } = require("../../src/agents/triageCard");
+const { buildAdmissionNotice, buildRecommendationCard, buildTopPickRationale, SYNTH_TAG } = require("../../src/agents/triageCard");
 const { rankNurses, handleAdmission } = require("../../src/agents/triageAdmission");
 
 function miniTables() {
@@ -59,13 +59,46 @@ test("recommendation card lists ranked candidates and headlines the top pick", (
     { nurse_id: "RN1", nurse_name: "Alice", skill_match_pct: 100, current_caseload: 3, max_caseload: 5, missing_skills: [] },
     { nurse_id: "RN2", nurse_name: "Bob", skill_match_pct: 50, current_caseload: 0, max_caseload: 4, missing_skills: ["SK2"] },
   ];
-  const { text, blocks } = buildRecommendationCard(ranking, { patient_id: "PT1" });
+  const { text, blocks } = buildRecommendationCard(ranking, { patient_id: "PT1", acuity_level: "Critical", diagnosis: "Post-CABG Day 1" });
   assert.match(text, /Recommend Alice RN1 for PT1/);
   const listBlock = blocks.find((b) => b.type === "section" && /RANKED CANDIDATES/.test(b.text.text));
   assert.match(listBlock.text.text, /Alice \(RN1\)/);
   assert.match(listBlock.text.text, /skill match 100%/);
   assert.match(listBlock.text.text, /caseload 0\/4/);
   assert.match(listBlock.text.text, /missing SK2/);
+  // The card carries a deterministic "why this pick" rationale for the top nurse.
+  const whyBlock = blocks.find((b) => b.type === "section" && /WHY THIS PICK/.test(b.text.text));
+  assert.ok(whyBlock, "recommendation card includes a WHY THIS PICK section");
+  assert.match(whyBlock.text.text, /Critical-acuity/);
+  assert.match(whyBlock.text.text, /Alice \(RN1\)/);
+});
+
+test("buildTopPickRationale: full-match top pick cites case, alignment, and margin", () => {
+  const ranking = [
+    { nurse_id: "RN1", nurse_name: "Alice", skill_match_pct: 100, current_caseload: 1, max_caseload: 5, missing_skills: [], certification: "CCRN", experience_years: 12, score: 96 },
+    { nurse_id: "RN2", nurse_name: "Bob", skill_match_pct: 80, current_caseload: 2, max_caseload: 4, missing_skills: ["SK2"], score: 70 },
+  ];
+  const r = buildTopPickRationale({ patient_id: "PT1", acuity_level: "Critical", diagnosis: "Post-CABG Day 1", comorbidity: "Diabetes" }, ranking);
+  assert.match(r, /PT1 is a Critical-acuity admission/);
+  assert.match(r, /Post-CABG/);
+  assert.match(r, /comorbidity: Diabetes/);
+  assert.match(r, /covering all of the patient's required skills \(100% match\)/);
+  assert.match(r, /CCRN, 12 yrs/);
+  assert.match(r, /caseload headroom \(1\/5\)/);
+  assert.match(r, /edges RN2 .*96 vs 70/);
+});
+
+test("buildTopPickRationale: partial-match top pick names the gap and adds a safeguard", () => {
+  const ranking = [
+    { nurse_id: "RN3", nurse_name: "Cara", skill_match_pct: 67, current_caseload: 2, max_caseload: 6, missing_skills: ["SK7", "SK9"], score: 55 },
+  ];
+  const r = buildTopPickRationale({ patient_id: "PT9", acuity_level: "Severe", diagnosis: "Sepsis" }, ranking);
+  assert.match(r, /short 2 competencies \(SK7, SK9\)/);
+  assert.match(r, /Pair with a resource nurse/);
+});
+
+test("buildTopPickRationale: no candidate → empty string (no rationale block)", () => {
+  assert.equal(buildTopPickRationale({ patient_id: "PT9" }, []), "");
 });
 
 test("recommendation card handles an empty ranking gracefully", () => {
