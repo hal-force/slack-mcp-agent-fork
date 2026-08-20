@@ -15,6 +15,7 @@ const { App, Assistant } = require("@slack/bolt");
 const { receiver } = require("./slack/receiver");
 const { registerTableauWebhook } = require("./jobs/tableauWebhook");
 const { registerDailyBriefTrigger } = require("./jobs/dailyBriefTrigger");
+const { registerTriageAdmissionTrigger } = require("./jobs/triageAdmissionTrigger");
 const { getAiResponse } = require("./assistant/respond");
 const { runSupervised } = require("./agents/supervisor");
 const { createTriageSpecialist } = require("./agents/triageSpecialist");
@@ -64,6 +65,13 @@ registerTableauWebhook(receiver);
 // once a day, standing in for Heroku Scheduler's `vhaDailyBrief.js --daily`.
 // No-ops unless VHA_DAILY_JOB_SECRET is set. See src/jobs/dailyBriefTrigger.js.
 registerDailyBriefTrigger(receiver);
+
+// Admission → #nurse-triage HTTP trigger. An admission event POSTs here; the
+// multi-agent layer announces the patient and posts a ranked nurse recommendation.
+// No-ops unless TRIAGE_ADMISSION_SECRET is set, and refuses to post unless
+// AGENTS_ENABLED=1. Needs the Bolt `app` for client.chat.postMessage.
+// See src/jobs/triageAdmissionTrigger.js.
+registerTriageAdmissionTrigger(receiver, { app });
 
 // function_executed: Bolt skips the immediate Events API ack and relies on app.function's autoAcknowledge,
 // which runs after other global middleware. That can exceed Slack's HTTP ack window while Vertex runs.
