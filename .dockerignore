@@ -1,0 +1,35 @@
+# Build context hygiene — keep secrets and cruft OUT of image layers.
+
+# SECRET: contains a plaintext credential — must never enter an image (also gitignored).
+cursor_slack_chat.md
+
+# Quarantined red-team prompt-injection fixture — never ship it.
+demo-data/vha/vha_redteam_injection.csv
+
+# Local env / secrets
+.env
+.env.*
+*.pem.local
+
+# VCS + editor
+.git
+.gitignore
+.cursor
+.DS_Store
+**/.DS_Store
+
+# Installed deps + Prisma client are reinstalled/generated in the build stage.
+node_modules
+
+# Local Prep-flow scratch (large hyper extracts, logs)
+demo-data/vha/.prep-run/
+demo-data/vha/prep-flow/
+demo-data/vha/**/*.hyper
+demo-data/vha/*.log
+
+# Docker artifacts themselves
+Dockerfile
+.dockerignore
+
+# NOTE: certs/rds-global-bundle.pem is intentionally NOT ignored — it is the public
+# Amazon RDS CA bundle the app needs at runtime for strict DB TLS verification.

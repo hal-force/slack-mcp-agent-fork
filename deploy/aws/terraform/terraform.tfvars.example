@@ -1,0 +1,116 @@
+########################################################################
+# Copy this file to terraform.tfvars and fill in the REPLACE_ME values.
+# NEVER commit terraform.tfvars — it will contain live secrets.
+########################################################################
+
+########################################
+# AWS / networking
+########################################
+
+aws_region  = "us-east-1"
+name_prefix = "tableau-slack"
+
+# Leave true unless you already have a VPC you want to reuse.
+create_vpc = true
+vpc_cidr   = "10.20.0.0/16"
+
+# Only used when create_vpc = false:
+# vpc_id              = "vpc-REPLACE_ME"
+# private_subnet_ids  = ["subnet-REPLACE_ME_A", "subnet-REPLACE_ME_B"]
+# public_subnet_ids   = ["subnet-REPLACE_ME_C", "subnet-REPLACE_ME_D"]
+
+########################################
+# Tableau
+########################################
+
+tableau_server_url = "https://REPLACE_ME.online.tableau.com"
+tableau_site_name  = "REPLACE_ME"
+tableau_pat_name   = "slack-agent"
+tableau_pat_value  = "REPLACE_ME"
+
+########################################
+# Slack
+########################################
+
+slack_signing_secret = "REPLACE_ME"
+slack_client_id      = "REPLACE_ME"
+slack_client_secret  = "REPLACE_ME"
+slack_state_secret   = "REPLACE_ME"
+
+# Default is usually fine; override only if your Slack app requests a
+# different scope set.
+# slack_bot_scopes = "im:write,chat:write,app_mentions:read,channels:history,groups:history,mpim:write,commands,canvases:write,files:write,users:read"
+
+slack_team_id = ""
+
+########################################
+# App secrets
+########################################
+
+token_enc_key          = "REPLACE_ME"
+tableau_webhook_secret  = "REPLACE_ME"
+vha_daily_job_secret    = "REPLACE_ME"
+
+########################################
+# LLM provider — set exactly ONE of these three credential blocks
+# depending on ai_provider.
+########################################
+
+ai_provider      = "bedrock"
+bedrock_model_id = "us.anthropic.claude-sonnet-4-6"
+
+# Bedrock: leave this empty to authenticate via the App Runner instance
+# role's IAM permissions instead (recommended — see iam.tf). Only set this
+# if you specifically need a static bearer token.
+aws_bearer_token_bedrock = ""
+
+# Gateway (OpenAI-compatible) alternative:
+llm_gateway_url      = ""
+llm_gateway_model    = ""
+llm_gateway_api_key  = ""
+
+# Vertex/Gemini alternative:
+gcp_service_account_json = ""
+
+########################################
+# Database
+########################################
+
+db_name     = "slackagent"
+db_username = "slackagent"
+
+# If `terraform apply` reports an invalid Aurora engine version (AWS retires
+# specific point releases for new clusters over time), set one currently
+# offered in your region — see the variable description in variables.tf.
+# aurora_engine_version = "16.6"
+
+########################################
+# Agent runtime
+########################################
+
+# Leave empty on the FIRST apply — App Runner hasn't assigned a domain yet.
+# After the first apply, copy the `agent_service_url` output here (drop the
+# https:// prefix requirement — keep the full https://... value) and re-apply.
+public_base_url = ""
+
+brief_hour_local = "7"
+
+# Arbitrary extra plain env vars for the agent, e.g.:
+# extra_env = {
+#   VHA_BRIEF_BINDINGS = "REPLACE_ME"
+# }
+extra_env = {}
+
+########################################
+# VHA daily brief schedule
+########################################
+
+enable_daily_schedule = true
+daily_schedule_cron   = "cron(0 14 * * ? *)" # 14:00 UTC daily
+
+########################################
+# Container images
+########################################
+
+agent_image_tag = "latest"
+mcp_image_tag   = "latest"

@@ -1,0 +1,19 @@
+# Local Terraform state and working directory
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Variable files — never commit real secrets
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Keep the lock file checked in for reproducible provider versions
+!.terraform.lock.hcl
+
+# Terraform plan output, if saved locally
+*.tfplan
