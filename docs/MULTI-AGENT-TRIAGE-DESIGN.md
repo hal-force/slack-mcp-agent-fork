@@ -355,12 +355,34 @@ can be written to these rules at M2.
    in `.env.example`. Tests: `tests/agents/supervisor.test.js`,
    `tests/agents/defineAgent.test.js`, TRIAGE cases in `tests/intentRouter.test.js`.
    Full suite **204/204 green** (was 183).
-2. **M2 — triage analysis specialist:** role prompt, tool wiring, structured
-   output; eval harness with golden transcripts; measure specialist vs. baseline
-   score.
-3. **M3 — recommendation mode + Slack card:** operational "which nurse" surface.
-4. **M4 — publish datasources + live run** against the MCP; score a live
-   transcript.
+2. **M2 — triage analysis + recommendation specialist:** ✓ DONE (2026-08-19).
+   - Data layer `src/agents/triageData.js` (reads `demo-data/triage/out` CSVs;
+     strips the `mean_skill_match_pct` validation aid) + tools
+     `src/agents/triageTools.js` (`triage_query` grouped aggregation,
+     `triage_skill_gap` fan-out-safe, `triage_list_nurses_on_shift`) in Bedrock
+     `{name,description,inputSchema}` shape. Verified the tools reproduce EVERY
+     `GROUND_TRUTH` magnitude through the discovery path (AI 75.0 / Manual 33.1,
+     adverse 17.1 / 27.9, all four per-acuity splits incl. the Moderate artefact).
+   - Specialist `src/agents/triageSpecialist.js` (defineAgent instance; analysis +
+     recommendation role prompt carrying methodology but **no** planted-effect
+     knowledge — a regex test guards the prompt against the realized magnitudes;
+     pinned via `AGENT_TRIAGE_MODEL_ID`). Reply composer
+     `src/agents/composeTriageReply.js`. Both injected into `runSupervised` at
+     both `index.js` call sites (still inert with the flag off).
+   - Eval harness `tests/eval/triage/`: `questions.json`, `run-agent.js` (drives
+     the agent; never imports the answer key — enforced by a lint test),
+     `score.js` (grades per the locked rules: ±8-pt band, half-credit for
+     uncontrolled effect 2, explicit-decline > silence for traps), and
+     `scorer.test.js` golden good/bad transcripts. The golden GOOD test caught a
+     real scorer bug (effect-1 finding bleeding into the effect-2 match) before it
+     could mis-score a live run.
+   - Full suite **236/236 green** (was 204). Live specialist-vs-baseline scoring is
+     M4 (needs the pinned Sonnet 5 + published datasources).
+3. **M3 — recommendation mode + Slack card:** operational "which nurse" surface
+   in `#nurse-triage` (admission → ranked recommendation).
+4. **M4 — publish datasources via Prep Agent skill + live run** against the MCP;
+   swap the triage tools' local-CSV backend for the Tableau MCP; score a live
+   transcript (specialist vs. baseline).
 
 Later slices (separate docs): Reviewer adversarial gate, Analyst/Writer split,
 channel-scoped personas, then the event-driven/case-management primitives.

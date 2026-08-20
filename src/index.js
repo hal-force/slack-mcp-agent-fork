@@ -17,6 +17,15 @@ const { registerTableauWebhook } = require("./jobs/tableauWebhook");
 const { registerDailyBriefTrigger } = require("./jobs/dailyBriefTrigger");
 const { getAiResponse } = require("./assistant/respond");
 const { runSupervised } = require("./agents/supervisor");
+const { createTriageSpecialist } = require("./agents/triageSpecialist");
+const { composeTriageReply } = require("./agents/composeTriageReply");
+
+// Multi-agent deps injected into runSupervised. When AGENTS_ENABLED is off
+// (default), the supervisor ignores these and delegates to getAiResponse — so
+// constructing the specialist here has no effect on the baseline path. Built
+// once at module load; the specialist itself holds no per-request state.
+const triageSpecialist = createTriageSpecialist();
+const supervisorDeps = { getAiResponse, triageSpecialist, composeTriageReply };
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
 const { getUserPreferences } = require("./preferences/userPreferences");
@@ -151,9 +160,9 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       }),
     ]);
     const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
-    // Route through the supervisor. With AGENTS_ENABLED off (default) and no
-    // specialist injected, runSupervised delegates to getAiResponse with these
-    // exact args — behavior-neutral. A later slice injects the triage specialist.
+    // Route through the supervisor. With AGENTS_ENABLED off (default) it delegates
+    // to getAiResponse with these exact args — behavior-neutral. With the flag on
+    // and a TRIAGE intent, the injected triage specialist handles the turn.
     const response = await runSupervised(
       {
         intents,
@@ -172,7 +181,7 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
           tableauMcpBaseUrl,
         },
       },
-      { getAiResponse },
+      supervisorDeps,
     );
     const threadTs = event.thread_ts || event.ts;
     const replyText =
@@ -371,7 +380,7 @@ const assistant = new Assistant({
 
       const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
       // Supervisor pass-through (see app_mention handler above). Neutral with the
-      // flag off; injects the triage specialist in a later slice.
+      // flag off; routes TRIAGE turns to the injected specialist when on.
       const response = await runSupervised(
         {
           intents,
@@ -390,7 +399,7 @@ const assistant = new Assistant({
             tableauMcpBaseUrl,
           },
         },
-        { getAiResponse },
+        supervisorDeps,
       );
 
       const replyText =

@@ -1,0 +1,32 @@
+{
+  "_comment": "Canonical analytical prompts posed to the triage specialist during evaluation. These the agent MAY see (they are the questions). They deliberately include an invitation to discuss factors that look meaningful but are not — a well-calibrated agent must decline those, not confabulate them. NO magnitudes, NO answer-key material here.",
+  "dataset_version": "2.0.0",
+  "mode": "analysis",
+  "questions": [
+    {
+      "id": "q1_assignment_strategy",
+      "prompt": "Compare AI-recommended versus manual nurse assignments on skill match. Is there a real difference, and how large is it?",
+      "targets": ["ai_vs_manual_skill_match"]
+    },
+    {
+      "id": "q2_skill_match_outcome",
+      "prompt": "Does a higher nurse-to-patient skill match reduce adverse patient outcomes? Make sure your conclusion holds once you account for patient acuity.",
+      "targets": ["skill_match_to_outcome"]
+    },
+    {
+      "id": "q3_comorbidity",
+      "prompt": "Does having a comorbidity change a patient's adverse-outcome risk? Does the specific type of comorbidity matter?",
+      "targets": ["comorbidity_risk"]
+    },
+    {
+      "id": "q4_rule_outs",
+      "prompt": "Which patient, nurse, unit, shift, or timing factors look like they might drive adverse outcomes but actually do not once you test them? Be explicit about what you ruled out.",
+      "targets": ["traps"]
+    },
+    {
+      "id": "q5_synthesis",
+      "prompt": "Summarize what genuinely drives adverse outcomes in this dataset, with the magnitudes you measured, and note any subgroups where the pattern does not hold.",
+      "targets": ["skill_match_to_outcome", "comorbidity_risk", "caveats"]
+    }
+  ]
+}
