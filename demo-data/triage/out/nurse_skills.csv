@@ -1,0 +1,113 @@
+nurse_id,skill_id,skill_name,data_classification
+RN001,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN001,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN001,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+RN001,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+RN001,SK12,Obstetric Emergency Management,SYNTHETIC
+RN001,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN002,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN002,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN002,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN002,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+RN002,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN002,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+RN003,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+RN003,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+RN003,SK05,Ventilator Management,SYNTHETIC
+RN003,SK13,Toxicology/Overdose Management,SYNTHETIC
+RN003,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN003,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+RN003,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN004,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN004,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN005,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN005,SK12,Obstetric Emergency Management,SYNTHETIC
+RN005,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+RN005,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN005,SK16,Tracheostomy Care,SYNTHETIC
+RN006,SK12,Obstetric Emergency Management,SYNTHETIC
+RN006,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+RN006,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN006,SK16,Tracheostomy Care,SYNTHETIC
+RN006,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN006,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN006,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+RN006,SK05,Ventilator Management,SYNTHETIC
+RN006,SK13,Toxicology/Overdose Management,SYNTHETIC
+RN006,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN007,SK12,Obstetric Emergency Management,SYNTHETIC
+RN007,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+RN007,SK06,Central Line / PICC Management,SYNTHETIC
+RN007,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+RN007,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN007,SK11,Pediatric Critical Care,SYNTHETIC
+RN007,SK05,Ventilator Management,SYNTHETIC
+RN007,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN007,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+RN008,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN008,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+RN009,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+RN009,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+RN009,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN009,SK13,Toxicology/Overdose Management,SYNTHETIC
+RN009,SK06,Central Line / PICC Management,SYNTHETIC
+RN009,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN010,SK16,Tracheostomy Care,SYNTHETIC
+RN010,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN010,SK11,Pediatric Critical Care,SYNTHETIC
+RN010,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+RN011,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN011,SK12,Obstetric Emergency Management,SYNTHETIC
+RN011,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+RN012,SK16,Tracheostomy Care,SYNTHETIC
+RN012,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN012,SK13,Toxicology/Overdose Management,SYNTHETIC
+RN012,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN013,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+RN013,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN013,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+RN013,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+RN013,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+RN013,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN013,SK05,Ventilator Management,SYNTHETIC
+RN013,SK11,Pediatric Critical Care,SYNTHETIC
+RN013,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN014,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN014,SK05,Ventilator Management,SYNTHETIC
+RN014,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN014,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+RN014,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+RN014,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN014,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+RN014,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN015,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN015,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+RN015,SK06,Central Line / PICC Management,SYNTHETIC
+RN015,SK13,Toxicology/Overdose Management,SYNTHETIC
+RN015,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+RN015,SK09,Burn/Trauma Wound Care,SYNTHETIC
+RN015,SK11,Pediatric Critical Care,SYNTHETIC
+RN015,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN015,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+RN015,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN016,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN016,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN016,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+RN016,SK16,Tracheostomy Care,SYNTHETIC
+RN017,SK16,Tracheostomy Care,SYNTHETIC
+RN018,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+RN018,SK12,Obstetric Emergency Management,SYNTHETIC
+RN018,SK05,Ventilator Management,SYNTHETIC
+RN018,SK16,Tracheostomy Care,SYNTHETIC
+RN019,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+RN019,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN019,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+RN019,SK06,Central Line / PICC Management,SYNTHETIC
+RN019,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN019,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+RN020,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+RN020,SK12,Obstetric Emergency Management,SYNTHETIC
+RN020,SK11,Pediatric Critical Care,SYNTHETIC
+RN020,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+RN020,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+RN020,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC

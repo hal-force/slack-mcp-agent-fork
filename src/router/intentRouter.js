@@ -10,6 +10,7 @@ const INTENTS = {
   CANVAS:          "canvas",
   SLACK_SEARCH:    "slack_search",
   INTERNET_SEARCH: "internet_search",
+  TRIAGE:          "triage",
   CONVERSATIONAL:  "conversational",
 };
 
@@ -40,6 +41,15 @@ const SIGNAL = {
     /\b(generate|write|create|draft|prepare|produce|compose|build|make|put together)\b[\s\S]{0,40}?\b(reports?|briefs?|memos?|write[- ]?ups?|deep dive|analys[ie]s|assessment|white ?paper|summary document|full summary)\b/i,
   slackSearch:
     /\bfind\b|\bsearch\b|\bwho (?:said|mentioned|posted)\b|\bshow me messages\b/i,
+  // Nurse-assignment / triage operations. Deliberately NARROW: requires the
+  // clinical-staffing vocabulary of this scenario (nurse/patient/admit/acuity/
+  // assignment/skill-match/caseload/shift), so it does NOT fire on generic
+  // analytics ("show me the sales numbers") the way SIGNAL.tableau does. The
+  // TRIAGE intent is inert unless AGENTS_ENABLED is on AND a triage specialist is
+  // wired in (see supervisor.js) — with the flag off it changes no behavior
+  // (nothing downstream consumes it; the Slack skill still matches every turn).
+  triage:
+    /\b(triage|nurse|nursing|patient(?:s)?|admit(?:ted|s|ssion)?|acuity|caseload|charge nurse|staffing|assign(?:ment|ed|ing)?|skill[- ]?match|shift)\b/i,
 };
 
 /**
@@ -80,6 +90,13 @@ function classifyIntent(userMessage, caps = {}, threadHint = "") {
   }
   if (SIGNAL.slackSearch.test(userMessage))                    intents.add(INTENTS.SLACK_SEARCH);
   if (caps.internetSearch)                                     intents.add(INTENTS.INTERNET_SEARCH);
+  // Triage (nurse-assignment) intent. Needs the Tableau MCP (the specialist
+  // reasons over the triage datasources), so gate on tableauEnabled. This intent
+  // is only ACTED upon when AGENTS_ENABLED is on and a triage specialist is wired
+  // in (supervisor.js); with the flag off it is inert — nothing downstream
+  // consumes it, and it is deliberately excluded from useFullModel below so it
+  // cannot change model selection on the baseline path.
+  if (caps.tableauEnabled && SIGNAL.triage.test(userMessage))  intents.add(INTENTS.TRIAGE);
   if (intents.size === 0)                                      intents.add(INTENTS.CONVERSATIONAL);
 
   const useFullModel =

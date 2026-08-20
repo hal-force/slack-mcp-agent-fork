@@ -1,0 +1,21 @@
+nurse_id,nurse_name,experience_years,home_unit,certification,shift_pattern,max_caseload,skill_count,data_classification
+RN001,Rachel Okafor,15,ICU-A,None,Day,5,6,SYNTHETIC
+RN002,Tom Sinclair,14,Step-Down,CCRN,Day,6,6,SYNTHETIC
+RN003,Laura Vasquez,20,Step-Down,PCCN,Night,6,7,SYNTHETIC
+RN004,Derek Chen,2,ICU-B,None,Day,5,2,SYNTHETIC
+RN005,Amina Diallo,7,Med-Surg,None,Day,6,5,SYNTHETIC
+RN006,Greg Park,11,Med-Surg,CEN,Day,6,10,SYNTHETIC
+RN007,Yuki Tanaka,8,Med-Surg,CCRN,Day,6,9,SYNTHETIC
+RN008,Carlos Rivera,2,Step-Down,None,Day,6,2,SYNTHETIC
+RN009,Priya Sharma,15,Med-Surg,PCCN,Day,6,6,SYNTHETIC
+RN010,Sean O'Brien,3,Med-Surg,CEN,Night,6,4,SYNTHETIC
+RN011,Fatima Hassan,2,ICU-B,None,Night,5,3,SYNTHETIC
+RN012,Ben Larsson,7,ICU-B,CCRN,Day,5,4,SYNTHETIC
+RN013,Mei Wu,15,ICU-B,None,Day,5,9,SYNTHETIC
+RN014,Alex Kaplan,15,Med-Surg,CEN,Day,6,8,SYNTHETIC
+RN015,Zara Mbeki,15,Med-Surg,CCRN,Day,6,10,SYNTHETIC
+RN016,Jordan Reeves,7,Med-Surg,CCRN,Night,6,4,SYNTHETIC
+RN017,Kenji Sato,1,ICU-B,CCRN,Day,5,1,SYNTHETIC
+RN018,Olivia Barnes,5,Step-Down,None,Night,6,4,SYNTHETIC
+RN019,Rashid Al-Farsi,10,Step-Down,CCRN,Day,6,6,SYNTHETIC
+RN020,Ingrid Lindqvist,14,ICU-B,CCRN,Night,5,6,SYNTHETIC

@@ -201,10 +201,16 @@ async function generateWithBedrock({
   temperature,
   tools,
   dispatchTool,
+  bedrockModelId, // optional per-agent model pin (defineAgent); overrides cfg.model
   __client, // test seam: inject a fake { send } client
 }) {
   const cfg = bedrockConfig();
   if (!cfg) throw new Error("Bedrock is not configured (BEDROCK_MODEL_ID / region / AWS credentials).");
+  // A per-call model override lets a specialized agent pin its own model (e.g. a
+  // fixed Sonnet for reproducible eval scores) independent of the app-wide
+  // BEDROCK_MODEL_ID. Falls back to the configured model when unset, so the
+  // baseline path (which never sets this) is unchanged.
+  const modelId = String(bedrockModelId || "").trim() || cfg.model;
 
   const { ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
   const client = __client || getBedrockClient(cfg.region);
@@ -223,7 +229,7 @@ async function generateWithBedrock({
   // it if the model rejects it — so we don't have to hardcode per-model support.
   const includeTemperature = Number.isFinite(temperature);
   const baseParams = {
-    modelId: cfg.model,
+    modelId,
     ...(systemInstruction && systemInstruction.trim()
       ? { system: [{ text: systemInstruction.trim() }] }
       : {}),

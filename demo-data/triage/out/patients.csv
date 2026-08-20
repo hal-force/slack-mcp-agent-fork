@@ -1,0 +1,901 @@
+patient_id,patient_name,age,sex,admit_datetime,discharge_datetime,diagnosis,acuity_level,acuity_score,risk_score,comorbidity,symptoms,los_hours,outcome,adverse_outcome,mean_skill_match_pct,data_classification
+PT0001,Felix Mueller,78,M,2026-04-24 00:00:00,2026-04-25 11:00:00,Post-CABG Day 1,Severe,7,7,Obesity (BMI 38),mild dyspnoea; reduced mobility; sternal wound pain,35,Stabilized,0,66.7,SYNTHETIC
+PT0002,Wei Larsen,69,M,2026-04-20 22:00:00,2026-04-23 01:00:00,Cellulitis on IV Abx,Moderate,4,5,HIV (suppressed),limb erythema; swelling; low-grade fever; warmth,51,Stabilized,0,100.0,SYNTHETIC
+PT0003,Amara Zhang,74,F,2026-04-08 19:00:00,2026-04-09 03:00:00,Elective Pre-Op Workup,Low,2,3,COPD,asymptomatic; stable vitals,8,Discharged,0,100.0,SYNTHETIC
+PT0004,Sergei Al-Rashid,69,M,2026-04-11 02:00:00,2026-04-14 04:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,8,None,abdominal guarding; petechial rash; convulsions,74,Step-Down,0,75.0,SYNTHETIC
+PT0005,Marcus Tanaka,42,M,2026-04-30 17:00:00,2026-05-04 17:00:00,Post-CABG Day 1,Severe,6,7,Atrial Fibrillation,mild dyspnoea; reduced mobility; sternal wound pain,96,Stabilized,0,50.0,SYNTHETIC
+PT0006,Ravi Kowalski,25,M,2026-04-14 09:00:00,2026-04-14 13:00:00,Elective Pre-Op Workup,Low,1,1,None,stable vitals; asymptomatic,4,Discharged,0,100.0,SYNTHETIC
+PT0007,Fatima Ito,23,F,2026-04-11 00:00:00,2026-04-16 04:00:00,Septic Shock - Abdominal Source,Critical,10,10,None,oliguria; hypotension,124,Rapid Response Called,1,44.4,SYNTHETIC
+PT0008,Jorge Fernandez,34,M,2026-04-29 13:00:00,2026-04-29 22:00:00,Stable CHF - Med Adjustment,Low,2,2,Atrial Fibrillation,orthopnoea; mild ankle swelling,9,Step-Down,0,100.0,SYNTHETIC
+PT0009,Andre Okello,82,M,2026-04-25 00:00:00,2026-04-27 08:00:00,Septic Shock - Abdominal Source,Critical,8,9,Obesity (BMI 38),oliguria; hypotension,56,Step-Down,0,55.6,SYNTHETIC
+PT0010,James Santos,31,M,2026-04-19 16:00:00,2026-04-23 21:00:00,GI Hemorrhage - Variceal,Severe,6,6,Atrial Fibrillation,hypotension; pallor; haematemesis; melaena,101,Step-Down,0,0.0,SYNTHETIC
+PT0011,Wei Kowalski,51,M,2026-04-26 19:00:00,2026-04-27 02:00:00,Elective Pre-Op Workup,Low,1,2,Atrial Fibrillation,stable vitals; asymptomatic,7,Discharged,0,100.0,SYNTHETIC
+PT0012,David Okafor,74,M,2026-04-15 05:00:00,2026-04-17 03:00:00,Cellulitis on IV Abx,Moderate,4,4,CKD Stage 3B,swelling; limb erythema,46,Discharged,0,100.0,SYNTHETIC
+PT0013,Kwame Delano,88,M,2026-04-07 08:00:00,2026-04-13 09:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,None,fever; dry cough,145,Stabilized,0,66.7,SYNTHETIC
+PT0014,Priya Johansson,48,F,2026-04-30 02:00:00,2026-05-01 03:00:00,Community-Acquired Pneumonia,Moderate,3,3,Cirrhosis (Child-Pugh B),productive cough; fever; pleuritic chest pain; dyspnoea,25,Discharged,0,50.0,SYNTHETIC
+PT0015,Marcus Kim,31,M,2026-04-29 13:00:00,2026-05-03 05:00:00,Acetaminophen Overdose,Severe,6,6,None,right upper quadrant pain; nausea,88,Step-Down,0,100.0,SYNTHETIC
+PT0016,John Zhang,53,M,2026-04-10 12:00:00,2026-04-11 01:00:00,Post-Appendectomy Recovery,Moderate,4,4,Atrial Fibrillation,incisional pain; nausea; reduced appetite,13,Step-Down,0,0.0,SYNTHETIC
+PT0017,Sergei Nguyen,73,M,2026-04-12 03:00:00,2026-04-12 23:00:00,Diabetic Ulcer - Infected,Moderate,4,4,CKD Stage 3B,localised erythema; wound drainage; foot pain,20,Discharged,0,50.0,SYNTHETIC
+PT0018,Diego Ito,84,M,2026-04-09 02:00:00,2026-04-09 14:00:00,Syncope - Observation,Low,1,2,HIV (suppressed),light-headedness; transient loss of consciousness,12,Discharged,0,0.0,SYNTHETIC
+PT0019,Carmen Singh,70,F,2026-04-14 09:00:00,2026-04-22 06:00:00,Septic Shock - Abdominal Source,Critical,10,10,Cirrhosis (Child-Pugh B),tachycardia; oliguria,189,Stabilized,0,44.4,SYNTHETIC
+PT0020,Kwame Sinclair,69,M,2026-04-29 21:00:00,2026-05-03 20:00:00,Status Epilepticus,Severe,6,7,Sickle Cell Disease,incontinence; altered consciousness,95,Step-Down,0,83.3,SYNTHETIC
+PT0021,Luis Zhang,39,M,2026-04-19 20:00:00,2026-04-21 10:00:00,Cellulitis on IV Abx,Moderate,4,5,Obesity (BMI 38),low-grade fever; swelling,38,Discharged,0,100.0,SYNTHETIC
+PT0022,Felix Larsen,21,M,2026-04-29 16:00:00,2026-04-30 05:00:00,UTI - IV Abx Transition to PO,Low,2,2,Type 2 Diabetes,dysuria; suprapubic discomfort,13,Discharged,0,0.0,SYNTHETIC
+PT0023,Ali Nakamura,36,M,2026-04-25 13:00:00,2026-04-28 19:00:00,Septic Shock - Abdominal Source,Critical,9,10,HIV (suppressed),abdominal pain; oliguria; hypotension; fever,78,Rapid Response Called,1,44.4,SYNTHETIC
+PT0024,Hiroshi Nakamura,33,M,2026-04-30 16:00:00,2026-05-06 14:00:00,ARDS - Post Viral Pneumonia,Critical,9,9,Hypertension,severe dyspnoea; fever; dry cough,142,Step-Down,0,44.4,SYNTHETIC
+PT0025,Jorge Nguyen,38,M,2026-04-19 21:00:00,2026-04-20 21:00:00,Elective Pre-Op Workup,Low,2,2,None,stable vitals; asymptomatic,24,Step-Down,0,0.0,SYNTHETIC
+PT0026,Hiroshi Mueller,52,M,2026-04-11 04:00:00,2026-04-13 02:00:00,Post-CABG Day 1,Severe,7,8,Obesity (BMI 38),sternal wound pain; reduced mobility; mild dyspnoea,46,Step-Down,0,50.0,SYNTHETIC
+PT0027,Fatima Sinclair,70,F,2026-04-07 12:00:00,2026-04-15 23:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,9,HIV (suppressed),oliguria; muscle pain,203,Stabilized,0,44.4,SYNTHETIC
+PT0028,Diego Vasquez,63,M,2026-04-30 16:00:00,2026-05-01 11:00:00,Status Epilepticus,Severe,6,7,HIV (suppressed),altered consciousness; incontinence; prolonged seizure activity,19,Stabilized,0,66.7,SYNTHETIC
+PT0029,Kwame Kowalski,61,M,2026-04-12 15:00:00,2026-04-13 02:00:00,Elective Pre-Op Workup,Low,1,1,Obesity (BMI 38),asymptomatic; stable vitals,11,Stabilized,0,100.0,SYNTHETIC
+PT0030,Dante Kim,72,M,2026-04-02 03:00:00,2026-04-04 02:00:00,Post-Appendectomy Recovery,Moderate,3,4,CHF (EF 30%),reduced appetite; incisional pain; nausea,47,Transferred to ICU,1,100.0,SYNTHETIC
+PT0031,Priya Abadi,28,F,2026-04-14 22:00:00,2026-04-15 19:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Hypertension,localised erythema; foot pain; wound drainage,21,Stabilized,0,100.0,SYNTHETIC
+PT0032,Priya Moreau,20,F,2026-04-02 17:00:00,2026-04-07 02:00:00,GI Hemorrhage - Variceal,Severe,7,8,Type 2 Diabetes,melaena; haematemesis,105,Transferred to ICU,1,66.7,SYNTHETIC
+PT0033,Maria Petrov,38,F,2026-04-30 20:00:00,2026-05-05 10:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Hypertension,hypoxaemia; fever; severe dyspnoea,110,Stabilized,0,33.3,SYNTHETIC
+PT0034,Elena Bergstrom,49,F,2026-04-17 22:00:00,2026-04-21 20:00:00,Eclampsia,Severe,7,8,Sickle Cell Disease,seizure; headache,94,Stabilized,0,66.7,SYNTHETIC
+PT0035,Jorge Ito,82,M,2026-04-02 18:00:00,2026-04-08 01:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,None,dry cough; fever; hypoxaemia; severe dyspnoea,127,Deceased,1,44.4,SYNTHETIC
+PT0036,Diego Hoffman,84,M,2026-04-28 02:00:00,2026-04-28 20:00:00,Chronic Anemia - Transfusion,Low,1,2,HIV (suppressed),fatigue; exertional dyspnoea; pallor,18,Discharged,0,0.0,SYNTHETIC
+PT0037,Sofia Mbeki,75,F,2026-04-26 06:00:00,2026-04-26 15:00:00,Chronic Anemia - Transfusion,Low,2,3,HIV (suppressed),fatigue; pallor; exertional dyspnoea,9,Discharged,0,100.0,SYNTHETIC
+PT0038,Beatrice Larsen,61,F,2026-04-14 20:00:00,2026-04-15 16:00:00,Diabetic Ulcer - Infected,Moderate,4,5,CKD Stage 3B,wound drainage; localised erythema; foot pain,20,Rapid Response Called,1,50.0,SYNTHETIC
+PT0039,Kwame Delano,80,M,2026-04-18 08:00:00,2026-04-18 22:00:00,Syncope - Observation,Low,1,1,Type 2 Diabetes,transient loss of consciousness; light-headedness,14,Step-Down,0,100.0,SYNTHETIC
+PT0040,Luis Mueller,88,M,2026-04-25 19:00:00,2026-04-27 02:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Atrial Fibrillation,foot pain; localised erythema; wound drainage,31,Discharged,0,50.0,SYNTHETIC
+PT0041,Omar Johansson,42,M,2026-04-09 05:00:00,2026-04-11 09:00:00,Post-CABG Day 1,Severe,5,6,Type 2 Diabetes,mild dyspnoea; sternal wound pain,52,Stabilized,0,83.3,SYNTHETIC
+PT0042,Omar Kowalski,19,M,2026-04-13 15:00:00,2026-04-13 22:00:00,Stable CHF - Med Adjustment,Low,2,2,Type 2 Diabetes,mild ankle swelling; orthopnoea,7,Discharged,0,100.0,SYNTHETIC
+PT0043,David Vasquez,54,M,2026-04-06 09:00:00,2026-04-07 03:00:00,Elective Pre-Op Workup,Low,2,2,None,asymptomatic; stable vitals,18,Discharged,0,100.0,SYNTHETIC
+PT0044,Thomas Kim,27,M,2026-04-21 09:00:00,2026-04-23 19:00:00,Suspected Cerebral Malaria,Critical,9,9,None,rigors; impaired consciousness,58,Step-Down,0,66.7,SYNTHETIC
+PT0045,Kofi Sinclair,75,M,2026-04-06 01:00:00,2026-04-06 14:00:00,Stable CHF - Med Adjustment,Low,2,2,Type 2 Diabetes,mild ankle swelling; orthopnoea,13,Discharged,0,100.0,SYNTHETIC
+PT0046,Mei Johansson,28,F,2026-04-05 05:00:00,2026-04-05 15:00:00,Stable CHF - Med Adjustment,Low,1,2,CHF (EF 30%),mild ankle swelling; orthopnoea,10,Discharged,0,0.0,SYNTHETIC
+PT0047,Sofia Okafor,54,F,2026-04-30 09:00:00,2026-05-08 00:00:00,Major Burn (30% TBSA),Critical,8,9,HIV (suppressed),hypovolaemia; extensive burns; tachycardia,183,Step-Down,0,44.4,SYNTHETIC
+PT0048,James Larsen,37,M,2026-04-27 16:00:00,2026-04-30 17:00:00,GI Hemorrhage - Variceal,Severe,6,6,None,melaena; pallor; haematemesis; hypotension,73,Stabilized,0,83.3,SYNTHETIC
+PT0049,David Kim,69,M,2026-04-25 06:00:00,2026-04-27 03:00:00,Eclampsia,Severe,7,7,None,seizure; severe hypertension; headache,45,Step-Down,0,83.3,SYNTHETIC
+PT0050,Zara Costa,20,F,2026-04-14 18:00:00,2026-04-22 18:00:00,Septic Shock - Abdominal Source,Critical,10,10,CKD Stage 3B,fever; oliguria; abdominal pain,192,Transferred to ICU,1,44.4,SYNTHETIC
+PT0051,Priya Mbeki,80,F,2026-04-19 20:00:00,2026-04-24 17:00:00,Major Burn (30% TBSA),Critical,9,10,Post-Transplant (renal),tachycardia; hypovolaemia,117,Transferred to ICU,1,11.1,SYNTHETIC
+PT0052,Diego Okello,88,M,2026-04-15 01:00:00,2026-04-17 18:00:00,Acetaminophen Overdose,Severe,7,7,Type 2 Diabetes,right upper quadrant pain; malaise; nausea,65,Stabilized,0,50.0,SYNTHETIC
+PT0053,Thomas Abadi,70,M,2026-04-18 05:00:00,2026-04-21 07:00:00,Acetaminophen Overdose,Severe,5,5,None,malaise; right upper quadrant pain,74,Rapid Response Called,1,50.0,SYNTHETIC
+PT0054,Carmen Ito,74,F,2026-04-03 04:00:00,2026-04-03 13:00:00,Chronic Anemia - Transfusion,Low,2,2,None,pallor; fatigue; exertional dyspnoea,9,Discharged,0,0.0,SYNTHETIC
+PT0055,Sergei Ito,77,M,2026-04-24 12:00:00,2026-04-25 08:00:00,GI Hemorrhage - Variceal,Severe,7,8,COPD,pallor; haematemesis; hypotension; melaena,20,Rapid Response Called,1,83.3,SYNTHETIC
+PT0056,Zara Bergstrom,88,F,2026-04-12 15:00:00,2026-04-15 06:00:00,Eclampsia,Severe,7,7,None,visual disturbance; seizure; severe hypertension,63,Stabilized,0,83.3,SYNTHETIC
+PT0057,Beatrice Nguyen,80,F,2026-04-15 12:00:00,2026-04-21 17:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,9,Atrial Fibrillation,oliguria; muscle pain; dark urine,149,Step-Down,0,33.3,SYNTHETIC
+PT0058,Zara Moreau,67,F,2026-04-24 04:00:00,2026-04-26 12:00:00,Acetaminophen Overdose,Severe,7,7,None,right upper quadrant pain; nausea; malaise,56,Rapid Response Called,1,83.3,SYNTHETIC
+PT0059,Thomas Kowalski,30,M,2026-04-28 19:00:00,2026-04-29 01:00:00,Chronic Anemia - Transfusion,Low,2,3,HIV (suppressed),fatigue; pallor; exertional dyspnoea,6,Discharged,0,100.0,SYNTHETIC
+PT0060,Leila Delano,61,F,2026-04-28 22:00:00,2026-05-02 03:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,9,None,weakness; muscle pain,77,Deceased,1,55.6,SYNTHETIC
+PT0061,Sergei Okafor,26,M,2026-04-23 18:00:00,2026-04-26 03:00:00,Acetaminophen Overdose,Severe,7,7,None,malaise; right upper quadrant pain; nausea,57,Stabilized,0,83.3,SYNTHETIC
+PT0062,John Kowalski,23,M,2026-05-01 00:00:00,2026-05-03 19:00:00,Septic Shock - Abdominal Source,Critical,9,10,Type 2 Diabetes,hypotension; tachycardia; fever,67,Transferred to ICU,1,55.6,SYNTHETIC
+PT0063,Pavel Moreau,66,M,2026-04-18 13:00:00,2026-04-20 10:00:00,Cellulitis on IV Abx,Moderate,3,4,Hypertension,warmth; limb erythema; swelling; low-grade fever,45,Step-Down,0,0.0,SYNTHETIC
+PT0064,Zara Bergstrom,77,F,2026-04-28 05:00:00,2026-04-28 13:00:00,Stable CHF - Med Adjustment,Low,1,2,Hypertension,orthopnoea; mild ankle swelling,8,Stabilized,0,100.0,SYNTHETIC
+PT0065,Anastasia Okafor,43,F,2026-04-28 06:00:00,2026-04-29 08:00:00,Post-Appendectomy Recovery,Moderate,4,5,CHF (EF 30%),nausea; reduced appetite; incisional pain,26,Step-Down,0,100.0,SYNTHETIC
+PT0066,John Tanaka,19,M,2026-04-30 20:00:00,2026-05-01 10:00:00,Stable CHF - Med Adjustment,Low,2,3,CHF (EF 30%),orthopnoea; mild ankle swelling,14,Discharged,0,0.0,SYNTHETIC
+PT0067,Ali Kowalski,35,M,2026-04-10 19:00:00,2026-04-11 19:00:00,Chronic Anemia - Transfusion,Low,2,2,None,fatigue; pallor; exertional dyspnoea,24,Discharged,0,0.0,SYNTHETIC
+PT0068,Luis Reyes,43,M,2026-04-06 14:00:00,2026-04-07 08:00:00,Post-Appendectomy Recovery,Moderate,3,4,CHF (EF 30%),nausea; reduced appetite; incisional pain,18,Step-Down,0,0.0,SYNTHETIC
+PT0069,Felix Nguyen,36,M,2026-04-13 14:00:00,2026-04-18 05:00:00,Post-CABG Day 1,Severe,5,6,Atrial Fibrillation,sternal wound pain; reduced mobility; mild dyspnoea,111,Rapid Response Called,1,16.7,SYNTHETIC
+PT0070,Emeka Al-Rashid,51,M,2026-04-17 20:00:00,2026-04-18 06:00:00,Community-Acquired Pneumonia,Moderate,3,3,None,productive cough; fever; pleuritic chest pain,10,Step-Down,0,50.0,SYNTHETIC
+PT0071,Wei Larsen,56,M,2026-04-24 22:00:00,2026-04-27 10:00:00,GI Hemorrhage - Variceal,Severe,6,7,CKD Stage 3B,melaena; hypotension; haematemesis; pallor,60,Stabilized,0,33.3,SYNTHETIC
+PT0072,Kofi Vasquez,87,M,2026-04-05 03:00:00,2026-04-09 04:00:00,Suspected Cerebral Malaria,Critical,9,9,Obesity (BMI 38),impaired consciousness; rigors; convulsions; fever,97,Stabilized,0,55.6,SYNTHETIC
+PT0073,Mei Brooks,48,F,2026-04-12 22:00:00,2026-04-14 23:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,CHF (EF 30%),fever; severe dyspnoea; hypoxaemia; dry cough,49,Stabilized,0,55.6,SYNTHETIC
+PT0074,Kwame Santos,20,M,2026-04-09 02:00:00,2026-04-09 15:00:00,Community-Acquired Pneumonia,Moderate,3,4,HIV (suppressed),productive cough; pleuritic chest pain; dyspnoea,13,Rapid Response Called,1,100.0,SYNTHETIC
+PT0075,Maria Reyes,36,F,2026-04-09 20:00:00,2026-04-10 11:00:00,Stable CHF - Med Adjustment,Low,1,2,Type 2 Diabetes,mild ankle swelling; orthopnoea,15,Step-Down,0,100.0,SYNTHETIC
+PT0076,Kofi Sinclair,19,M,2026-04-08 10:00:00,2026-04-08 15:00:00,Elective Pre-Op Workup,Low,2,2,None,asymptomatic; stable vitals,5,Discharged,0,100.0,SYNTHETIC
+PT0077,Aisha Delano,75,F,2026-04-18 23:00:00,2026-04-26 03:00:00,Major Burn (30% TBSA),Critical,9,9,CKD Stage 3B,extensive burns; severe pain,172,Deceased,1,44.4,SYNTHETIC
+PT0078,Sarah Costa,25,F,2026-04-29 02:00:00,2026-04-29 16:00:00,Syncope - Observation,Low,1,1,CHF (EF 30%),light-headedness; transient loss of consciousness,14,Step-Down,0,100.0,SYNTHETIC
+PT0079,Jorge Patel,53,M,2026-04-14 17:00:00,2026-04-15 08:00:00,Chronic Anemia - Transfusion,Low,2,2,Type 2 Diabetes,fatigue; pallor,15,Rapid Response Called,1,100.0,SYNTHETIC
+PT0080,Sofia Diallo,32,F,2026-04-13 13:00:00,2026-04-16 05:00:00,Acetaminophen Overdose,Severe,6,7,CHF (EF 30%),malaise; right upper quadrant pain; nausea,64,Stabilized,0,50.0,SYNTHETIC
+PT0081,Chloe Nakamura,58,F,2026-04-18 15:00:00,2026-04-20 15:00:00,Status Epilepticus,Severe,6,6,Obesity (BMI 38),altered consciousness; incontinence; prolonged seizure activity,48,Step-Down,0,83.3,SYNTHETIC
+PT0082,Pavel Sinclair,34,M,2026-04-04 23:00:00,2026-04-05 11:00:00,Chronic Anemia - Transfusion,Low,1,1,Type 2 Diabetes,pallor; exertional dyspnoea,12,Discharged,0,100.0,SYNTHETIC
+PT0083,Sofia Al-Rashid,57,F,2026-04-16 02:00:00,2026-04-19 22:00:00,Acetaminophen Overdose,Severe,7,8,Type 2 Diabetes,malaise; nausea; right upper quadrant pain,92,Rapid Response Called,1,66.7,SYNTHETIC
+PT0084,Olga Zhang,72,F,2026-04-05 14:00:00,2026-04-10 10:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,Obesity (BMI 38),dark urine; oliguria; muscle pain; weakness,116,Transferred to ICU,1,55.6,SYNTHETIC
+PT0085,Anya Brooks,57,F,2026-04-30 14:00:00,2026-04-30 23:00:00,Elective Pre-Op Workup,Low,1,2,CHF (EF 30%),asymptomatic; stable vitals,9,Stabilized,0,100.0,SYNTHETIC
+PT0086,Raj Nakamura,71,M,2026-04-03 23:00:00,2026-04-07 00:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,Sickle Cell Disease,oliguria; weakness; dark urine; muscle pain,73,Transferred to ICU,1,55.6,SYNTHETIC
+PT0087,Carmen Johansson,28,F,2026-04-03 05:00:00,2026-04-04 21:00:00,Acetaminophen Overdose,Severe,7,7,CHF (EF 30%),malaise; nausea,40,Rapid Response Called,1,50.0,SYNTHETIC
+PT0088,Ivan Ito,80,M,2026-04-22 20:00:00,2026-04-23 08:00:00,Post-Appendectomy Recovery,Moderate,4,4,Atrial Fibrillation,nausea; incisional pain; reduced appetite,12,Discharged,0,100.0,SYNTHETIC
+PT0089,David Mueller,55,M,2026-04-13 20:00:00,2026-04-16 01:00:00,Diabetic Ulcer - Infected,Moderate,3,3,CKD Stage 3B,wound drainage; localised erythema,53,Discharged,0,100.0,SYNTHETIC
+PT0090,Ivan Kowalski,68,M,2026-04-23 17:00:00,2026-04-26 00:00:00,Cellulitis on IV Abx,Moderate,3,4,COPD,swelling; limb erythema,55,Discharged,0,0.0,SYNTHETIC
+PT0091,Andre Bergstrom,20,M,2026-04-25 11:00:00,2026-04-30 14:00:00,Septic Shock - Abdominal Source,Critical,9,10,CHF (EF 30%),abdominal pain; tachycardia; fever; hypotension,123,Stabilized,0,44.4,SYNTHETIC
+PT0092,Leila Hoffman,57,F,2026-04-11 09:00:00,2026-04-12 10:00:00,Community-Acquired Pneumonia,Moderate,3,3,HIV (suppressed),dyspnoea; pleuritic chest pain; productive cough; fever,25,Discharged,0,100.0,SYNTHETIC
+PT0093,Hiroshi Kim,36,M,2026-04-23 15:00:00,2026-04-29 09:00:00,Septic Shock - Abdominal Source,Critical,10,10,Sickle Cell Disease,tachycardia; oliguria,138,Transferred to ICU,1,55.6,SYNTHETIC
+PT0094,Ingrid Zhang,58,F,2026-04-04 05:00:00,2026-04-07 10:00:00,Major Burn (30% TBSA),Critical,10,10,COPD,tachycardia; severe pain; hypovolaemia; extensive burns,77,Rapid Response Called,1,66.7,SYNTHETIC
+PT0095,Ivan Costa,75,M,2026-04-16 00:00:00,2026-04-18 21:00:00,Eclampsia,Severe,6,6,CHF (EF 30%),headache; severe hypertension,69,Rapid Response Called,1,50.0,SYNTHETIC
+PT0096,Luis Okafor,59,M,2026-04-17 09:00:00,2026-04-23 11:00:00,Septic Shock - Abdominal Source,Critical,10,10,CHF (EF 30%),oliguria; fever; hypotension; abdominal pain,146,Deceased,1,44.4,SYNTHETIC
+PT0097,Maria Vasquez,23,F,2026-04-15 15:00:00,2026-04-18 05:00:00,Post-Appendectomy Recovery,Moderate,3,3,None,reduced appetite; incisional pain,62,Discharged,0,0.0,SYNTHETIC
+PT0098,Andre Nguyen,60,M,2026-04-13 01:00:00,2026-04-13 13:00:00,Syncope - Observation,Low,1,2,Cirrhosis (Child-Pugh B),light-headedness; transient loss of consciousness,12,Discharged,0,100.0,SYNTHETIC
+PT0099,Kwame Larsen,36,M,2026-04-29 00:00:00,2026-05-01 01:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Atrial Fibrillation,wound drainage; localised erythema; foot pain,49,Discharged,0,100.0,SYNTHETIC
+PT0100,Kofi Ito,72,M,2026-04-28 10:00:00,2026-05-03 00:00:00,Septic Shock - Abdominal Source,Critical,9,10,Post-Transplant (renal),oliguria; fever,110,Transferred to ICU,1,55.6,SYNTHETIC
+PT0101,Pavel Johansson,55,M,2026-04-09 04:00:00,2026-04-12 18:00:00,Major Burn (30% TBSA),Critical,8,9,Cirrhosis (Child-Pugh B),severe pain; extensive burns,86,Stabilized,0,66.7,SYNTHETIC
+PT0102,Chloe Santos,38,F,2026-04-27 08:00:00,2026-04-27 14:00:00,Syncope - Observation,Low,1,2,Sickle Cell Disease,light-headedness; transient loss of consciousness,6,Discharged,0,100.0,SYNTHETIC
+PT0103,Anastasia Kowalski,75,F,2026-04-29 20:00:00,2026-05-02 02:00:00,Post-Appendectomy Recovery,Moderate,3,4,HIV (suppressed),nausea; reduced appetite,54,Discharged,0,50.0,SYNTHETIC
+PT0104,Nadia Reyes,38,F,2026-04-25 08:00:00,2026-04-25 21:00:00,Chronic Anemia - Transfusion,Low,1,2,Cirrhosis (Child-Pugh B),exertional dyspnoea; pallor; fatigue,13,Stabilized,0,100.0,SYNTHETIC
+PT0105,Ingrid Vasquez,75,F,2026-04-23 00:00:00,2026-04-23 07:00:00,Chronic Anemia - Transfusion,Low,2,2,Post-Transplant (renal),fatigue; pallor; exertional dyspnoea,7,Discharged,0,0.0,SYNTHETIC
+PT0106,James Bergstrom,28,M,2026-04-18 16:00:00,2026-04-19 16:00:00,GI Hemorrhage - Variceal,Severe,6,6,Cirrhosis (Child-Pugh B),hypotension; haematemesis; melaena,24,Step-Down,0,83.3,SYNTHETIC
+PT0107,Thomas Bergstrom,35,M,2026-04-07 05:00:00,2026-04-10 02:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Sickle Cell Disease,fever; hypoxaemia,69,Step-Down,0,66.7,SYNTHETIC
+PT0108,Elena Santos,48,F,2026-04-07 09:00:00,2026-04-13 03:00:00,Septic Shock - Abdominal Source,Critical,8,8,Atrial Fibrillation,oliguria; abdominal pain; fever; hypotension,138,Transferred to ICU,1,66.7,SYNTHETIC
+PT0109,John Singh,55,M,2026-04-22 07:00:00,2026-04-22 22:00:00,UTI - IV Abx Transition to PO,Low,2,2,Type 2 Diabetes,dysuria; suprapubic discomfort; urinary frequency,15,Discharged,0,100.0,SYNTHETIC
+PT0110,Carmen Mueller,85,F,2026-04-29 12:00:00,2026-04-29 16:00:00,Stable CHF - Med Adjustment,Low,2,3,COPD,orthopnoea; mild ankle swelling,4,Step-Down,0,100.0,SYNTHETIC
+PT0111,Sofia Delano,26,F,2026-04-17 12:00:00,2026-04-18 11:00:00,Diabetic Ulcer - Infected,Moderate,4,5,CKD Stage 3B,foot pain; wound drainage; localised erythema,23,Discharged,0,100.0,SYNTHETIC
+PT0112,Hiroshi Fernandez,41,M,2026-04-24 07:00:00,2026-04-26 08:00:00,Acetaminophen Overdose,Severe,5,6,CKD Stage 3B,nausea; right upper quadrant pain; malaise,49,Transferred to ICU,1,66.7,SYNTHETIC
+PT0113,David Johansson,50,M,2026-04-09 12:00:00,2026-04-10 13:00:00,Status Epilepticus,Severe,5,5,None,altered consciousness; incontinence; prolonged seizure activity,25,Step-Down,0,50.0,SYNTHETIC
+PT0114,Nadia Moreau,67,F,2026-04-06 07:00:00,2026-04-11 07:00:00,Suspected Cerebral Malaria,Critical,10,10,Cirrhosis (Child-Pugh B),rigors; convulsions; impaired consciousness,120,Deceased,1,55.6,SYNTHETIC
+PT0115,Tariq Petrov,87,M,2026-04-04 12:00:00,2026-04-06 13:00:00,Community-Acquired Pneumonia,Moderate,4,4,None,productive cough; fever; dyspnoea,49,Stabilized,0,50.0,SYNTHETIC
+PT0116,James Okello,63,M,2026-04-19 04:00:00,2026-04-20 18:00:00,Eclampsia,Severe,6,7,Obesity (BMI 38),visual disturbance; severe hypertension; headache; seizure,38,Stabilized,0,50.0,SYNTHETIC
+PT0117,Sergei Reyes,22,M,2026-04-18 07:00:00,2026-04-23 00:00:00,Suspected Cerebral Malaria,Critical,8,9,Sickle Cell Disease,impaired consciousness; fever; convulsions; rigors,113,Stabilized,0,55.6,SYNTHETIC
+PT0118,Lina Moreau,27,F,2026-04-26 19:00:00,2026-04-27 12:00:00,Community-Acquired Pneumonia,Moderate,4,4,CHF (EF 30%),dyspnoea; fever; pleuritic chest pain; productive cough,17,Discharged,0,50.0,SYNTHETIC
+PT0119,Carmen Tanaka,89,F,2026-04-05 20:00:00,2026-04-06 22:00:00,Acetaminophen Overdose,Severe,7,7,Atrial Fibrillation,nausea; right upper quadrant pain; malaise,26,Step-Down,0,33.3,SYNTHETIC
+PT0120,Tariq Costa,75,M,2026-04-21 22:00:00,2026-04-23 16:00:00,Status Epilepticus,Severe,7,8,Atrial Fibrillation,prolonged seizure activity; incontinence,42,Stabilized,0,66.7,SYNTHETIC
+PT0121,James Reyes,40,M,2026-04-03 18:00:00,2026-04-07 05:00:00,Acetaminophen Overdose,Severe,7,8,Cirrhosis (Child-Pugh B),right upper quadrant pain; malaise; nausea,83,Stabilized,0,50.0,SYNTHETIC
+PT0122,Sarah Zhang,29,F,2026-04-22 01:00:00,2026-04-23 16:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,8,None,dark urine; muscle pain; oliguria,39,Deceased,1,66.7,SYNTHETIC
+PT0123,Tariq Kowalski,27,M,2026-04-18 11:00:00,2026-04-19 03:00:00,Chronic Anemia - Transfusion,Low,2,2,None,fatigue; exertional dyspnoea,16,Discharged,0,100.0,SYNTHETIC
+PT0124,Carmen Sinclair,84,F,2026-04-06 12:00:00,2026-04-07 00:00:00,Elective Pre-Op Workup,Low,1,1,None,asymptomatic; stable vitals,12,Discharged,0,100.0,SYNTHETIC
+PT0125,Anastasia Okello,56,F,2026-04-04 08:00:00,2026-04-06 06:00:00,GI Hemorrhage - Variceal,Severe,6,7,Post-Transplant (renal),hypotension; haematemesis,46,Step-Down,0,66.7,SYNTHETIC
+PT0126,Felix Brooks,28,M,2026-04-08 07:00:00,2026-04-15 18:00:00,Major Burn (30% TBSA),Critical,10,10,CHF (EF 30%),hypovolaemia; tachycardia; extensive burns; severe pain,179,Stabilized,0,33.3,SYNTHETIC
+PT0127,Ingrid Brooks,79,F,2026-04-28 06:00:00,2026-04-29 05:00:00,Status Epilepticus,Severe,7,8,HIV (suppressed),incontinence; altered consciousness; prolonged seizure activity,23,Step-Down,0,33.3,SYNTHETIC
+PT0128,Luis Costa,36,M,2026-04-19 18:00:00,2026-04-24 19:00:00,Septic Shock - Abdominal Source,Critical,10,10,CKD Stage 3B,abdominal pain; hypotension; oliguria,121,Stabilized,0,55.6,SYNTHETIC
+PT0129,Dante Nakamura,77,M,2026-04-22 23:00:00,2026-04-25 00:00:00,Community-Acquired Pneumonia,Moderate,4,5,COPD,pleuritic chest pain; productive cough,49,Discharged,0,0.0,SYNTHETIC
+PT0130,John Sinclair,58,M,2026-04-27 06:00:00,2026-05-02 11:00:00,ARDS - Post Viral Pneumonia,Critical,8,9,Atrial Fibrillation,hypoxaemia; dry cough,125,Transferred to ICU,1,44.4,SYNTHETIC
+PT0131,Felix Costa,63,M,2026-04-04 20:00:00,2026-04-05 07:00:00,Chronic Anemia - Transfusion,Low,2,2,Obesity (BMI 38),exertional dyspnoea; fatigue; pallor,11,Discharged,0,100.0,SYNTHETIC
+PT0132,Ivan Ito,69,M,2026-04-05 14:00:00,2026-04-06 03:00:00,Chronic Anemia - Transfusion,Low,2,2,Post-Transplant (renal),exertional dyspnoea; pallor,13,Stabilized,0,100.0,SYNTHETIC
+PT0133,David Fernandez,33,M,2026-04-13 07:00:00,2026-04-13 11:00:00,Elective Pre-Op Workup,Low,1,2,Cirrhosis (Child-Pugh B),stable vitals; asymptomatic,4,Stabilized,0,100.0,SYNTHETIC
+PT0134,Pavel Reyes,22,M,2026-04-09 11:00:00,2026-04-12 17:00:00,Acetaminophen Overdose,Severe,7,7,Cirrhosis (Child-Pugh B),right upper quadrant pain; nausea; malaise,78,Step-Down,0,66.7,SYNTHETIC
+PT0135,Emeka Petrov,68,M,2026-04-22 23:00:00,2026-04-23 07:00:00,Syncope - Observation,Low,2,3,COPD,light-headedness; transient loss of consciousness,8,Stabilized,0,0.0,SYNTHETIC
+PT0136,Ravi Okello,60,M,2026-04-25 00:00:00,2026-04-25 09:00:00,Syncope - Observation,Low,2,2,None,transient loss of consciousness; light-headedness,9,Discharged,0,100.0,SYNTHETIC
+PT0137,Ravi Johansson,85,M,2026-04-28 23:00:00,2026-05-06 01:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Obesity (BMI 38),convulsions; high-grade fever; abdominal guarding; gross hematuria,170,Deceased,1,66.7,SYNTHETIC
+PT0138,Grace Sinclair,71,F,2026-04-05 16:00:00,2026-04-07 02:00:00,GI Hemorrhage - Variceal,Severe,5,6,CHF (EF 30%),pallor; melaena,34,Stabilized,0,83.3,SYNTHETIC
+PT0139,Mei Nguyen,85,F,2026-04-03 15:00:00,2026-04-03 21:00:00,UTI - IV Abx Transition to PO,Low,2,2,None,dysuria; urinary frequency; suprapubic discomfort,6,Stabilized,0,100.0,SYNTHETIC
+PT0140,Leila Bergstrom,42,F,2026-04-29 20:00:00,2026-04-30 13:00:00,Elective Pre-Op Workup,Low,2,3,Post-Transplant (renal),stable vitals; asymptomatic,17,Stabilized,0,100.0,SYNTHETIC
+PT0141,Nadia Mueller,89,F,2026-04-09 20:00:00,2026-04-13 11:00:00,Eclampsia,Severe,6,6,None,visual disturbance; severe hypertension; headache; seizure,87,Stabilized,0,83.3,SYNTHETIC
+PT0142,Ravi Larsen,62,M,2026-04-07 05:00:00,2026-04-07 18:00:00,Elective Pre-Op Workup,Low,2,3,HIV (suppressed),stable vitals; asymptomatic,13,Discharged,0,0.0,SYNTHETIC
+PT0143,Dante Petrov,31,M,2026-04-23 23:00:00,2026-04-26 07:00:00,Status Epilepticus,Severe,5,5,None,incontinence; altered consciousness; prolonged seizure activity,56,Step-Down,0,33.3,SYNTHETIC
+PT0144,Yuki Mueller,60,F,2026-04-28 05:00:00,2026-05-01 14:00:00,Suspected Cerebral Malaria,Critical,10,10,Post-Transplant (renal),fever; impaired consciousness,81,Rapid Response Called,1,88.9,SYNTHETIC
+PT0145,Elena Al-Rashid,54,F,2026-04-21 08:00:00,2026-04-28 12:00:00,Major Burn (30% TBSA),Critical,9,10,Sickle Cell Disease,hypovolaemia; severe pain,172,Step-Down,0,44.4,SYNTHETIC
+PT0146,Sergei Fernandez,81,M,2026-04-02 14:00:00,2026-04-04 00:00:00,GI Hemorrhage - Variceal,Severe,7,7,None,melaena; haematemesis; pallor,34,Transferred to ICU,1,83.3,SYNTHETIC
+PT0147,David Delano,52,M,2026-04-15 07:00:00,2026-04-17 18:00:00,Eclampsia,Severe,7,7,CHF (EF 30%),visual disturbance; seizure; severe hypertension,59,Stabilized,0,33.3,SYNTHETIC
+PT0148,Raj Kowalski,40,M,2026-04-08 22:00:00,2026-04-09 06:00:00,Post-Appendectomy Recovery,Moderate,4,4,None,nausea; reduced appetite; incisional pain,8,Step-Down,0,100.0,SYNTHETIC
+PT0149,Diego Nguyen,49,M,2026-04-05 01:00:00,2026-04-07 01:00:00,Acetaminophen Overdose,Severe,5,6,HIV (suppressed),right upper quadrant pain; malaise,48,Stabilized,0,16.7,SYNTHETIC
+PT0150,John Costa,25,M,2026-04-25 10:00:00,2026-04-26 07:00:00,Post-CABG Day 1,Severe,6,7,Atrial Fibrillation,mild dyspnoea; reduced mobility; sternal wound pain,21,Transferred to ICU,1,33.3,SYNTHETIC
+PT0151,Luis Kim,35,M,2026-04-06 00:00:00,2026-04-07 13:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,localised erythema; wound drainage; foot pain,37,Rapid Response Called,1,100.0,SYNTHETIC
+PT0152,Dante Ito,85,M,2026-04-24 10:00:00,2026-04-26 17:00:00,Community-Acquired Pneumonia,Moderate,4,4,None,fever; productive cough; pleuritic chest pain,55,Step-Down,0,50.0,SYNTHETIC
+PT0153,James Bergstrom,59,M,2026-04-22 13:00:00,2026-04-22 20:00:00,Stable CHF - Med Adjustment,Low,1,2,CKD Stage 3B,mild ankle swelling; orthopnoea,7,Discharged,0,100.0,SYNTHETIC
+PT0154,Jorge Zhang,76,M,2026-04-20 00:00:00,2026-04-20 04:00:00,Stable CHF - Med Adjustment,Low,2,3,Type 2 Diabetes,mild ankle swelling; orthopnoea,4,Discharged,0,100.0,SYNTHETIC
+PT0155,Leila Larsen,72,F,2026-04-11 20:00:00,2026-04-12 15:00:00,Eclampsia,Severe,7,8,CKD Stage 3B,severe hypertension; headache; seizure; visual disturbance,19,Step-Down,0,66.7,SYNTHETIC
+PT0156,Kwame Vasquez,66,M,2026-04-18 10:00:00,2026-04-22 01:00:00,Septic Shock - Abdominal Source,Critical,9,10,CKD Stage 3B,abdominal pain; tachycardia,87,Step-Down,0,44.4,SYNTHETIC
+PT0157,James Larsen,46,M,2026-04-06 01:00:00,2026-04-06 07:00:00,Elective Pre-Op Workup,Low,1,2,Sickle Cell Disease,stable vitals; asymptomatic,6,Transferred to ICU,1,100.0,SYNTHETIC
+PT0158,Andre Larsen,53,M,2026-04-10 19:00:00,2026-04-11 06:00:00,Elective Pre-Op Workup,Low,2,3,Post-Transplant (renal),stable vitals; asymptomatic,11,Discharged,0,0.0,SYNTHETIC
+PT0159,David Reyes,23,M,2026-04-03 20:00:00,2026-04-04 14:00:00,Cellulitis on IV Abx,Moderate,3,3,Hypertension,limb erythema; warmth; low-grade fever; swelling,18,Discharged,0,0.0,SYNTHETIC
+PT0160,Sofia Zhang,56,F,2026-04-10 23:00:00,2026-04-17 08:00:00,Suspected Cerebral Malaria,Critical,8,9,Post-Transplant (renal),convulsions; rigors; impaired consciousness; fever,153,Step-Down,0,100.0,SYNTHETIC
+PT0161,Yuki Singh,81,F,2026-04-26 05:00:00,2026-04-30 02:00:00,Eclampsia,Severe,6,7,CKD Stage 3B,visual disturbance; headache,93,Stabilized,0,50.0,SYNTHETIC
+PT0162,Emeka Nguyen,46,M,2026-04-07 08:00:00,2026-04-09 22:00:00,Acetaminophen Overdose,Severe,7,8,HIV (suppressed),nausea; right upper quadrant pain; malaise,62,Rapid Response Called,1,0.0,SYNTHETIC
+PT0163,Leila Bergstrom,50,F,2026-04-24 18:00:00,2026-05-01 10:00:00,Suspected Cerebral Malaria,Critical,10,10,HIV (suppressed),rigors; fever,160,Step-Down,0,44.4,SYNTHETIC
+PT0164,Andre Nakamura,27,M,2026-04-09 03:00:00,2026-04-09 16:00:00,Community-Acquired Pneumonia,Moderate,3,4,Post-Transplant (renal),dyspnoea; pleuritic chest pain; productive cough,13,Discharged,0,50.0,SYNTHETIC
+PT0165,Amara Petrov,44,F,2026-04-10 00:00:00,2026-04-11 15:00:00,Status Epilepticus,Severe,6,6,Atrial Fibrillation,prolonged seizure activity; altered consciousness; incontinence,39,Step-Down,0,83.3,SYNTHETIC
+PT0166,Aisha Mbeki,77,F,2026-04-28 16:00:00,2026-05-01 06:00:00,Eclampsia,Severe,6,7,Obesity (BMI 38),headache; severe hypertension; visual disturbance,62,Stabilized,0,50.0,SYNTHETIC
+PT0167,Hiroshi Hoffman,51,M,2026-04-18 15:00:00,2026-04-19 18:00:00,Acetaminophen Overdose,Severe,5,6,Cirrhosis (Child-Pugh B),nausea; malaise; right upper quadrant pain,27,Step-Down,0,50.0,SYNTHETIC
+PT0168,Chloe Singh,80,F,2026-04-10 19:00:00,2026-04-13 02:00:00,Eclampsia,Severe,5,6,Hypertension,severe hypertension; visual disturbance; headache; seizure,55,Stabilized,0,66.7,SYNTHETIC
+PT0169,Andre Kim,22,M,2026-04-24 07:00:00,2026-04-25 19:00:00,Community-Acquired Pneumonia,Moderate,3,4,COPD,productive cough; pleuritic chest pain,36,Discharged,0,50.0,SYNTHETIC
+PT0170,Hiroshi Delano,45,M,2026-04-27 21:00:00,2026-04-28 15:00:00,Cellulitis on IV Abx,Moderate,3,3,None,warmth; limb erythema,18,Discharged,0,100.0,SYNTHETIC
+PT0171,David Ito,20,M,2026-04-01 16:00:00,2026-04-01 20:00:00,UTI - IV Abx Transition to PO,Low,2,3,Sickle Cell Disease,suprapubic discomfort; urinary frequency; dysuria,4,Stabilized,0,100.0,SYNTHETIC
+PT0172,Kwame Johansson,85,M,2026-04-30 18:00:00,2026-05-07 04:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,None,convulsions; high-grade fever; gross hematuria,154,Rapid Response Called,1,83.3,SYNTHETIC
+PT0173,Beatrice Nguyen,56,F,2026-04-04 08:00:00,2026-04-07 04:00:00,Post-CABG Day 1,Severe,6,7,Atrial Fibrillation,reduced mobility; sternal wound pain; mild dyspnoea,68,Stabilized,0,33.3,SYNTHETIC
+PT0174,James Tanaka,28,M,2026-04-03 09:00:00,2026-04-04 19:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Post-Transplant (renal),foot pain; wound drainage,34,Discharged,0,100.0,SYNTHETIC
+PT0175,Ravi Nakamura,53,M,2026-04-10 00:00:00,2026-04-16 19:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,CKD Stage 3B,dry cough; hypoxaemia; severe dyspnoea; fever,163,Step-Down,0,66.7,SYNTHETIC
+PT0176,Raj Bergstrom,38,M,2026-04-07 03:00:00,2026-04-11 23:00:00,Acetaminophen Overdose,Severe,5,6,Hypertension,right upper quadrant pain; nausea; malaise,116,Transferred to ICU,1,16.7,SYNTHETIC
+PT0177,Grace Larsen,30,F,2026-04-06 23:00:00,2026-04-07 03:00:00,Elective Pre-Op Workup,Low,2,3,HIV (suppressed),stable vitals; asymptomatic,4,Step-Down,0,100.0,SYNTHETIC
+PT0178,Thomas Ito,47,M,2026-04-14 22:00:00,2026-04-15 02:00:00,UTI - IV Abx Transition to PO,Low,2,2,None,urinary frequency; suprapubic discomfort; dysuria,4,Step-Down,0,100.0,SYNTHETIC
+PT0179,Diego Kim,52,M,2026-04-13 14:00:00,2026-04-13 22:00:00,Stable CHF - Med Adjustment,Low,2,3,Type 2 Diabetes,mild ankle swelling; orthopnoea,8,Rapid Response Called,1,100.0,SYNTHETIC
+PT0180,Chloe Tanaka,34,F,2026-04-01 05:00:00,2026-04-03 08:00:00,Acetaminophen Overdose,Severe,6,6,Type 2 Diabetes,right upper quadrant pain; malaise; nausea,51,Step-Down,0,83.3,SYNTHETIC
+PT0181,Andre Al-Rashid,67,M,2026-04-04 19:00:00,2026-04-05 06:00:00,Elective Pre-Op Workup,Low,2,2,Type 2 Diabetes,asymptomatic; stable vitals,11,Discharged,0,100.0,SYNTHETIC
+PT0182,Hassan Mbeki,35,M,2026-04-25 09:00:00,2026-05-02 20:00:00,Septic Shock - Abdominal Source,Critical,10,10,Post-Transplant (renal),abdominal pain; hypotension,179,Stabilized,0,22.2,SYNTHETIC
+PT0183,Ivan Sinclair,49,M,2026-04-18 23:00:00,2026-04-23 18:00:00,Septic Shock - Abdominal Source,Critical,8,9,HIV (suppressed),fever; tachycardia; hypotension,115,Rapid Response Called,1,22.2,SYNTHETIC
+PT0184,Beatrice Zhang,74,F,2026-04-01 06:00:00,2026-04-04 03:00:00,Post-Appendectomy Recovery,Moderate,3,4,COPD,nausea; reduced appetite; incisional pain,69,Discharged,0,0.0,SYNTHETIC
+PT0185,Maria Johansson,55,F,2026-04-09 13:00:00,2026-04-13 08:00:00,Acetaminophen Overdose,Severe,7,7,None,nausea; right upper quadrant pain; malaise,91,Stabilized,0,0.0,SYNTHETIC
+PT0186,Yuki Okello,87,F,2026-04-17 18:00:00,2026-04-18 20:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,foot pain; wound drainage,26,Discharged,0,100.0,SYNTHETIC
+PT0187,Elena Kowalski,56,F,2026-04-30 13:00:00,2026-05-01 04:00:00,Post-Appendectomy Recovery,Moderate,3,4,Obesity (BMI 38),reduced appetite; nausea; incisional pain,15,Stabilized,0,0.0,SYNTHETIC
+PT0188,Elise Singh,64,F,2026-04-21 10:00:00,2026-04-23 02:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Obesity (BMI 38),foot pain; localised erythema; wound drainage,40,Discharged,0,50.0,SYNTHETIC
+PT0189,Wei Mbeki,73,M,2026-04-08 02:00:00,2026-04-11 19:00:00,GI Hemorrhage - Variceal,Severe,7,8,Sickle Cell Disease,haematemesis; hypotension; melaena; pallor,89,Stabilized,0,66.7,SYNTHETIC
+PT0190,Omar Mueller,21,M,2026-04-17 16:00:00,2026-04-18 05:00:00,Syncope - Observation,Low,1,2,Obesity (BMI 38),transient loss of consciousness; light-headedness,13,Step-Down,0,100.0,SYNTHETIC
+PT0191,Diego Bergstrom,84,M,2026-04-07 01:00:00,2026-04-12 06:00:00,Septic Shock - Abdominal Source,Critical,8,8,None,tachycardia; abdominal pain; fever,125,Transferred to ICU,1,55.6,SYNTHETIC
+PT0192,Wei Costa,31,M,2026-04-02 21:00:00,2026-04-05 07:00:00,Post-Appendectomy Recovery,Moderate,4,5,Type 2 Diabetes,incisional pain; reduced appetite; nausea,58,Discharged,0,0.0,SYNTHETIC
+PT0193,Olga Kim,41,F,2026-04-19 04:00:00,2026-04-20 00:00:00,Elective Pre-Op Workup,Low,1,2,Cirrhosis (Child-Pugh B),stable vitals; asymptomatic,20,Transferred to ICU,1,0.0,SYNTHETIC
+PT0194,Hassan Delano,44,M,2026-04-19 07:00:00,2026-04-19 22:00:00,UTI - IV Abx Transition to PO,Low,1,2,Obesity (BMI 38),suprapubic discomfort; dysuria,15,Stabilized,0,0.0,SYNTHETIC
+PT0195,Ravi Patel,85,M,2026-04-09 09:00:00,2026-04-09 22:00:00,Elective Pre-Op Workup,Low,1,2,Cirrhosis (Child-Pugh B),stable vitals; asymptomatic,13,Discharged,0,100.0,SYNTHETIC
+PT0196,Grace Ito,28,F,2026-04-20 12:00:00,2026-04-22 01:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Cirrhosis (Child-Pugh B),foot pain; localised erythema,37,Rapid Response Called,1,100.0,SYNTHETIC
+PT0197,Wei Mueller,72,M,2026-04-30 14:00:00,2026-05-02 03:00:00,Eclampsia,Severe,5,6,COPD,visual disturbance; severe hypertension; seizure; headache,37,Stabilized,0,66.7,SYNTHETIC
+PT0198,Elise Bergstrom,24,F,2026-04-13 07:00:00,2026-04-15 23:00:00,Major Burn (30% TBSA),Critical,10,10,COPD,hypovolaemia; severe pain,64,Deceased,1,55.6,SYNTHETIC
+PT0199,Kofi Zhang,28,M,2026-04-21 23:00:00,2026-04-23 15:00:00,Diabetic Ulcer - Infected,Moderate,4,5,HIV (suppressed),localised erythema; foot pain; wound drainage,40,Discharged,0,0.0,SYNTHETIC
+PT0200,Nadia Vasquez,32,F,2026-04-08 04:00:00,2026-04-10 08:00:00,Post-CABG Day 1,Severe,5,6,Post-Transplant (renal),mild dyspnoea; reduced mobility; sternal wound pain,52,Step-Down,0,100.0,SYNTHETIC
+PT0201,Kwame Hoffman,22,M,2026-04-10 07:00:00,2026-04-15 10:00:00,Suspected Cerebral Malaria,Critical,10,10,Obesity (BMI 38),impaired consciousness; rigors,123,Transferred to ICU,1,44.4,SYNTHETIC
+PT0202,James Costa,44,M,2026-04-26 02:00:00,2026-05-04 08:00:00,ARDS - Post Viral Pneumonia,Critical,8,9,Hypertension,dry cough; severe dyspnoea; fever,198,Stabilized,0,22.2,SYNTHETIC
+PT0203,Carmen Al-Rashid,35,F,2026-04-14 19:00:00,2026-04-19 14:00:00,Post-CABG Day 1,Severe,7,7,Post-Transplant (renal),reduced mobility; mild dyspnoea; sternal wound pain,115,Step-Down,0,16.7,SYNTHETIC
+PT0204,Sergei Sinclair,71,M,2026-04-14 17:00:00,2026-04-18 16:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,9,COPD,weakness; muscle pain; oliguria; dark urine,95,Transferred to ICU,1,33.3,SYNTHETIC
+PT0205,Sergei Reyes,18,M,2026-04-12 20:00:00,2026-04-20 12:00:00,Septic Shock - Abdominal Source,Critical,9,10,Post-Transplant (renal),abdominal pain; oliguria; hypotension,184,Step-Down,0,33.3,SYNTHETIC
+PT0206,Sergei Larsen,81,M,2026-04-23 19:00:00,2026-04-25 05:00:00,Community-Acquired Pneumonia,Moderate,3,3,None,dyspnoea; productive cough,34,Discharged,0,50.0,SYNTHETIC
+PT0207,Thomas Al-Rashid,20,M,2026-04-15 15:00:00,2026-04-15 19:00:00,Stable CHF - Med Adjustment,Low,1,2,CHF (EF 30%),mild ankle swelling; orthopnoea,4,Step-Down,0,100.0,SYNTHETIC
+PT0208,Andre Delano,64,M,2026-04-06 15:00:00,2026-04-09 10:00:00,Cellulitis on IV Abx,Moderate,3,3,None,swelling; limb erythema; warmth; low-grade fever,67,Discharged,0,0.0,SYNTHETIC
+PT0209,Jorge Santos,18,M,2026-04-14 00:00:00,2026-04-22 14:00:00,Major Burn (30% TBSA),Critical,8,9,HIV (suppressed),severe pain; tachycardia; extensive burns; hypovolaemia,206,Transferred to ICU,1,55.6,SYNTHETIC
+PT0210,Kofi Fernandez,79,M,2026-04-01 09:00:00,2026-04-02 02:00:00,GI Hemorrhage - Variceal,Severe,7,8,Sickle Cell Disease,hypotension; haematemesis; melaena; pallor,17,Step-Down,0,83.3,SYNTHETIC
+PT0211,James Kowalski,26,M,2026-04-13 18:00:00,2026-04-17 06:00:00,ARDS - Post Viral Pneumonia,Critical,8,9,Cirrhosis (Child-Pugh B),hypoxaemia; fever; severe dyspnoea,84,Step-Down,0,22.2,SYNTHETIC
+PT0212,Ali Brooks,29,M,2026-04-10 02:00:00,2026-04-17 20:00:00,Major Burn (30% TBSA),Critical,9,10,Cirrhosis (Child-Pugh B),severe pain; tachycardia; hypovolaemia; extensive burns,186,Deceased,1,33.3,SYNTHETIC
+PT0213,Ravi Kowalski,88,M,2026-04-06 23:00:00,2026-04-08 00:00:00,Diabetic Ulcer - Infected,Moderate,4,5,HIV (suppressed),foot pain; wound drainage; localised erythema,25,Discharged,0,50.0,SYNTHETIC
+PT0214,Nadia Mbeki,24,F,2026-04-23 02:00:00,2026-04-30 00:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Atrial Fibrillation,convulsions; abdominal guarding; projectile vomiting; gross hematuria,166,Step-Down,0,50.0,SYNTHETIC
+PT0215,Wei Mueller,64,M,2026-04-16 09:00:00,2026-04-17 00:00:00,Chronic Anemia - Transfusion,Low,1,1,Post-Transplant (renal),exertional dyspnoea; pallor,15,Discharged,0,0.0,SYNTHETIC
+PT0216,Zara Mbeki,68,F,2026-04-01 14:00:00,2026-04-05 22:00:00,Septic Shock - Abdominal Source,Critical,8,8,CHF (EF 30%),fever; oliguria,104,Step-Down,0,55.6,SYNTHETIC
+PT0217,Mei Singh,57,F,2026-04-23 22:00:00,2026-04-25 10:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Sickle Cell Disease,localised erythema; wound drainage,36,Transferred to ICU,1,100.0,SYNTHETIC
+PT0218,Maria Al-Rashid,48,F,2026-04-28 17:00:00,2026-05-02 09:00:00,Acetaminophen Overdose,Severe,6,7,CHF (EF 30%),nausea; right upper quadrant pain; malaise,88,Step-Down,0,50.0,SYNTHETIC
+PT0219,Diego Patel,35,M,2026-04-29 01:00:00,2026-04-30 17:00:00,Post-Appendectomy Recovery,Moderate,3,4,Atrial Fibrillation,incisional pain; reduced appetite,40,Discharged,0,100.0,SYNTHETIC
+PT0220,Pavel Nguyen,60,M,2026-04-06 09:00:00,2026-04-06 17:00:00,Syncope - Observation,Low,2,3,COPD,transient loss of consciousness; light-headedness,8,Discharged,0,100.0,SYNTHETIC
+PT0221,Fatima Abadi,65,F,2026-04-22 19:00:00,2026-04-23 06:00:00,Stable CHF - Med Adjustment,Low,1,2,Obesity (BMI 38),orthopnoea; mild ankle swelling,11,Step-Down,0,100.0,SYNTHETIC
+PT0222,Ravi Larsen,23,M,2026-04-22 17:00:00,2026-04-24 13:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,None,severe dyspnoea; dry cough,44,Stabilized,0,44.4,SYNTHETIC
+PT0223,Kofi Kim,71,M,2026-04-28 23:00:00,2026-05-04 14:00:00,Suspected Cerebral Malaria,Critical,10,10,None,convulsions; fever,135,Transferred to ICU,1,44.4,SYNTHETIC
+PT0224,Ravi Moreau,54,M,2026-04-08 15:00:00,2026-04-12 10:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Sickle Cell Disease,severe dyspnoea; hypoxaemia; dry cough; fever,91,Step-Down,0,44.4,SYNTHETIC
+PT0225,Kwame Costa,81,M,2026-04-25 01:00:00,2026-04-29 07:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,10,Hypertension,gross hematuria; convulsions; abdominal guarding; petechial rash,102,Stabilized,0,75.0,SYNTHETIC
+PT0226,Yuki Sinclair,66,F,2026-04-24 02:00:00,2026-04-28 00:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,9,CKD Stage 3B,petechial rash; high-grade fever; projectile vomiting; gross hematuria,94,Transferred to ICU,1,83.3,SYNTHETIC
+PT0227,Olga Mueller,70,F,2026-04-12 22:00:00,2026-04-13 10:00:00,Cellulitis on IV Abx,Moderate,4,4,CKD Stage 3B,warmth; swelling,12,Transferred to ICU,1,100.0,SYNTHETIC
+PT0228,Ravi Patel,34,M,2026-04-04 04:00:00,2026-04-04 20:00:00,Syncope - Observation,Low,1,2,Sickle Cell Disease,transient loss of consciousness; light-headedness,16,Discharged,0,100.0,SYNTHETIC
+PT0229,Thomas Bergstrom,31,M,2026-04-12 14:00:00,2026-04-13 18:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Cirrhosis (Child-Pugh B),wound drainage; foot pain,28,Discharged,0,0.0,SYNTHETIC
+PT0230,Leila Costa,33,F,2026-04-16 06:00:00,2026-04-17 20:00:00,Acetaminophen Overdose,Severe,6,7,Type 2 Diabetes,right upper quadrant pain; malaise; nausea,38,Stabilized,0,100.0,SYNTHETIC
+PT0231,Tariq Diallo,83,M,2026-04-07 07:00:00,2026-04-07 13:00:00,UTI - IV Abx Transition to PO,Low,1,2,Hypertension,dysuria; urinary frequency; suprapubic discomfort,6,Discharged,0,0.0,SYNTHETIC
+PT0232,Omar Hoffman,35,M,2026-04-24 17:00:00,2026-05-03 16:00:00,Major Burn (30% TBSA),Critical,8,9,HIV (suppressed),severe pain; extensive burns; tachycardia; hypovolaemia,215,Stabilized,0,44.4,SYNTHETIC
+PT0233,Hiroshi Mueller,20,M,2026-04-18 02:00:00,2026-04-23 08:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,8,None,oliguria; dark urine; muscle pain; weakness,126,Step-Down,0,44.4,SYNTHETIC
+PT0234,Emeka Sinclair,68,M,2026-04-20 16:00:00,2026-04-22 21:00:00,Septic Shock - Abdominal Source,Critical,9,9,Type 2 Diabetes,oliguria; abdominal pain,53,Rapid Response Called,1,44.4,SYNTHETIC
+PT0235,Jorge Singh,55,M,2026-04-12 17:00:00,2026-04-17 02:00:00,Major Burn (30% TBSA),Critical,9,9,Hypertension,severe pain; extensive burns; hypovolaemia,105,Transferred to ICU,1,44.4,SYNTHETIC
+PT0236,Zara Vasquez,66,F,2026-04-18 21:00:00,2026-04-21 22:00:00,Septic Shock - Abdominal Source,Critical,9,9,HIV (suppressed),oliguria; hypotension; tachycardia; fever,73,Step-Down,0,66.7,SYNTHETIC
+PT0237,Zara Moreau,53,F,2026-04-08 16:00:00,2026-04-08 20:00:00,Stable CHF - Med Adjustment,Low,2,3,HIV (suppressed),mild ankle swelling; orthopnoea,4,Transferred to ICU,1,100.0,SYNTHETIC
+PT0238,Carmen Mbeki,67,F,2026-04-11 13:00:00,2026-04-11 20:00:00,Stable CHF - Med Adjustment,Low,1,1,COPD,mild ankle swelling; orthopnoea,7,Step-Down,0,100.0,SYNTHETIC
+PT0239,Yuki Fernandez,36,F,2026-04-16 07:00:00,2026-04-19 07:00:00,Acetaminophen Overdose,Severe,7,7,None,malaise; right upper quadrant pain,72,Stabilized,0,66.7,SYNTHETIC
+PT0240,Kwame Johansson,60,M,2026-04-03 09:00:00,2026-04-06 16:00:00,Major Burn (30% TBSA),Critical,9,9,CKD Stage 3B,severe pain; extensive burns; tachycardia; hypovolaemia,79,Stabilized,0,66.7,SYNTHETIC
+PT0241,Aisha Diallo,65,F,2026-04-07 07:00:00,2026-04-14 10:00:00,Major Burn (30% TBSA),Critical,9,9,CKD Stage 3B,severe pain; extensive burns; tachycardia; hypovolaemia,171,Rapid Response Called,1,55.6,SYNTHETIC
+PT0242,Sarah Okello,46,F,2026-04-19 15:00:00,2026-04-23 01:00:00,Eclampsia,Severe,6,6,COPD,headache; seizure; severe hypertension,82,Step-Down,0,66.7,SYNTHETIC
+PT0243,Grace Johansson,58,F,2026-04-01 01:00:00,2026-04-05 12:00:00,Eclampsia,Severe,5,6,COPD,visual disturbance; headache; seizure; severe hypertension,107,Step-Down,0,33.3,SYNTHETIC
+PT0244,Sarah Bergstrom,60,F,2026-04-04 07:00:00,2026-04-04 17:00:00,Chronic Anemia - Transfusion,Low,1,2,Cirrhosis (Child-Pugh B),exertional dyspnoea; fatigue; pallor,10,Transferred to ICU,1,0.0,SYNTHETIC
+PT0245,Chen Mueller,70,M,2026-04-01 01:00:00,2026-04-03 00:00:00,Septic Shock - Abdominal Source,Critical,9,9,Atrial Fibrillation,abdominal pain; oliguria; fever,47,Stabilized,0,66.7,SYNTHETIC
+PT0246,Kwame Tanaka,22,M,2026-04-25 15:00:00,2026-05-02 18:00:00,ARDS - Post Viral Pneumonia,Critical,9,9,None,hypoxaemia; severe dyspnoea; dry cough; fever,171,Stabilized,0,66.7,SYNTHETIC
+PT0247,Omar Patel,61,M,2026-04-07 20:00:00,2026-04-16 03:00:00,Septic Shock - Abdominal Source,Critical,9,10,COPD,oliguria; fever,199,Stabilized,0,55.6,SYNTHETIC
+PT0248,Tariq Delano,42,M,2026-04-07 16:00:00,2026-04-08 06:00:00,Cellulitis on IV Abx,Moderate,3,4,CHF (EF 30%),swelling; limb erythema,14,Discharged,0,0.0,SYNTHETIC
+PT0249,Chloe Bergstrom,88,F,2026-04-13 16:00:00,2026-04-14 00:00:00,Elective Pre-Op Workup,Low,2,3,Sickle Cell Disease,asymptomatic; stable vitals,8,Stabilized,0,100.0,SYNTHETIC
+PT0250,Pavel Delano,44,M,2026-04-27 16:00:00,2026-04-29 02:00:00,Cellulitis on IV Abx,Moderate,3,4,Atrial Fibrillation,warmth; limb erythema; swelling,34,Discharged,0,100.0,SYNTHETIC
+PT0251,James Petrov,41,M,2026-04-17 23:00:00,2026-04-23 05:00:00,ARDS - Post Viral Pneumonia,Critical,9,9,None,fever; severe dyspnoea; hypoxaemia,126,Step-Down,0,66.7,SYNTHETIC
+PT0252,Raj Costa,28,M,2026-04-12 05:00:00,2026-04-16 02:00:00,Suspected Cerebral Malaria,Critical,9,10,Obesity (BMI 38),fever; rigors; convulsions,93,Stabilized,0,44.4,SYNTHETIC
+PT0253,Mei Mbeki,78,F,2026-04-17 12:00:00,2026-04-18 02:00:00,Stable CHF - Med Adjustment,Low,1,1,Post-Transplant (renal),orthopnoea; mild ankle swelling,14,Discharged,0,100.0,SYNTHETIC
+PT0254,Tariq Vasquez,23,M,2026-04-08 09:00:00,2026-04-08 18:00:00,Syncope - Observation,Low,1,2,Type 2 Diabetes,transient loss of consciousness; light-headedness,9,Stabilized,0,0.0,SYNTHETIC
+PT0255,Chen Hoffman,53,M,2026-04-03 20:00:00,2026-04-06 03:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,Atrial Fibrillation,weakness; dark urine; muscle pain,55,Transferred to ICU,1,55.6,SYNTHETIC
+PT0256,Emeka Diallo,30,M,2026-04-07 09:00:00,2026-04-07 15:00:00,UTI - IV Abx Transition to PO,Low,2,3,Type 2 Diabetes,suprapubic discomfort; dysuria; urinary frequency,6,Discharged,0,100.0,SYNTHETIC
+PT0257,Diego Abadi,36,M,2026-04-21 04:00:00,2026-04-21 17:00:00,Diabetic Ulcer - Infected,Moderate,4,5,CHF (EF 30%),localised erythema; foot pain,13,Transferred to ICU,1,0.0,SYNTHETIC
+PT0258,David Tanaka,57,M,2026-04-21 06:00:00,2026-04-23 00:00:00,Acetaminophen Overdose,Severe,7,7,Hypertension,nausea; right upper quadrant pain; malaise,42,Step-Down,0,83.3,SYNTHETIC
+PT0259,John Sinclair,45,M,2026-04-12 11:00:00,2026-04-16 07:00:00,Eclampsia,Severe,7,8,Obesity (BMI 38),seizure; visual disturbance; severe hypertension,92,Rapid Response Called,1,50.0,SYNTHETIC
+PT0260,Hiroshi Nguyen,42,M,2026-04-03 19:00:00,2026-04-04 19:00:00,Community-Acquired Pneumonia,Moderate,3,3,Post-Transplant (renal),dyspnoea; productive cough; pleuritic chest pain; fever,24,Discharged,0,100.0,SYNTHETIC
+PT0261,Priya Costa,33,F,2026-04-09 11:00:00,2026-04-12 22:00:00,Suspected Cerebral Malaria,Critical,9,9,None,rigors; convulsions; impaired consciousness,83,Transferred to ICU,1,77.8,SYNTHETIC
+PT0262,Carmen Petrov,29,F,2026-04-26 00:00:00,2026-04-26 22:00:00,UTI - IV Abx Transition to PO,Low,2,3,COPD,urinary frequency; dysuria; suprapubic discomfort,22,Stabilized,0,0.0,SYNTHETIC
+PT0263,David Kim,70,M,2026-04-10 10:00:00,2026-04-11 02:00:00,Stable CHF - Med Adjustment,Low,1,1,None,mild ankle swelling; orthopnoea,16,Discharged,0,100.0,SYNTHETIC
+PT0264,Ivan Bergstrom,72,M,2026-04-01 08:00:00,2026-04-04 22:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,COPD,dark urine; weakness; muscle pain,86,Step-Down,0,55.6,SYNTHETIC
+PT0265,Omar Zhang,89,M,2026-04-27 14:00:00,2026-04-28 23:00:00,Post-Appendectomy Recovery,Moderate,4,5,Sickle Cell Disease,incisional pain; reduced appetite; nausea,33,Discharged,0,50.0,SYNTHETIC
+PT0266,Nadia Johansson,42,F,2026-04-12 19:00:00,2026-04-20 07:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Type 2 Diabetes,fever; hypoxaemia; dry cough,180,Transferred to ICU,1,66.7,SYNTHETIC
+PT0267,Priya Reyes,51,F,2026-04-30 01:00:00,2026-04-30 10:00:00,UTI - IV Abx Transition to PO,Low,2,3,Sickle Cell Disease,dysuria; urinary frequency; suprapubic discomfort,9,Step-Down,0,0.0,SYNTHETIC
+PT0268,Dante Vasquez,82,M,2026-04-10 11:00:00,2026-04-11 01:00:00,Stable CHF - Med Adjustment,Low,1,2,Cirrhosis (Child-Pugh B),orthopnoea; mild ankle swelling,14,Transferred to ICU,1,100.0,SYNTHETIC
+PT0269,Anastasia Johansson,46,F,2026-04-12 00:00:00,2026-04-20 00:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,COPD,hypoxaemia; fever; dry cough; severe dyspnoea,192,Rapid Response Called,1,66.7,SYNTHETIC
+PT0270,Diego Reyes,27,M,2026-04-13 13:00:00,2026-04-16 07:00:00,Acetaminophen Overdose,Severe,6,7,Atrial Fibrillation,right upper quadrant pain; nausea,66,Stabilized,0,50.0,SYNTHETIC
+PT0271,Sarah Nakamura,76,F,2026-04-07 10:00:00,2026-04-08 01:00:00,Diabetic Ulcer - Infected,Moderate,4,4,HIV (suppressed),localised erythema; foot pain,15,Rapid Response Called,1,100.0,SYNTHETIC
+PT0272,Fatima Petrov,44,F,2026-04-28 01:00:00,2026-04-29 07:00:00,Acetaminophen Overdose,Severe,7,8,COPD,right upper quadrant pain; malaise,30,Transferred to ICU,1,16.7,SYNTHETIC
+PT0273,Zara Reyes,18,F,2026-04-28 00:00:00,2026-05-03 02:00:00,Septic Shock - Abdominal Source,Critical,8,9,CHF (EF 30%),abdominal pain; oliguria; hypotension,122,Step-Down,0,55.6,SYNTHETIC
+PT0274,Chloe Moreau,49,F,2026-04-23 15:00:00,2026-04-27 06:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,9,None,petechial rash; high-grade fever,87,Stabilized,0,50.0,SYNTHETIC
+PT0275,Luis Sinclair,55,M,2026-04-14 01:00:00,2026-04-17 11:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Post-Transplant (renal),severe dyspnoea; hypoxaemia,82,Rapid Response Called,1,44.4,SYNTHETIC
+PT0276,Beatrice Nguyen,20,F,2026-04-15 14:00:00,2026-04-18 13:00:00,Acetaminophen Overdose,Severe,6,6,Sickle Cell Disease,nausea; malaise; right upper quadrant pain,71,Stabilized,0,66.7,SYNTHETIC
+PT0277,Amara Kowalski,50,F,2026-04-06 06:00:00,2026-04-11 03:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Post-Transplant (renal),petechial rash; high-grade fever; abdominal guarding; projectile vomiting,117,Step-Down,0,58.3,SYNTHETIC
+PT0278,Ali Vasquez,33,M,2026-04-01 20:00:00,2026-04-04 00:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,None,severe dyspnoea; hypoxaemia; fever; dry cough,52,Stabilized,0,44.4,SYNTHETIC
+PT0279,Tariq Sinclair,35,M,2026-04-01 09:00:00,2026-04-03 14:00:00,Status Epilepticus,Severe,7,8,Sickle Cell Disease,incontinence; prolonged seizure activity; altered consciousness,53,Stabilized,0,16.7,SYNTHETIC
+PT0280,Chloe Ito,70,F,2026-04-22 05:00:00,2026-04-25 12:00:00,ARDS - Post Viral Pneumonia,Critical,9,9,Type 2 Diabetes,hypoxaemia; dry cough; severe dyspnoea; fever,79,Stabilized,0,55.6,SYNTHETIC
+PT0281,Kwame Petrov,32,M,2026-04-11 00:00:00,2026-04-11 20:00:00,Status Epilepticus,Severe,7,8,Obesity (BMI 38),incontinence; prolonged seizure activity,20,Stabilized,0,50.0,SYNTHETIC
+PT0282,Kofi Okafor,55,M,2026-04-05 07:00:00,2026-04-05 16:00:00,Syncope - Observation,Low,1,1,None,transient loss of consciousness; light-headedness,9,Discharged,0,100.0,SYNTHETIC
+PT0283,Wei Hoffman,23,M,2026-04-13 09:00:00,2026-04-17 18:00:00,Major Burn (30% TBSA),Critical,8,8,None,hypovolaemia; severe pain; extensive burns; tachycardia,105,Rapid Response Called,1,66.7,SYNTHETIC
+PT0284,Aisha Moreau,69,F,2026-04-04 23:00:00,2026-04-05 23:00:00,Post-Appendectomy Recovery,Moderate,4,4,None,incisional pain; reduced appetite; nausea,24,Stabilized,0,100.0,SYNTHETIC
+PT0285,Tariq Nakamura,31,M,2026-04-05 19:00:00,2026-04-06 01:00:00,Chronic Anemia - Transfusion,Low,2,2,Sickle Cell Disease,pallor; fatigue; exertional dyspnoea,6,Discharged,0,100.0,SYNTHETIC
+PT0286,Emeka Fernandez,79,M,2026-04-16 07:00:00,2026-04-17 22:00:00,Post-Appendectomy Recovery,Moderate,3,4,CHF (EF 30%),reduced appetite; incisional pain,39,Step-Down,0,100.0,SYNTHETIC
+PT0287,Andre Vasquez,84,M,2026-04-01 12:00:00,2026-04-10 08:00:00,Septic Shock - Abdominal Source,Critical,9,10,Sickle Cell Disease,oliguria; hypotension; tachycardia; abdominal pain,212,Stabilized,0,44.4,SYNTHETIC
+PT0288,Sarah Singh,19,F,2026-04-29 20:00:00,2026-05-03 07:00:00,GI Hemorrhage - Variceal,Severe,6,7,Cirrhosis (Child-Pugh B),melaena; hypotension; haematemesis,83,Step-Down,0,50.0,SYNTHETIC
+PT0289,Zara Nakamura,88,F,2026-04-14 16:00:00,2026-04-15 03:00:00,Chronic Anemia - Transfusion,Low,1,2,Type 2 Diabetes,exertional dyspnoea; fatigue; pallor,11,Discharged,0,0.0,SYNTHETIC
+PT0290,John Okafor,58,M,2026-04-25 10:00:00,2026-04-26 21:00:00,Post-Appendectomy Recovery,Moderate,4,4,None,nausea; reduced appetite,35,Discharged,0,50.0,SYNTHETIC
+PT0291,Wei Tanaka,89,M,2026-04-01 00:00:00,2026-04-03 11:00:00,Cellulitis on IV Abx,Moderate,3,4,Post-Transplant (renal),swelling; low-grade fever,59,Discharged,0,0.0,SYNTHETIC
+PT0292,Thomas Moreau,32,M,2026-04-20 09:00:00,2026-04-24 09:00:00,Suspected Cerebral Malaria,Critical,8,8,None,rigors; convulsions; impaired consciousness; fever,96,Transferred to ICU,1,66.7,SYNTHETIC
+PT0293,Elena Okello,81,F,2026-04-16 22:00:00,2026-04-18 22:00:00,Community-Acquired Pneumonia,Moderate,4,5,Post-Transplant (renal),productive cough; dyspnoea,48,Discharged,0,50.0,SYNTHETIC
+PT0294,Wei Abadi,71,M,2026-04-17 18:00:00,2026-04-18 04:00:00,UTI - IV Abx Transition to PO,Low,1,1,Hypertension,dysuria; urinary frequency; suprapubic discomfort,10,Discharged,0,0.0,SYNTHETIC
+PT0295,Sarah Mbeki,79,F,2026-04-22 12:00:00,2026-04-23 08:00:00,Post-Appendectomy Recovery,Moderate,4,5,Sickle Cell Disease,incisional pain; reduced appetite; nausea,20,Stabilized,0,0.0,SYNTHETIC
+PT0296,Anastasia Kowalski,53,F,2026-04-26 14:00:00,2026-05-03 08:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,9,HIV (suppressed),weakness; muscle pain; oliguria,162,Step-Down,0,44.4,SYNTHETIC
+PT0297,Andre Reyes,43,M,2026-04-30 20:00:00,2026-05-10 09:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,9,HIV (suppressed),dark urine; weakness; muscle pain; oliguria,229,Stabilized,0,33.3,SYNTHETIC
+PT0298,Jorge Moreau,89,M,2026-04-22 11:00:00,2026-04-29 20:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,Sickle Cell Disease,dark urine; weakness; oliguria; muscle pain,177,Rapid Response Called,1,44.4,SYNTHETIC
+PT0299,Anya Diallo,66,F,2026-04-19 00:00:00,2026-04-20 17:00:00,Cellulitis on IV Abx,Moderate,4,4,None,limb erythema; low-grade fever,41,Step-Down,0,100.0,SYNTHETIC
+PT0300,Chen Abadi,75,M,2026-04-07 05:00:00,2026-04-09 03:00:00,Major Burn (30% TBSA),Critical,9,10,Sickle Cell Disease,hypovolaemia; extensive burns; tachycardia; severe pain,46,Rapid Response Called,1,66.7,SYNTHETIC
+PT0301,Yuki Kowalski,67,F,2026-04-30 16:00:00,2026-05-01 02:00:00,Elective Pre-Op Workup,Low,2,3,Hypertension,asymptomatic; stable vitals,10,Discharged,0,100.0,SYNTHETIC
+PT0302,Kwame Vasquez,87,M,2026-04-27 11:00:00,2026-05-02 16:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Atrial Fibrillation,petechial rash; projectile vomiting,125,Stabilized,0,83.3,SYNTHETIC
+PT0303,Nadia Costa,53,F,2026-04-08 09:00:00,2026-04-15 11:00:00,Major Burn (30% TBSA),Critical,10,10,Type 2 Diabetes,extensive burns; severe pain; tachycardia; hypovolaemia,170,Transferred to ICU,1,66.7,SYNTHETIC
+PT0304,Anastasia Fernandez,56,F,2026-04-07 14:00:00,2026-04-08 12:00:00,Post-CABG Day 1,Severe,5,6,Cirrhosis (Child-Pugh B),reduced mobility; sternal wound pain,22,Step-Down,0,83.3,SYNTHETIC
+PT0305,Carmen Okafor,29,F,2026-04-23 05:00:00,2026-04-24 07:00:00,Acetaminophen Overdose,Severe,7,7,Hypertension,nausea; right upper quadrant pain; malaise,26,Transferred to ICU,1,83.3,SYNTHETIC
+PT0306,Anya Okello,62,F,2026-04-27 09:00:00,2026-04-30 07:00:00,Acetaminophen Overdose,Severe,6,6,Atrial Fibrillation,malaise; nausea; right upper quadrant pain,70,Rapid Response Called,1,66.7,SYNTHETIC
+PT0307,Beatrice Mueller,83,F,2026-04-05 20:00:00,2026-04-10 13:00:00,Suspected Cerebral Malaria,Critical,10,10,Cirrhosis (Child-Pugh B),convulsions; fever; impaired consciousness,113,Transferred to ICU,1,77.8,SYNTHETIC
+PT0308,David Johansson,44,M,2026-04-05 02:00:00,2026-04-06 17:00:00,Status Epilepticus,Severe,6,6,Post-Transplant (renal),incontinence; prolonged seizure activity; altered consciousness,39,Rapid Response Called,1,66.7,SYNTHETIC
+PT0309,Anya Singh,76,F,2026-04-19 13:00:00,2026-04-27 17:00:00,ARDS - Post Viral Pneumonia,Critical,8,9,Post-Transplant (renal),hypoxaemia; severe dyspnoea,196,Stabilized,0,22.2,SYNTHETIC
+PT0310,James Vasquez,69,M,2026-04-25 12:00:00,2026-04-29 20:00:00,Major Burn (30% TBSA),Critical,9,9,Post-Transplant (renal),tachycardia; severe pain; hypovolaemia,104,Stabilized,0,22.2,SYNTHETIC
+PT0311,Hassan Larsen,82,M,2026-04-27 09:00:00,2026-04-29 16:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,CKD Stage 3B,severe dyspnoea; fever; dry cough; hypoxaemia,55,Stabilized,0,44.4,SYNTHETIC
+PT0312,Ali Okafor,35,M,2026-04-29 04:00:00,2026-04-30 06:00:00,Eclampsia,Severe,6,7,HIV (suppressed),severe hypertension; headache; seizure,26,Stabilized,0,33.3,SYNTHETIC
+PT0313,Sergei Sinclair,23,M,2026-04-28 15:00:00,2026-05-01 08:00:00,Eclampsia,Severe,7,7,None,severe hypertension; seizure,65,Step-Down,0,50.0,SYNTHETIC
+PT0314,Grace Al-Rashid,41,F,2026-04-15 16:00:00,2026-04-16 00:00:00,Elective Pre-Op Workup,Low,1,1,Atrial Fibrillation,asymptomatic; stable vitals,8,Discharged,0,100.0,SYNTHETIC
+PT0315,Chen Patel,26,M,2026-04-25 04:00:00,2026-04-27 11:00:00,Major Burn (30% TBSA),Critical,10,10,None,tachycardia; hypovolaemia; extensive burns; severe pain,55,Stabilized,0,55.6,SYNTHETIC
+PT0316,Chloe Fernandez,26,F,2026-04-29 15:00:00,2026-04-30 07:00:00,Chronic Anemia - Transfusion,Low,2,2,Cirrhosis (Child-Pugh B),fatigue; exertional dyspnoea,16,Stabilized,0,100.0,SYNTHETIC
+PT0317,Andre Okello,72,M,2026-04-25 22:00:00,2026-04-26 04:00:00,UTI - IV Abx Transition to PO,Low,2,2,None,suprapubic discomfort; urinary frequency; dysuria,6,Discharged,0,100.0,SYNTHETIC
+PT0318,John Reyes,79,M,2026-04-28 08:00:00,2026-05-01 13:00:00,GI Hemorrhage - Variceal,Severe,7,7,None,hypotension; haematemesis; melaena,77,Step-Down,0,33.3,SYNTHETIC
+PT0319,Hiroshi Johansson,27,M,2026-04-26 21:00:00,2026-04-27 01:00:00,Chronic Anemia - Transfusion,Low,1,2,COPD,fatigue; pallor; exertional dyspnoea,4,Stabilized,0,100.0,SYNTHETIC
+PT0320,Lina Delano,37,F,2026-04-26 04:00:00,2026-04-26 14:00:00,Stable CHF - Med Adjustment,Low,2,2,None,orthopnoea; mild ankle swelling,10,Discharged,0,0.0,SYNTHETIC
+PT0321,Helene Kowalski,48,F,2026-04-22 18:00:00,2026-04-24 03:00:00,Eclampsia,Severe,5,6,Obesity (BMI 38),headache; visual disturbance; seizure,33,Rapid Response Called,1,50.0,SYNTHETIC
+PT0322,Olga Sinclair,63,F,2026-04-25 03:00:00,2026-04-26 22:00:00,Post-Appendectomy Recovery,Moderate,3,4,COPD,reduced appetite; nausea,43,Deceased,1,50.0,SYNTHETIC
+PT0323,John Okafor,76,M,2026-04-29 12:00:00,2026-05-01 04:00:00,Post-CABG Day 1,Severe,6,6,Hypertension,reduced mobility; mild dyspnoea; sternal wound pain,40,Step-Down,0,50.0,SYNTHETIC
+PT0324,Wei Diallo,66,M,2026-04-12 05:00:00,2026-04-13 01:00:00,Syncope - Observation,Low,2,2,None,transient loss of consciousness; light-headedness,20,Discharged,0,0.0,SYNTHETIC
+PT0325,Felix Abadi,82,M,2026-04-16 01:00:00,2026-04-18 23:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Post-Transplant (renal),localised erythema; foot pain; wound drainage,70,Discharged,0,0.0,SYNTHETIC
+PT0326,Yuki Okafor,71,F,2026-04-08 23:00:00,2026-04-09 06:00:00,Syncope - Observation,Low,2,2,Hypertension,transient loss of consciousness; light-headedness,7,Discharged,0,100.0,SYNTHETIC
+PT0327,Ivan Larsen,34,M,2026-04-07 21:00:00,2026-04-08 21:00:00,Chronic Anemia - Transfusion,Low,2,3,Hypertension,fatigue; pallor; exertional dyspnoea,24,Discharged,0,0.0,SYNTHETIC
+PT0328,Maria Brooks,20,F,2026-04-03 09:00:00,2026-04-03 16:00:00,Syncope - Observation,Low,1,1,CHF (EF 30%),transient loss of consciousness; light-headedness,7,Step-Down,0,100.0,SYNTHETIC
+PT0329,Chen Costa,41,M,2026-04-21 13:00:00,2026-04-21 22:00:00,UTI - IV Abx Transition to PO,Low,2,2,None,urinary frequency; dysuria,9,Rapid Response Called,1,0.0,SYNTHETIC
+PT0330,Ingrid Kim,20,F,2026-04-03 22:00:00,2026-04-05 16:00:00,Acetaminophen Overdose,Severe,6,7,CHF (EF 30%),right upper quadrant pain; nausea; malaise,42,Step-Down,0,66.7,SYNTHETIC
+PT0331,Anya Singh,79,F,2026-04-21 07:00:00,2026-04-28 13:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,Type 2 Diabetes,oliguria; dark urine; weakness; muscle pain,174,Stabilized,0,55.6,SYNTHETIC
+PT0332,Sofia Hoffman,47,F,2026-04-23 06:00:00,2026-04-28 15:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Sickle Cell Disease,high-grade fever; gross hematuria; abdominal guarding,129,Deceased,1,58.3,SYNTHETIC
+PT0333,Ravi Reyes,87,M,2026-04-11 20:00:00,2026-04-12 14:00:00,Stable CHF - Med Adjustment,Low,1,1,HIV (suppressed),mild ankle swelling; orthopnoea,18,Rapid Response Called,1,0.0,SYNTHETIC
+PT0334,Elena Diallo,70,F,2026-04-23 04:00:00,2026-04-24 17:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Post-Transplant (renal),petechial rash; convulsions; projectile vomiting,37,Step-Down,0,83.3,SYNTHETIC
+PT0335,Mei Brooks,44,F,2026-04-19 01:00:00,2026-04-19 23:00:00,Stable CHF - Med Adjustment,Low,2,3,Atrial Fibrillation,orthopnoea; mild ankle swelling,22,Discharged,0,0.0,SYNTHETIC
+PT0336,Zara Kim,47,F,2026-04-25 15:00:00,2026-04-26 23:00:00,Community-Acquired Pneumonia,Moderate,4,5,Atrial Fibrillation,dyspnoea; pleuritic chest pain; productive cough; fever,32,Discharged,0,50.0,SYNTHETIC
+PT0337,Sarah Zhang,67,F,2026-04-15 10:00:00,2026-04-16 01:00:00,Syncope - Observation,Low,2,2,None,transient loss of consciousness; light-headedness,15,Stabilized,0,100.0,SYNTHETIC
+PT0338,Kofi Petrov,69,M,2026-04-12 05:00:00,2026-04-12 16:00:00,UTI - IV Abx Transition to PO,Low,2,2,Type 2 Diabetes,dysuria; suprapubic discomfort; urinary frequency,11,Discharged,0,0.0,SYNTHETIC
+PT0339,Nadia Diallo,84,F,2026-04-08 11:00:00,2026-04-09 13:00:00,UTI - IV Abx Transition to PO,Low,1,1,None,urinary frequency; dysuria; suprapubic discomfort,26,Step-Down,0,0.0,SYNTHETIC
+PT0340,Emeka Ito,38,M,2026-04-29 18:00:00,2026-04-29 22:00:00,Syncope - Observation,Low,1,1,CHF (EF 30%),transient loss of consciousness; light-headedness,4,Discharged,0,100.0,SYNTHETIC
+PT0341,Pavel Larsen,88,M,2026-04-23 02:00:00,2026-04-23 12:00:00,Diabetic Ulcer - Infected,Moderate,4,4,CHF (EF 30%),foot pain; wound drainage; localised erythema,10,Stabilized,0,50.0,SYNTHETIC
+PT0342,Helene Moreau,70,F,2026-04-09 07:00:00,2026-04-10 20:00:00,Community-Acquired Pneumonia,Moderate,4,5,Hypertension,productive cough; fever; dyspnoea,37,Discharged,0,50.0,SYNTHETIC
+PT0343,Fatima Nguyen,79,F,2026-04-11 23:00:00,2026-04-14 22:00:00,Eclampsia,Severe,6,7,Type 2 Diabetes,headache; visual disturbance; severe hypertension; seizure,71,Stabilized,0,66.7,SYNTHETIC
+PT0344,Jorge Costa,58,M,2026-04-12 00:00:00,2026-04-12 04:00:00,Stable CHF - Med Adjustment,Low,1,1,Obesity (BMI 38),mild ankle swelling; orthopnoea,4,Discharged,0,100.0,SYNTHETIC
+PT0345,Sofia Delano,78,F,2026-04-18 00:00:00,2026-04-21 13:00:00,Post-CABG Day 1,Severe,5,5,Atrial Fibrillation,reduced mobility; sternal wound pain; mild dyspnoea,85,Stabilized,0,66.7,SYNTHETIC
+PT0346,Helene Abadi,48,F,2026-04-22 06:00:00,2026-04-30 08:00:00,Major Burn (30% TBSA),Critical,10,10,Sickle Cell Disease,severe pain; hypovolaemia,194,Step-Down,0,66.7,SYNTHETIC
+PT0347,Amara Hoffman,18,F,2026-04-05 13:00:00,2026-04-06 21:00:00,GI Hemorrhage - Variceal,Severe,7,7,Cirrhosis (Child-Pugh B),pallor; hypotension,32,Transferred to ICU,1,50.0,SYNTHETIC
+PT0348,Pavel Ito,34,M,2026-04-21 22:00:00,2026-04-23 04:00:00,Acetaminophen Overdose,Severe,6,7,CHF (EF 30%),right upper quadrant pain; malaise; nausea,30,Rapid Response Called,1,100.0,SYNTHETIC
+PT0349,Ivan Al-Rashid,58,M,2026-04-30 06:00:00,2026-05-03 02:00:00,Suspected Cerebral Malaria,Critical,10,10,Cirrhosis (Child-Pugh B),fever; convulsions; impaired consciousness,68,Rapid Response Called,1,100.0,SYNTHETIC
+PT0350,Grace Fernandez,61,F,2026-04-12 01:00:00,2026-04-15 20:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Cirrhosis (Child-Pugh B),fever; severe dyspnoea; hypoxaemia; dry cough,91,Rapid Response Called,1,44.4,SYNTHETIC
+PT0351,Diego Zhang,47,M,2026-04-12 22:00:00,2026-04-14 03:00:00,Cellulitis on IV Abx,Moderate,4,5,Cirrhosis (Child-Pugh B),warmth; swelling,29,Transferred to ICU,1,100.0,SYNTHETIC
+PT0352,Emeka Mueller,19,M,2026-04-17 06:00:00,2026-04-17 16:00:00,Elective Pre-Op Workup,Low,2,2,None,asymptomatic; stable vitals,10,Discharged,0,0.0,SYNTHETIC
+PT0353,Kofi Santos,30,M,2026-04-21 18:00:00,2026-04-22 03:00:00,Syncope - Observation,Low,2,2,None,transient loss of consciousness; light-headedness,9,Discharged,0,100.0,SYNTHETIC
+PT0354,Ingrid Petrov,62,F,2026-04-15 06:00:00,2026-04-19 03:00:00,ARDS - Post Viral Pneumonia,Critical,9,9,None,fever; dry cough; hypoxaemia,93,Transferred to ICU,1,66.7,SYNTHETIC
+PT0355,Pavel Nakamura,59,M,2026-04-28 17:00:00,2026-04-29 15:00:00,UTI - IV Abx Transition to PO,Low,1,2,CHF (EF 30%),dysuria; urinary frequency; suprapubic discomfort,22,Discharged,0,0.0,SYNTHETIC
+PT0356,Hiroshi Kowalski,71,M,2026-04-13 05:00:00,2026-04-14 11:00:00,Post-Appendectomy Recovery,Moderate,3,4,HIV (suppressed),incisional pain; reduced appetite; nausea,30,Step-Down,0,100.0,SYNTHETIC
+PT0357,Grace Nakamura,68,F,2026-04-10 17:00:00,2026-04-15 11:00:00,Septic Shock - Abdominal Source,Critical,8,9,COPD,tachycardia; oliguria; abdominal pain,114,Stabilized,0,33.3,SYNTHETIC
+PT0358,Dante Fernandez,28,M,2026-04-08 20:00:00,2026-04-09 00:00:00,Syncope - Observation,Low,2,2,HIV (suppressed),transient loss of consciousness; light-headedness,4,Discharged,0,100.0,SYNTHETIC
+PT0359,Wei Patel,28,M,2026-04-02 02:00:00,2026-04-07 03:00:00,Septic Shock - Abdominal Source,Critical,9,9,Post-Transplant (renal),fever; oliguria; hypotension; abdominal pain,121,Transferred to ICU,1,66.7,SYNTHETIC
+PT0360,John Mueller,63,M,2026-04-06 14:00:00,2026-04-09 22:00:00,Eclampsia,Severe,6,6,Sickle Cell Disease,seizure; visual disturbance,80,Stabilized,0,33.3,SYNTHETIC
+PT0361,Kwame Bergstrom,73,M,2026-04-30 18:00:00,2026-05-03 12:00:00,Post-CABG Day 1,Severe,7,7,Obesity (BMI 38),mild dyspnoea; reduced mobility,66,Stabilized,0,83.3,SYNTHETIC
+PT0362,Nadia Bergstrom,37,F,2026-04-04 19:00:00,2026-04-05 21:00:00,Community-Acquired Pneumonia,Moderate,4,4,Post-Transplant (renal),pleuritic chest pain; fever; dyspnoea,26,Step-Down,0,100.0,SYNTHETIC
+PT0363,Felix Hoffman,73,M,2026-04-23 19:00:00,2026-04-25 18:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,10,Atrial Fibrillation,weakness; muscle pain; dark urine; oliguria,47,Step-Down,0,44.4,SYNTHETIC
+PT0364,Elena Al-Rashid,67,F,2026-04-19 15:00:00,2026-04-21 06:00:00,Community-Acquired Pneumonia,Moderate,3,4,HIV (suppressed),fever; pleuritic chest pain,39,Discharged,0,0.0,SYNTHETIC
+PT0365,James Singh,42,M,2026-04-27 03:00:00,2026-05-01 01:00:00,GI Hemorrhage - Variceal,Severe,7,7,None,hypotension; melaena; pallor; haematemesis,94,Stabilized,0,33.3,SYNTHETIC
+PT0366,Nadia Patel,37,F,2026-04-27 13:00:00,2026-04-28 18:00:00,Post-Appendectomy Recovery,Moderate,4,5,Atrial Fibrillation,nausea; incisional pain,29,Discharged,0,100.0,SYNTHETIC
+PT0367,Raj Patel,37,M,2026-04-19 16:00:00,2026-04-23 14:00:00,Eclampsia,Severe,6,7,COPD,severe hypertension; seizure,94,Stabilized,0,83.3,SYNTHETIC
+PT0368,Aisha Singh,52,F,2026-04-30 17:00:00,2026-05-01 14:00:00,Eclampsia,Severe,6,7,Cirrhosis (Child-Pugh B),seizure; visual disturbance; headache,21,Transferred to ICU,1,66.7,SYNTHETIC
+PT0369,Zara Kim,67,F,2026-04-17 06:00:00,2026-04-17 23:00:00,Status Epilepticus,Severe,6,6,None,incontinence; prolonged seizure activity,17,Step-Down,0,83.3,SYNTHETIC
+PT0370,Chen Costa,88,M,2026-04-21 04:00:00,2026-04-26 04:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Sickle Cell Disease,fever; hypoxaemia; severe dyspnoea; dry cough,120,Step-Down,0,44.4,SYNTHETIC
+PT0371,Ivan Brooks,73,M,2026-04-29 10:00:00,2026-05-01 08:00:00,Eclampsia,Severe,5,5,Cirrhosis (Child-Pugh B),severe hypertension; headache,46,Stabilized,0,33.3,SYNTHETIC
+PT0372,Ingrid Fernandez,37,F,2026-04-11 08:00:00,2026-04-13 01:00:00,ARDS - Post Viral Pneumonia,Critical,9,9,None,dry cough; fever,41,Stabilized,0,44.4,SYNTHETIC
+PT0373,Anastasia Petrov,86,F,2026-04-27 16:00:00,2026-04-30 00:00:00,Septic Shock - Abdominal Source,Critical,10,10,CHF (EF 30%),tachycardia; hypotension,56,Stabilized,0,55.6,SYNTHETIC
+PT0374,John Okello,35,M,2026-04-19 17:00:00,2026-04-20 00:00:00,Elective Pre-Op Workup,Low,2,2,None,stable vitals; asymptomatic,7,Discharged,0,100.0,SYNTHETIC
+PT0375,Tariq Costa,59,M,2026-04-21 21:00:00,2026-04-22 04:00:00,Elective Pre-Op Workup,Low,2,3,Post-Transplant (renal),asymptomatic; stable vitals,7,Discharged,0,100.0,SYNTHETIC
+PT0376,Sofia Kim,41,F,2026-04-13 14:00:00,2026-04-17 22:00:00,Septic Shock - Abdominal Source,Critical,10,10,COPD,tachycardia; abdominal pain; fever; hypotension,104,Step-Down,0,55.6,SYNTHETIC
+PT0377,Hiroshi Ito,54,M,2026-04-03 16:00:00,2026-04-07 10:00:00,GI Hemorrhage - Variceal,Severe,6,6,None,pallor; haematemesis; melaena; hypotension,90,Transferred to ICU,1,66.7,SYNTHETIC
+PT0378,Wei Patel,42,M,2026-04-08 14:00:00,2026-04-08 18:00:00,Syncope - Observation,Low,1,1,CKD Stage 3B,transient loss of consciousness; light-headedness,4,Step-Down,0,100.0,SYNTHETIC
+PT0379,Lina Hoffman,27,F,2026-04-30 22:00:00,2026-05-02 09:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Post-Transplant (renal),wound drainage; localised erythema; foot pain,35,Stabilized,0,100.0,SYNTHETIC
+PT0380,James Costa,27,M,2026-04-18 17:00:00,2026-04-24 18:00:00,Suspected Cerebral Malaria,Critical,9,10,Post-Transplant (renal),fever; convulsions; impaired consciousness; rigors,145,Stabilized,0,22.2,SYNTHETIC
+PT0381,Olga Patel,40,F,2026-04-17 10:00:00,2026-04-20 16:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Hypertension,hypoxaemia; fever,78,Transferred to ICU,1,66.7,SYNTHETIC
+PT0382,Mei Kowalski,88,F,2026-04-29 18:00:00,2026-05-05 04:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,CHF (EF 30%),dry cough; severe dyspnoea; fever; hypoxaemia,130,Stabilized,0,66.7,SYNTHETIC
+PT0383,Jorge Kim,59,M,2026-04-24 11:00:00,2026-04-24 22:00:00,Elective Pre-Op Workup,Low,2,3,Cirrhosis (Child-Pugh B),stable vitals; asymptomatic,11,Step-Down,0,100.0,SYNTHETIC
+PT0384,Sofia Zhang,54,F,2026-04-20 02:00:00,2026-04-21 04:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Cirrhosis (Child-Pugh B),foot pain; wound drainage,26,Discharged,0,100.0,SYNTHETIC
+PT0385,Maria Santos,83,F,2026-04-10 03:00:00,2026-04-12 04:00:00,Eclampsia,Severe,5,5,Atrial Fibrillation,headache; visual disturbance,49,Step-Down,0,50.0,SYNTHETIC
+PT0386,Maria Patel,56,F,2026-04-06 21:00:00,2026-04-10 04:00:00,Suspected Cerebral Malaria,Critical,9,9,Cirrhosis (Child-Pugh B),impaired consciousness; fever; rigors,79,Rapid Response Called,1,100.0,SYNTHETIC
+PT0387,Ravi Bergstrom,56,M,2026-04-14 20:00:00,2026-04-17 03:00:00,Status Epilepticus,Severe,7,8,Type 2 Diabetes,altered consciousness; prolonged seizure activity,55,Stabilized,0,100.0,SYNTHETIC
+PT0388,Grace Okafor,66,F,2026-04-18 18:00:00,2026-04-21 16:00:00,Suspected Cerebral Malaria,Critical,9,10,Cirrhosis (Child-Pugh B),fever; convulsions,70,Stabilized,0,55.6,SYNTHETIC
+PT0389,Priya Okello,75,F,2026-04-30 18:00:00,2026-05-01 06:00:00,Elective Pre-Op Workup,Low,1,2,Cirrhosis (Child-Pugh B),asymptomatic; stable vitals,12,Transferred to ICU,1,0.0,SYNTHETIC
+PT0390,Fatima Mueller,78,F,2026-04-17 19:00:00,2026-04-18 14:00:00,Cellulitis on IV Abx,Moderate,4,4,None,swelling; limb erythema,19,Stabilized,0,0.0,SYNTHETIC
+PT0391,Kwame Tanaka,89,M,2026-04-19 12:00:00,2026-04-23 00:00:00,Post-CABG Day 1,Severe,5,6,HIV (suppressed),sternal wound pain; reduced mobility,84,Stabilized,0,83.3,SYNTHETIC
+PT0392,Sergei Fernandez,73,M,2026-04-23 08:00:00,2026-04-25 07:00:00,Status Epilepticus,Severe,7,8,CHF (EF 30%),prolonged seizure activity; altered consciousness,47,Step-Down,0,50.0,SYNTHETIC
+PT0393,Fatima Patel,62,F,2026-04-09 03:00:00,2026-04-10 10:00:00,Cellulitis on IV Abx,Moderate,4,5,Cirrhosis (Child-Pugh B),limb erythema; warmth; low-grade fever,31,Step-Down,0,0.0,SYNTHETIC
+PT0394,Maria Costa,36,F,2026-04-16 22:00:00,2026-04-19 17:00:00,Suspected Cerebral Malaria,Critical,8,9,Hypertension,fever; rigors; convulsions; impaired consciousness,67,Transferred to ICU,1,55.6,SYNTHETIC
+PT0395,Tariq Reyes,87,M,2026-04-01 23:00:00,2026-04-06 17:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Obesity (BMI 38),hypoxaemia; severe dyspnoea,114,Stabilized,0,66.7,SYNTHETIC
+PT0396,Zara Ito,25,F,2026-04-29 12:00:00,2026-05-01 12:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,None,oliguria; muscle pain; weakness,48,Stabilized,0,22.2,SYNTHETIC
+PT0397,Ingrid Vasquez,20,F,2026-04-29 04:00:00,2026-04-30 03:00:00,Post-Appendectomy Recovery,Moderate,3,4,Type 2 Diabetes,reduced appetite; nausea; incisional pain,23,Discharged,0,50.0,SYNTHETIC
+PT0398,John Tanaka,82,M,2026-04-26 11:00:00,2026-04-27 08:00:00,Syncope - Observation,Low,1,2,Cirrhosis (Child-Pugh B),transient loss of consciousness; light-headedness,21,Discharged,0,0.0,SYNTHETIC
+PT0399,David Mueller,63,M,2026-04-17 18:00:00,2026-04-18 00:00:00,Syncope - Observation,Low,2,3,Cirrhosis (Child-Pugh B),light-headedness; transient loss of consciousness,6,Discharged,0,100.0,SYNTHETIC
+PT0400,Olga Abadi,68,F,2026-04-02 06:00:00,2026-04-08 05:00:00,Suspected Cerebral Malaria,Critical,10,10,Atrial Fibrillation,impaired consciousness; fever; rigors,143,Stabilized,0,55.6,SYNTHETIC
+PT0401,Dante Tanaka,75,M,2026-04-25 10:00:00,2026-04-25 15:00:00,Syncope - Observation,Low,1,1,HIV (suppressed),light-headedness; transient loss of consciousness,5,Discharged,0,100.0,SYNTHETIC
+PT0402,Lina Sinclair,36,F,2026-04-06 21:00:00,2026-04-07 06:00:00,Stable CHF - Med Adjustment,Low,1,1,None,mild ankle swelling; orthopnoea,9,Step-Down,0,100.0,SYNTHETIC
+PT0403,Aisha Okafor,56,F,2026-04-07 05:00:00,2026-04-07 09:00:00,Elective Pre-Op Workup,Low,1,2,COPD,stable vitals; asymptomatic,4,Discharged,0,100.0,SYNTHETIC
+PT0404,Kofi Mbeki,47,M,2026-04-02 02:00:00,2026-04-05 07:00:00,Status Epilepticus,Severe,5,5,COPD,altered consciousness; prolonged seizure activity; incontinence,77,Rapid Response Called,1,66.7,SYNTHETIC
+PT0405,James Diallo,78,M,2026-04-21 00:00:00,2026-04-21 18:00:00,Chronic Anemia - Transfusion,Low,1,2,Post-Transplant (renal),fatigue; exertional dyspnoea; pallor,18,Discharged,0,100.0,SYNTHETIC
+PT0406,Yuki Vasquez,74,F,2026-04-10 11:00:00,2026-04-13 01:00:00,Cellulitis on IV Abx,Moderate,3,4,Atrial Fibrillation,warmth; limb erythema; swelling; low-grade fever,62,Discharged,0,0.0,SYNTHETIC
+PT0407,Andre Santos,84,M,2026-04-26 22:00:00,2026-05-01 15:00:00,GI Hemorrhage - Variceal,Severe,6,6,HIV (suppressed),hypotension; melaena; haematemesis,113,Transferred to ICU,1,33.3,SYNTHETIC
+PT0408,David Santos,74,M,2026-04-02 16:00:00,2026-04-06 00:00:00,GI Hemorrhage - Variceal,Severe,7,8,Post-Transplant (renal),haematemesis; pallor; melaena,80,Stabilized,0,66.7,SYNTHETIC
+PT0409,Andre Kim,75,M,2026-04-30 10:00:00,2026-05-01 20:00:00,Cellulitis on IV Abx,Moderate,4,4,CHF (EF 30%),low-grade fever; swelling,34,Step-Down,0,100.0,SYNTHETIC
+PT0410,Sarah Kim,43,F,2026-04-14 19:00:00,2026-04-15 14:00:00,Stable CHF - Med Adjustment,Low,1,2,HIV (suppressed),mild ankle swelling; orthopnoea,19,Discharged,0,0.0,SYNTHETIC
+PT0411,Thomas Diallo,64,M,2026-04-06 06:00:00,2026-04-08 19:00:00,Major Burn (30% TBSA),Critical,10,10,None,tachycardia; hypovolaemia,61,Step-Down,0,55.6,SYNTHETIC
+PT0412,Dante Reyes,38,M,2026-04-17 05:00:00,2026-04-17 09:00:00,Syncope - Observation,Low,1,2,HIV (suppressed),light-headedness; transient loss of consciousness,4,Discharged,0,100.0,SYNTHETIC
+PT0413,Diego Johansson,18,M,2026-04-20 00:00:00,2026-04-22 06:00:00,Eclampsia,Severe,7,7,None,severe hypertension; seizure; headache; visual disturbance,54,Stabilized,0,33.3,SYNTHETIC
+PT0414,Andre Petrov,70,M,2026-04-11 03:00:00,2026-04-11 10:00:00,Chronic Anemia - Transfusion,Low,1,2,CHF (EF 30%),pallor; exertional dyspnoea; fatigue,7,Discharged,0,100.0,SYNTHETIC
+PT0415,Beatrice Delano,36,F,2026-04-27 19:00:00,2026-05-01 03:00:00,GI Hemorrhage - Variceal,Severe,7,8,Atrial Fibrillation,haematemesis; pallor,80,Step-Down,0,33.3,SYNTHETIC
+PT0416,David Sinclair,71,M,2026-04-13 17:00:00,2026-04-18 02:00:00,Suspected Cerebral Malaria,Critical,10,10,CHF (EF 30%),fever; rigors,105,Stabilized,0,77.8,SYNTHETIC
+PT0417,Ali Larsen,59,M,2026-04-25 16:00:00,2026-04-26 02:00:00,UTI - IV Abx Transition to PO,Low,1,2,Obesity (BMI 38),dysuria; urinary frequency,10,Step-Down,0,100.0,SYNTHETIC
+PT0418,Hiroshi Singh,85,M,2026-04-06 17:00:00,2026-04-06 22:00:00,Elective Pre-Op Workup,Low,1,2,Atrial Fibrillation,stable vitals; asymptomatic,5,Stabilized,0,100.0,SYNTHETIC
+PT0419,Elise Zhang,72,F,2026-04-27 20:00:00,2026-04-28 14:00:00,UTI - IV Abx Transition to PO,Low,1,2,Type 2 Diabetes,urinary frequency; suprapubic discomfort,18,Discharged,0,0.0,SYNTHETIC
+PT0420,Felix Fernandez,41,M,2026-04-25 00:00:00,2026-04-25 20:00:00,UTI - IV Abx Transition to PO,Low,2,3,COPD,suprapubic discomfort; urinary frequency; dysuria,20,Discharged,0,0.0,SYNTHETIC
+PT0421,Chen Delano,23,M,2026-04-06 00:00:00,2026-04-14 10:00:00,ARDS - Post Viral Pneumonia,Critical,8,9,Obesity (BMI 38),dry cough; hypoxaemia,202,Transferred to ICU,1,22.2,SYNTHETIC
+PT0422,Lina Zhang,82,F,2026-04-13 00:00:00,2026-04-16 15:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Hypertension,projectile vomiting; petechial rash,87,Stabilized,0,75.0,SYNTHETIC
+PT0423,Wei Larsen,60,M,2026-04-25 06:00:00,2026-04-28 18:00:00,Acetaminophen Overdose,Severe,6,7,HIV (suppressed),nausea; malaise,84,Step-Down,0,50.0,SYNTHETIC
+PT0424,Ivan Reyes,25,M,2026-04-07 15:00:00,2026-04-14 21:00:00,Suspected Cerebral Malaria,Critical,10,10,COPD,convulsions; impaired consciousness; rigors,174,Transferred to ICU,1,55.6,SYNTHETIC
+PT0425,Chloe Larsen,37,F,2026-04-09 21:00:00,2026-04-13 01:00:00,Acetaminophen Overdose,Severe,7,7,Post-Transplant (renal),right upper quadrant pain; malaise; nausea,76,Step-Down,0,50.0,SYNTHETIC
+PT0426,Hassan Brooks,58,M,2026-04-17 14:00:00,2026-04-17 23:00:00,Elective Pre-Op Workup,Low,1,2,CHF (EF 30%),asymptomatic; stable vitals,9,Discharged,0,0.0,SYNTHETIC
+PT0427,James Petrov,22,M,2026-04-10 05:00:00,2026-04-13 07:00:00,GI Hemorrhage - Variceal,Severe,6,7,Obesity (BMI 38),melaena; haematemesis; pallor,74,Step-Down,0,66.7,SYNTHETIC
+PT0428,Felix Delano,84,M,2026-04-21 15:00:00,2026-04-22 06:00:00,Chronic Anemia - Transfusion,Low,1,2,Hypertension,exertional dyspnoea; fatigue; pallor,15,Discharged,0,100.0,SYNTHETIC
+PT0429,Chloe Vasquez,29,F,2026-04-23 06:00:00,2026-04-23 22:00:00,Post-Appendectomy Recovery,Moderate,4,4,None,nausea; incisional pain,16,Discharged,0,50.0,SYNTHETIC
+PT0430,Wei Nguyen,53,M,2026-04-28 06:00:00,2026-04-29 21:00:00,Eclampsia,Severe,5,6,CHF (EF 30%),severe hypertension; seizure; visual disturbance,39,Stabilized,0,50.0,SYNTHETIC
+PT0431,Jorge Patel,87,M,2026-04-05 21:00:00,2026-04-06 18:00:00,Post-CABG Day 1,Severe,5,6,COPD,mild dyspnoea; sternal wound pain; reduced mobility,21,Transferred to ICU,1,66.7,SYNTHETIC
+PT0432,Omar Sinclair,34,M,2026-04-04 00:00:00,2026-04-06 04:00:00,Eclampsia,Severe,7,7,Hypertension,headache; visual disturbance; severe hypertension; seizure,52,Stabilized,0,66.7,SYNTHETIC
+PT0433,Wei Tanaka,60,M,2026-04-08 15:00:00,2026-04-15 12:00:00,Suspected Cerebral Malaria,Critical,8,9,HIV (suppressed),rigors; convulsions; impaired consciousness; fever,165,Step-Down,0,88.9,SYNTHETIC
+PT0434,Fatima Bergstrom,47,F,2026-04-20 23:00:00,2026-04-21 12:00:00,Post-Appendectomy Recovery,Moderate,3,4,Type 2 Diabetes,nausea; reduced appetite; incisional pain,13,Transferred to ICU,1,100.0,SYNTHETIC
+PT0435,Ingrid Bergstrom,26,F,2026-04-29 09:00:00,2026-04-30 11:00:00,Community-Acquired Pneumonia,Moderate,4,5,COPD,dyspnoea; fever; productive cough,26,Rapid Response Called,1,50.0,SYNTHETIC
+PT0436,Ivan Costa,31,M,2026-04-15 20:00:00,2026-04-23 16:00:00,Major Burn (30% TBSA),Critical,9,9,None,severe pain; hypovolaemia; extensive burns; tachycardia,188,Stabilized,0,22.2,SYNTHETIC
+PT0437,Emeka Johansson,79,M,2026-04-18 15:00:00,2026-04-18 23:00:00,Elective Pre-Op Workup,Low,2,3,HIV (suppressed),asymptomatic; stable vitals,8,Rapid Response Called,1,100.0,SYNTHETIC
+PT0438,Chen Hoffman,27,M,2026-04-19 13:00:00,2026-04-20 03:00:00,Stable CHF - Med Adjustment,Low,2,2,None,mild ankle swelling; orthopnoea,14,Discharged,0,100.0,SYNTHETIC
+PT0439,Ravi Ito,66,M,2026-04-19 23:00:00,2026-04-20 21:00:00,Post-Appendectomy Recovery,Moderate,4,4,Post-Transplant (renal),nausea; incisional pain; reduced appetite,22,Discharged,0,0.0,SYNTHETIC
+PT0440,James Zhang,86,M,2026-04-28 03:00:00,2026-04-29 19:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,None,muscle pain; weakness,40,Step-Down,0,66.7,SYNTHETIC
+PT0441,Helene Costa,29,F,2026-04-13 18:00:00,2026-04-17 04:00:00,Status Epilepticus,Severe,5,6,Sickle Cell Disease,altered consciousness; incontinence; prolonged seizure activity,82,Step-Down,0,50.0,SYNTHETIC
+PT0442,Olga Tanaka,54,F,2026-04-24 10:00:00,2026-04-26 07:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,10,CKD Stage 3B,dark urine; oliguria,45,Rapid Response Called,1,66.7,SYNTHETIC
+PT0443,Tariq Fernandez,78,M,2026-04-17 07:00:00,2026-04-18 18:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,localised erythema; wound drainage; foot pain,35,Discharged,0,0.0,SYNTHETIC
+PT0444,Grace Hoffman,20,F,2026-04-29 14:00:00,2026-04-30 11:00:00,Community-Acquired Pneumonia,Moderate,4,5,COPD,productive cough; dyspnoea,21,Discharged,0,0.0,SYNTHETIC
+PT0445,Jorge Singh,83,M,2026-04-18 17:00:00,2026-04-24 06:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,9,COPD,weakness; dark urine; oliguria; muscle pain,133,Stabilized,0,44.4,SYNTHETIC
+PT0446,Hassan Moreau,70,M,2026-04-01 07:00:00,2026-04-04 15:00:00,GI Hemorrhage - Variceal,Severe,5,6,HIV (suppressed),melaena; hypotension; pallor,80,Step-Down,0,33.3,SYNTHETIC
+PT0447,David Vasquez,36,M,2026-04-16 17:00:00,2026-04-16 22:00:00,Stable CHF - Med Adjustment,Low,2,2,None,orthopnoea; mild ankle swelling,5,Discharged,0,100.0,SYNTHETIC
+PT0448,Felix Okafor,61,M,2026-04-27 21:00:00,2026-04-28 02:00:00,Syncope - Observation,Low,1,2,Hypertension,light-headedness; transient loss of consciousness,5,Discharged,0,100.0,SYNTHETIC
+PT0449,Andre Nguyen,51,M,2026-04-13 13:00:00,2026-04-14 03:00:00,Chronic Anemia - Transfusion,Low,2,3,HIV (suppressed),fatigue; exertional dyspnoea,14,Discharged,0,0.0,SYNTHETIC
+PT0450,Ravi Kim,34,M,2026-04-27 15:00:00,2026-04-27 19:00:00,Stable CHF - Med Adjustment,Low,1,2,Sickle Cell Disease,orthopnoea; mild ankle swelling,4,Discharged,0,100.0,SYNTHETIC
+PT0451,Omar Sinclair,65,M,2026-04-01 14:00:00,2026-04-01 20:00:00,UTI - IV Abx Transition to PO,Low,2,3,Atrial Fibrillation,dysuria; suprapubic discomfort; urinary frequency,6,Step-Down,0,0.0,SYNTHETIC
+PT0452,Zara Kim,67,F,2026-04-07 04:00:00,2026-04-07 20:00:00,Syncope - Observation,Low,1,1,Cirrhosis (Child-Pugh B),light-headedness; transient loss of consciousness,16,Discharged,0,100.0,SYNTHETIC
+PT0453,Dante Brooks,77,M,2026-04-15 17:00:00,2026-04-17 11:00:00,Major Burn (30% TBSA),Critical,8,9,CHF (EF 30%),hypovolaemia; extensive burns; tachycardia; severe pain,42,Stabilized,0,88.9,SYNTHETIC
+PT0454,Ivan Kowalski,19,M,2026-04-17 15:00:00,2026-04-18 09:00:00,Elective Pre-Op Workup,Low,1,2,HIV (suppressed),asymptomatic; stable vitals,18,Step-Down,0,0.0,SYNTHETIC
+PT0455,Jorge Okello,52,M,2026-04-28 04:00:00,2026-04-28 14:00:00,Syncope - Observation,Low,1,2,Type 2 Diabetes,light-headedness; transient loss of consciousness,10,Discharged,0,100.0,SYNTHETIC
+PT0456,Sergei Fernandez,84,M,2026-04-29 19:00:00,2026-05-02 02:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,foot pain; wound drainage,55,Stabilized,0,0.0,SYNTHETIC
+PT0457,Aisha Al-Rashid,75,F,2026-04-01 12:00:00,2026-04-06 17:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,CKD Stage 3B,gross hematuria; high-grade fever,125,Transferred to ICU,1,83.3,SYNTHETIC
+PT0458,Omar Zhang,29,M,2026-04-03 10:00:00,2026-04-10 10:00:00,Suspected Cerebral Malaria,Critical,8,8,CHF (EF 30%),impaired consciousness; convulsions; fever; rigors,168,Stabilized,0,66.7,SYNTHETIC
+PT0459,Jorge Mbeki,76,M,2026-04-08 20:00:00,2026-04-09 09:00:00,Stable CHF - Med Adjustment,Low,1,2,Type 2 Diabetes,orthopnoea; mild ankle swelling,13,Step-Down,0,0.0,SYNTHETIC
+PT0460,Omar Kim,51,M,2026-04-03 15:00:00,2026-04-08 22:00:00,Septic Shock - Abdominal Source,Critical,9,9,None,tachycardia; fever; hypotension,127,Stabilized,0,44.4,SYNTHETIC
+PT0461,Ivan Bergstrom,45,M,2026-04-28 12:00:00,2026-05-01 19:00:00,Status Epilepticus,Severe,7,7,HIV (suppressed),prolonged seizure activity; altered consciousness,79,Step-Down,0,50.0,SYNTHETIC
+PT0462,Andre Diallo,81,M,2026-04-04 00:00:00,2026-04-06 23:00:00,Post-CABG Day 1,Severe,5,5,CKD Stage 3B,reduced mobility; mild dyspnoea; sternal wound pain,71,Step-Down,0,83.3,SYNTHETIC
+PT0463,David Larsen,79,M,2026-04-15 01:00:00,2026-04-17 04:00:00,Diabetic Ulcer - Infected,Moderate,4,5,COPD,foot pain; wound drainage; localised erythema,51,Stabilized,0,100.0,SYNTHETIC
+PT0464,Kwame Mueller,56,M,2026-04-21 13:00:00,2026-04-24 00:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,9,None,gross hematuria; projectile vomiting; petechial rash; abdominal guarding,59,Stabilized,0,66.7,SYNTHETIC
+PT0465,Pavel Al-Rashid,67,M,2026-04-20 14:00:00,2026-04-22 17:00:00,Acetaminophen Overdose,Severe,5,5,None,nausea; malaise; right upper quadrant pain,51,Step-Down,0,66.7,SYNTHETIC
+PT0466,Tariq Tanaka,42,M,2026-04-16 07:00:00,2026-04-22 22:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,None,dry cough; fever,159,Step-Down,0,44.4,SYNTHETIC
+PT0467,Elena Kowalski,86,F,2026-04-03 16:00:00,2026-04-04 06:00:00,Stable CHF - Med Adjustment,Low,1,2,Obesity (BMI 38),orthopnoea; mild ankle swelling,14,Step-Down,0,100.0,SYNTHETIC
+PT0468,Thomas Vasquez,47,M,2026-04-06 01:00:00,2026-04-08 00:00:00,Acetaminophen Overdose,Severe,7,8,CKD Stage 3B,malaise; right upper quadrant pain; nausea,47,Step-Down,0,50.0,SYNTHETIC
+PT0469,Zara Brooks,24,F,2026-04-11 08:00:00,2026-04-18 04:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,9,CHF (EF 30%),convulsions; high-grade fever; petechial rash; projectile vomiting,164,Stabilized,0,66.7,SYNTHETIC
+PT0470,Ali Kim,43,M,2026-04-05 12:00:00,2026-04-05 17:00:00,Stable CHF - Med Adjustment,Low,1,1,None,mild ankle swelling; orthopnoea,5,Discharged,0,100.0,SYNTHETIC
+PT0471,Thomas Patel,33,M,2026-04-02 22:00:00,2026-04-03 21:00:00,Stable CHF - Med Adjustment,Low,1,1,Cirrhosis (Child-Pugh B),orthopnoea; mild ankle swelling,23,Stabilized,0,0.0,SYNTHETIC
+PT0472,Raj Diallo,66,M,2026-04-25 19:00:00,2026-04-26 08:00:00,Community-Acquired Pneumonia,Moderate,3,3,Obesity (BMI 38),productive cough; pleuritic chest pain,13,Step-Down,0,0.0,SYNTHETIC
+PT0473,James Delano,44,M,2026-04-28 19:00:00,2026-05-05 21:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,Type 2 Diabetes,abdominal guarding; petechial rash; convulsions,170,Step-Down,0,50.0,SYNTHETIC
+PT0474,Felix Costa,56,M,2026-04-30 12:00:00,2026-05-01 01:00:00,Cellulitis on IV Abx,Moderate,3,4,COPD,warmth; swelling; low-grade fever; limb erythema,13,Discharged,0,0.0,SYNTHETIC
+PT0475,Kwame Mueller,44,M,2026-04-27 09:00:00,2026-04-29 20:00:00,Status Epilepticus,Severe,5,5,Post-Transplant (renal),incontinence; prolonged seizure activity; altered consciousness,59,Step-Down,0,33.3,SYNTHETIC
+PT0476,Sarah Reyes,23,F,2026-04-21 05:00:00,2026-04-28 12:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,None,muscle pain; dark urine,175,Step-Down,0,22.2,SYNTHETIC
+PT0477,Luis Zhang,40,M,2026-04-20 08:00:00,2026-04-20 21:00:00,Cellulitis on IV Abx,Moderate,4,5,Cirrhosis (Child-Pugh B),limb erythema; swelling,13,Transferred to ICU,1,0.0,SYNTHETIC
+PT0478,Felix Patel,47,M,2026-04-19 23:00:00,2026-04-27 18:00:00,Septic Shock - Abdominal Source,Critical,8,8,None,tachycardia; abdominal pain; fever; hypotension,187,Stabilized,0,22.2,SYNTHETIC
+PT0479,Sarah Mueller,45,F,2026-04-04 03:00:00,2026-04-05 22:00:00,Cellulitis on IV Abx,Moderate,3,3,HIV (suppressed),low-grade fever; limb erythema; warmth; swelling,43,Stabilized,0,0.0,SYNTHETIC
+PT0480,Grace Moreau,34,F,2026-04-09 06:00:00,2026-04-17 06:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,9,None,dark urine; oliguria; muscle pain,192,Stabilized,0,44.4,SYNTHETIC
+PT0481,Priya Abadi,55,F,2026-04-20 20:00:00,2026-04-27 05:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,8,None,muscle pain; weakness; oliguria,153,Step-Down,0,44.4,SYNTHETIC
+PT0482,Anastasia Fernandez,53,F,2026-04-23 06:00:00,2026-04-24 02:00:00,Elective Pre-Op Workup,Low,1,2,Type 2 Diabetes,stable vitals; asymptomatic,20,Step-Down,0,0.0,SYNTHETIC
+PT0483,Dante Nakamura,23,M,2026-04-25 17:00:00,2026-04-27 15:00:00,GI Hemorrhage - Variceal,Severe,5,6,Cirrhosis (Child-Pugh B),melaena; hypotension; haematemesis; pallor,46,Step-Down,0,33.3,SYNTHETIC
+PT0484,Priya Singh,89,F,2026-04-05 04:00:00,2026-04-06 00:00:00,Syncope - Observation,Low,2,3,Obesity (BMI 38),transient loss of consciousness; light-headedness,20,Stabilized,0,0.0,SYNTHETIC
+PT0485,Chen Sinclair,21,M,2026-04-04 20:00:00,2026-04-05 08:00:00,Community-Acquired Pneumonia,Moderate,4,5,Hypertension,pleuritic chest pain; productive cough; fever,12,Discharged,0,50.0,SYNTHETIC
+PT0486,Elise Tanaka,60,F,2026-05-01 00:00:00,2026-05-08 00:00:00,Major Burn (30% TBSA),Critical,9,10,Sickle Cell Disease,extensive burns; severe pain,168,Rapid Response Called,1,55.6,SYNTHETIC
+PT0487,Diego Mbeki,83,M,2026-04-25 13:00:00,2026-04-27 12:00:00,Post-CABG Day 1,Severe,7,8,CHF (EF 30%),sternal wound pain; reduced mobility; mild dyspnoea,47,Step-Down,0,33.3,SYNTHETIC
+PT0488,Wei Tanaka,44,M,2026-04-16 14:00:00,2026-04-17 21:00:00,Community-Acquired Pneumonia,Moderate,4,4,CHF (EF 30%),productive cough; pleuritic chest pain,31,Step-Down,0,50.0,SYNTHETIC
+PT0489,Sofia Patel,24,F,2026-04-10 14:00:00,2026-04-11 04:00:00,Chronic Anemia - Transfusion,Low,1,1,None,exertional dyspnoea; pallor; fatigue,14,Discharged,0,0.0,SYNTHETIC
+PT0490,Andre Petrov,26,M,2026-04-23 16:00:00,2026-04-24 11:00:00,Syncope - Observation,Low,1,2,Obesity (BMI 38),light-headedness; transient loss of consciousness,19,Rapid Response Called,1,0.0,SYNTHETIC
+PT0491,James Tanaka,37,M,2026-04-08 00:00:00,2026-04-12 00:00:00,Major Burn (30% TBSA),Critical,9,9,Type 2 Diabetes,severe pain; tachycardia,96,Rapid Response Called,1,33.3,SYNTHETIC
+PT0492,Luis Singh,42,M,2026-04-18 22:00:00,2026-04-19 11:00:00,Elective Pre-Op Workup,Low,1,2,Obesity (BMI 38),asymptomatic; stable vitals,13,Discharged,0,100.0,SYNTHETIC
+PT0493,Olga Brooks,56,F,2026-04-28 23:00:00,2026-05-02 20:00:00,Acetaminophen Overdose,Severe,6,7,CHF (EF 30%),right upper quadrant pain; malaise; nausea,93,Stabilized,0,50.0,SYNTHETIC
+PT0494,Raj Reyes,76,M,2026-04-13 07:00:00,2026-04-14 10:00:00,Post-CABG Day 1,Severe,5,6,Obesity (BMI 38),reduced mobility; mild dyspnoea,27,Stabilized,0,50.0,SYNTHETIC
+PT0495,Elise Al-Rashid,32,F,2026-04-30 13:00:00,2026-05-04 05:00:00,Eclampsia,Severe,5,6,COPD,severe hypertension; seizure,88,Transferred to ICU,1,66.7,SYNTHETIC
+PT0496,Maria Costa,62,F,2026-04-24 23:00:00,2026-04-28 19:00:00,Post-CABG Day 1,Severe,6,6,COPD,mild dyspnoea; reduced mobility,92,Step-Down,0,83.3,SYNTHETIC
+PT0497,Kwame Kim,37,M,2026-04-18 06:00:00,2026-04-18 19:00:00,Elective Pre-Op Workup,Low,2,2,Type 2 Diabetes,stable vitals; asymptomatic,13,Discharged,0,100.0,SYNTHETIC
+PT0498,Olga Okello,23,F,2026-04-29 10:00:00,2026-04-30 19:00:00,Eclampsia,Severe,6,7,Atrial Fibrillation,visual disturbance; severe hypertension; seizure; headache,33,Stabilized,0,83.3,SYNTHETIC
+PT0499,Sarah Johansson,42,F,2026-04-20 00:00:00,2026-04-24 15:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,9,CHF (EF 30%),projectile vomiting; high-grade fever,111,Transferred to ICU,1,58.3,SYNTHETIC
+PT0500,Ingrid Zhang,42,F,2026-04-29 21:00:00,2026-05-07 10:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,Post-Transplant (renal),gross hematuria; abdominal guarding,181,Step-Down,0,58.3,SYNTHETIC
+PT0501,Beatrice Nguyen,19,F,2026-04-07 07:00:00,2026-04-15 07:00:00,Suspected Cerebral Malaria,Critical,10,10,Cirrhosis (Child-Pugh B),convulsions; impaired consciousness; rigors,192,Stabilized,0,77.8,SYNTHETIC
+PT0502,Luis Costa,72,M,2026-04-19 22:00:00,2026-04-20 10:00:00,Elective Pre-Op Workup,Low,1,2,Hypertension,stable vitals; asymptomatic,12,Rapid Response Called,1,100.0,SYNTHETIC
+PT0503,Beatrice Okafor,18,F,2026-04-23 09:00:00,2026-04-28 06:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,9,Atrial Fibrillation,weakness; oliguria,117,Step-Down,0,22.2,SYNTHETIC
+PT0504,Diego Kim,55,M,2026-04-25 05:00:00,2026-04-25 11:00:00,Elective Pre-Op Workup,Low,2,2,None,asymptomatic; stable vitals,6,Discharged,0,100.0,SYNTHETIC
+PT0505,Luis Hoffman,51,M,2026-04-20 18:00:00,2026-04-21 02:00:00,Stable CHF - Med Adjustment,Low,2,3,Obesity (BMI 38),mild ankle swelling; orthopnoea,8,Discharged,0,100.0,SYNTHETIC
+PT0506,Wei Brooks,53,M,2026-04-30 08:00:00,2026-05-04 01:00:00,Eclampsia,Severe,6,7,COPD,seizure; visual disturbance,89,Step-Down,0,50.0,SYNTHETIC
+PT0507,Chloe Moreau,65,F,2026-04-12 00:00:00,2026-04-13 00:00:00,Stable CHF - Med Adjustment,Low,2,3,CHF (EF 30%),orthopnoea; mild ankle swelling,24,Stabilized,0,0.0,SYNTHETIC
+PT0508,Elena Nakamura,38,F,2026-04-07 05:00:00,2026-04-09 12:00:00,Post-CABG Day 1,Severe,5,5,CHF (EF 30%),mild dyspnoea; sternal wound pain; reduced mobility,55,Rapid Response Called,1,66.7,SYNTHETIC
+PT0509,Diego Brooks,41,M,2026-04-23 14:00:00,2026-04-25 18:00:00,Community-Acquired Pneumonia,Moderate,3,4,Atrial Fibrillation,fever; pleuritic chest pain,52,Discharged,0,0.0,SYNTHETIC
+PT0510,Sofia Okello,86,F,2026-04-13 20:00:00,2026-04-15 16:00:00,Acetaminophen Overdose,Severe,7,7,None,malaise; right upper quadrant pain; nausea,44,Stabilized,0,100.0,SYNTHETIC
+PT0511,Elena Sinclair,37,F,2026-04-18 13:00:00,2026-04-18 23:00:00,Syncope - Observation,Low,2,3,Cirrhosis (Child-Pugh B),transient loss of consciousness; light-headedness,10,Transferred to ICU,1,100.0,SYNTHETIC
+PT0512,Sofia Ito,62,F,2026-04-04 06:00:00,2026-04-04 11:00:00,Syncope - Observation,Low,1,2,HIV (suppressed),transient loss of consciousness; light-headedness,5,Discharged,0,100.0,SYNTHETIC
+PT0513,Kofi Hoffman,36,M,2026-04-13 23:00:00,2026-04-14 10:00:00,Post-Appendectomy Recovery,Moderate,4,5,COPD,incisional pain; reduced appetite; nausea,11,Discharged,0,50.0,SYNTHETIC
+PT0514,Amara Sinclair,23,F,2026-04-05 18:00:00,2026-04-08 07:00:00,Septic Shock - Abdominal Source,Critical,9,9,None,abdominal pain; oliguria,61,Step-Down,0,33.3,SYNTHETIC
+PT0515,Emeka Larsen,30,M,2026-04-11 19:00:00,2026-04-11 23:00:00,Syncope - Observation,Low,1,1,Obesity (BMI 38),light-headedness; transient loss of consciousness,4,Step-Down,0,100.0,SYNTHETIC
+PT0516,Helene Santos,62,F,2026-04-02 05:00:00,2026-04-03 10:00:00,Status Epilepticus,Severe,5,6,Sickle Cell Disease,incontinence; altered consciousness,29,Rapid Response Called,1,50.0,SYNTHETIC
+PT0517,Chloe Ito,42,F,2026-04-05 05:00:00,2026-04-08 22:00:00,GI Hemorrhage - Variceal,Severe,7,7,CHF (EF 30%),melaena; hypotension,89,Stabilized,0,16.7,SYNTHETIC
+PT0518,Elena Kowalski,63,F,2026-04-21 06:00:00,2026-04-26 06:00:00,ARDS - Post Viral Pneumonia,Critical,8,9,Post-Transplant (renal),hypoxaemia; dry cough; severe dyspnoea; fever,120,Rapid Response Called,1,44.4,SYNTHETIC
+PT0519,Olga Mueller,81,F,2026-04-14 09:00:00,2026-04-15 00:00:00,Cellulitis on IV Abx,Moderate,3,3,None,limb erythema; swelling; low-grade fever,15,Transferred to ICU,1,100.0,SYNTHETIC
+PT0520,Kwame Kowalski,74,M,2026-04-05 22:00:00,2026-04-10 22:00:00,Suspected Cerebral Malaria,Critical,8,9,Cirrhosis (Child-Pugh B),rigors; convulsions; impaired consciousness,120,Step-Down,0,66.7,SYNTHETIC
+PT0521,Luis Nakamura,80,M,2026-04-03 23:00:00,2026-04-06 02:00:00,Cellulitis on IV Abx,Moderate,3,3,None,swelling; limb erythema; low-grade fever,51,Discharged,0,100.0,SYNTHETIC
+PT0522,Andre Nguyen,43,M,2026-04-18 02:00:00,2026-04-25 06:00:00,Septic Shock - Abdominal Source,Critical,8,9,COPD,fever; hypotension; oliguria; abdominal pain,172,Stabilized,0,66.7,SYNTHETIC
+PT0523,Grace Patel,78,F,2026-04-22 07:00:00,2026-04-24 07:00:00,GI Hemorrhage - Variceal,Severe,6,6,None,hypotension; pallor; melaena; haematemesis,48,Step-Down,0,33.3,SYNTHETIC
+PT0524,Ivan Nguyen,81,M,2026-04-20 09:00:00,2026-04-21 14:00:00,Post-CABG Day 1,Severe,5,5,None,reduced mobility; mild dyspnoea,29,Stabilized,0,50.0,SYNTHETIC
+PT0525,Elena Patel,30,F,2026-04-02 03:00:00,2026-04-05 00:00:00,Suspected Cerebral Malaria,Critical,8,9,Obesity (BMI 38),convulsions; fever; impaired consciousness,69,Stabilized,0,66.7,SYNTHETIC
+PT0526,Zara Reyes,22,F,2026-04-22 05:00:00,2026-04-23 14:00:00,Post-Appendectomy Recovery,Moderate,3,4,Atrial Fibrillation,nausea; reduced appetite; incisional pain,33,Discharged,0,100.0,SYNTHETIC
+PT0527,Andre Okello,80,M,2026-04-02 09:00:00,2026-04-03 02:00:00,Diabetic Ulcer - Infected,Moderate,4,4,Obesity (BMI 38),foot pain; localised erythema; wound drainage,17,Discharged,0,100.0,SYNTHETIC
+PT0528,Tariq Tanaka,89,M,2026-04-21 22:00:00,2026-04-22 19:00:00,Chronic Anemia - Transfusion,Low,1,2,CHF (EF 30%),pallor; exertional dyspnoea; fatigue,21,Discharged,0,0.0,SYNTHETIC
+PT0529,Hassan Abadi,34,M,2026-04-16 01:00:00,2026-04-16 15:00:00,Chronic Anemia - Transfusion,Low,2,3,CHF (EF 30%),fatigue; pallor; exertional dyspnoea,14,Discharged,0,0.0,SYNTHETIC
+PT0530,Elena Mbeki,49,F,2026-04-15 17:00:00,2026-04-18 12:00:00,Acetaminophen Overdose,Severe,6,7,Type 2 Diabetes,right upper quadrant pain; nausea; malaise,67,Step-Down,0,16.7,SYNTHETIC
+PT0531,Ravi Okafor,83,M,2026-04-08 05:00:00,2026-04-09 23:00:00,Septic Shock - Abdominal Source,Critical,9,10,Type 2 Diabetes,tachycardia; fever; hypotension; oliguria,42,Rapid Response Called,1,55.6,SYNTHETIC
+PT0532,Tariq Petrov,30,M,2026-04-25 08:00:00,2026-04-25 20:00:00,Stable CHF - Med Adjustment,Low,1,2,Cirrhosis (Child-Pugh B),mild ankle swelling; orthopnoea,12,Stabilized,0,100.0,SYNTHETIC
+PT0533,Ivan Nguyen,86,M,2026-04-16 12:00:00,2026-04-18 21:00:00,Acetaminophen Overdose,Severe,5,6,CHF (EF 30%),right upper quadrant pain; nausea,57,Step-Down,0,66.7,SYNTHETIC
+PT0534,David Johansson,61,M,2026-04-10 15:00:00,2026-04-11 08:00:00,Stable CHF - Med Adjustment,Low,2,2,None,mild ankle swelling; orthopnoea,17,Discharged,0,100.0,SYNTHETIC
+PT0535,Olga Petrov,43,F,2026-04-28 19:00:00,2026-04-30 15:00:00,Cellulitis on IV Abx,Moderate,3,3,Cirrhosis (Child-Pugh B),swelling; warmth; low-grade fever,44,Discharged,0,100.0,SYNTHETIC
+PT0536,Ali Nguyen,45,M,2026-05-01 00:00:00,2026-05-02 18:00:00,Post-Appendectomy Recovery,Moderate,3,4,CKD Stage 3B,reduced appetite; nausea,42,Discharged,0,50.0,SYNTHETIC
+PT0537,Omar Bergstrom,77,M,2026-04-27 17:00:00,2026-04-27 22:00:00,Elective Pre-Op Workup,Low,2,3,CHF (EF 30%),asymptomatic; stable vitals,5,Rapid Response Called,1,0.0,SYNTHETIC
+PT0538,Chloe Larsen,54,F,2026-04-03 17:00:00,2026-04-07 17:00:00,Eclampsia,Severe,6,7,HIV (suppressed),visual disturbance; severe hypertension,96,Stabilized,0,50.0,SYNTHETIC
+PT0539,Jorge Ito,77,M,2026-04-07 09:00:00,2026-04-08 21:00:00,GI Hemorrhage - Variceal,Severe,6,6,Hypertension,melaena; pallor,36,Transferred to ICU,1,83.3,SYNTHETIC
+PT0540,Diego Brooks,23,M,2026-04-06 19:00:00,2026-04-08 21:00:00,Suspected Cerebral Malaria,Critical,8,9,COPD,convulsions; rigors; fever,50,Stabilized,0,55.6,SYNTHETIC
+PT0541,James Okello,35,M,2026-04-03 17:00:00,2026-04-04 06:00:00,UTI - IV Abx Transition to PO,Low,2,2,None,suprapubic discomfort; dysuria; urinary frequency,13,Stabilized,0,100.0,SYNTHETIC
+PT0542,Chloe Nguyen,58,F,2026-04-23 09:00:00,2026-04-27 21:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Sickle Cell Disease,severe dyspnoea; dry cough; fever,108,Step-Down,0,33.3,SYNTHETIC
+PT0543,Emeka Kowalski,70,M,2026-04-05 13:00:00,2026-04-07 13:00:00,GI Hemorrhage - Variceal,Severe,6,6,Hypertension,hypotension; melaena,48,Step-Down,0,0.0,SYNTHETIC
+PT0544,Ivan Al-Rashid,78,M,2026-04-19 01:00:00,2026-04-20 11:00:00,Community-Acquired Pneumonia,Moderate,3,4,Cirrhosis (Child-Pugh B),fever; dyspnoea; productive cough; pleuritic chest pain,34,Transferred to ICU,1,50.0,SYNTHETIC
+PT0545,Sergei Santos,88,M,2026-04-29 06:00:00,2026-04-29 11:00:00,UTI - IV Abx Transition to PO,Low,1,1,None,suprapubic discomfort; dysuria; urinary frequency,5,Discharged,0,0.0,SYNTHETIC
+PT0546,Emeka Larsen,56,M,2026-04-11 02:00:00,2026-04-16 20:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,None,severe dyspnoea; hypoxaemia; fever,138,Stabilized,0,44.4,SYNTHETIC
+PT0547,Chen Nakamura,80,M,2026-04-28 11:00:00,2026-05-03 06:00:00,Major Burn (30% TBSA),Critical,9,10,Sickle Cell Disease,hypovolaemia; extensive burns,115,Step-Down,0,66.7,SYNTHETIC
+PT0548,Thomas Diallo,88,M,2026-04-07 20:00:00,2026-04-09 13:00:00,Cellulitis on IV Abx,Moderate,3,3,None,limb erythema; warmth; swelling,41,Discharged,0,100.0,SYNTHETIC
+PT0549,Hiroshi Vasquez,58,M,2026-04-06 19:00:00,2026-04-08 08:00:00,Major Burn (30% TBSA),Critical,10,10,Obesity (BMI 38),severe pain; hypovolaemia; tachycardia,37,Step-Down,0,55.6,SYNTHETIC
+PT0550,Raj Mueller,35,M,2026-04-26 08:00:00,2026-04-26 20:00:00,Syncope - Observation,Low,1,1,None,light-headedness; transient loss of consciousness,12,Discharged,0,100.0,SYNTHETIC
+PT0551,Aisha Reyes,20,F,2026-04-16 16:00:00,2026-04-18 08:00:00,Eclampsia,Severe,5,6,Type 2 Diabetes,visual disturbance; headache; seizure,40,Rapid Response Called,1,33.3,SYNTHETIC
+PT0552,Lina Mueller,51,F,2026-04-30 22:00:00,2026-05-03 23:00:00,Septic Shock - Abdominal Source,Critical,9,10,Hypertension,abdominal pain; oliguria,73,Step-Down,0,88.9,SYNTHETIC
+PT0553,Raj Fernandez,44,M,2026-04-23 10:00:00,2026-04-29 04:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,None,dry cough; severe dyspnoea; fever,138,Transferred to ICU,1,22.2,SYNTHETIC
+PT0554,Dante Petrov,41,M,2026-04-26 14:00:00,2026-04-27 13:00:00,Diabetic Ulcer - Infected,Moderate,3,3,HIV (suppressed),foot pain; wound drainage; localised erythema,23,Discharged,0,0.0,SYNTHETIC
+PT0555,Luis Abadi,35,M,2026-04-16 18:00:00,2026-04-20 00:00:00,GI Hemorrhage - Variceal,Severe,7,7,Obesity (BMI 38),pallor; haematemesis; hypotension; melaena,78,Rapid Response Called,1,50.0,SYNTHETIC
+PT0556,Jorge Zhang,24,M,2026-04-26 11:00:00,2026-04-27 11:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,wound drainage; foot pain,24,Stabilized,0,50.0,SYNTHETIC
+PT0557,Pavel Ito,34,M,2026-04-22 12:00:00,2026-04-23 11:00:00,UTI - IV Abx Transition to PO,Low,1,2,CKD Stage 3B,urinary frequency; suprapubic discomfort; dysuria,23,Discharged,0,0.0,SYNTHETIC
+PT0558,Anastasia Abadi,85,F,2026-04-20 23:00:00,2026-04-23 15:00:00,Major Burn (30% TBSA),Critical,10,10,Obesity (BMI 38),hypovolaemia; tachycardia,64,Rapid Response Called,1,44.4,SYNTHETIC
+PT0559,Wei Okello,84,M,2026-04-16 09:00:00,2026-04-21 15:00:00,Suspected Cerebral Malaria,Critical,8,9,Obesity (BMI 38),convulsions; rigors; impaired consciousness,126,Rapid Response Called,1,77.8,SYNTHETIC
+PT0560,Aisha Kowalski,24,F,2026-04-28 03:00:00,2026-04-28 16:00:00,Chronic Anemia - Transfusion,Low,1,2,Post-Transplant (renal),fatigue; pallor,13,Discharged,0,100.0,SYNTHETIC
+PT0561,Ivan Abadi,89,M,2026-04-05 22:00:00,2026-04-13 08:00:00,Major Burn (30% TBSA),Critical,10,10,Obesity (BMI 38),tachycardia; severe pain,178,Transferred to ICU,1,11.1,SYNTHETIC
+PT0562,Wei Nakamura,83,M,2026-04-09 16:00:00,2026-04-13 15:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,8,Cirrhosis (Child-Pugh B),muscle pain; dark urine,95,Step-Down,0,44.4,SYNTHETIC
+PT0563,Amara Fernandez,30,F,2026-04-25 08:00:00,2026-04-28 07:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,None,high-grade fever; convulsions; abdominal guarding,71,Step-Down,0,58.3,SYNTHETIC
+PT0564,Jorge Larsen,76,M,2026-04-05 12:00:00,2026-04-10 01:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Cirrhosis (Child-Pugh B),severe dyspnoea; dry cough,109,Stabilized,0,66.7,SYNTHETIC
+PT0565,Sergei Abadi,24,M,2026-04-28 23:00:00,2026-04-29 15:00:00,UTI - IV Abx Transition to PO,Low,1,1,Cirrhosis (Child-Pugh B),urinary frequency; dysuria; suprapubic discomfort,16,Discharged,0,100.0,SYNTHETIC
+PT0566,Emeka Vasquez,29,M,2026-04-04 22:00:00,2026-04-10 04:00:00,Septic Shock - Abdominal Source,Critical,10,10,CHF (EF 30%),hypotension; oliguria; abdominal pain,126,Stabilized,0,66.7,SYNTHETIC
+PT0567,Grace Mbeki,34,F,2026-04-07 13:00:00,2026-04-08 05:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Sickle Cell Disease,localised erythema; foot pain; wound drainage,16,Stabilized,0,50.0,SYNTHETIC
+PT0568,Pavel Nguyen,72,M,2026-04-21 07:00:00,2026-04-23 07:00:00,Status Epilepticus,Severe,6,7,Obesity (BMI 38),incontinence; altered consciousness; prolonged seizure activity,48,Transferred to ICU,1,33.3,SYNTHETIC
+PT0569,Mei Brooks,85,F,2026-04-15 13:00:00,2026-04-16 16:00:00,Cellulitis on IV Abx,Moderate,3,4,CKD Stage 3B,warmth; swelling; limb erythema; low-grade fever,27,Discharged,0,100.0,SYNTHETIC
+PT0570,Fatima Johansson,49,F,2026-04-13 19:00:00,2026-04-14 11:00:00,Post-Appendectomy Recovery,Moderate,4,5,Type 2 Diabetes,reduced appetite; nausea,16,Discharged,0,100.0,SYNTHETIC
+PT0571,Ravi Vasquez,77,M,2026-04-05 14:00:00,2026-04-06 04:00:00,Elective Pre-Op Workup,Low,1,2,CKD Stage 3B,stable vitals; asymptomatic,14,Discharged,0,100.0,SYNTHETIC
+PT0572,Ingrid Moreau,41,F,2026-04-01 16:00:00,2026-04-02 21:00:00,Post-CABG Day 1,Severe,7,8,Type 2 Diabetes,mild dyspnoea; reduced mobility; sternal wound pain,29,Rapid Response Called,1,50.0,SYNTHETIC
+PT0573,Diego Santos,41,M,2026-04-20 09:00:00,2026-04-24 14:00:00,Eclampsia,Severe,6,7,CHF (EF 30%),visual disturbance; headache; severe hypertension; seizure,101,Transferred to ICU,1,50.0,SYNTHETIC
+PT0574,Dante Ito,19,M,2026-04-23 19:00:00,2026-04-24 13:00:00,Post-CABG Day 1,Severe,7,8,Type 2 Diabetes,reduced mobility; sternal wound pain,18,Stabilized,0,100.0,SYNTHETIC
+PT0575,Andre Diallo,29,M,2026-04-27 07:00:00,2026-04-28 14:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Atrial Fibrillation,foot pain; localised erythema; wound drainage,31,Transferred to ICU,1,50.0,SYNTHETIC
+PT0576,Chen Patel,86,M,2026-04-09 22:00:00,2026-04-15 17:00:00,Severe Febrile Illness - Unknown Etiology,Critical,10,10,Hypertension,convulsions; petechial rash; abdominal guarding; projectile vomiting,139,Deceased,1,41.7,SYNTHETIC
+PT0577,Hiroshi Costa,78,M,2026-04-05 23:00:00,2026-04-09 03:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,9,HIV (suppressed),weakness; muscle pain,76,Rapid Response Called,1,66.7,SYNTHETIC
+PT0578,Yuki Zhang,71,F,2026-04-17 17:00:00,2026-04-18 17:00:00,Eclampsia,Severe,7,7,None,seizure; visual disturbance; severe hypertension,24,Step-Down,0,66.7,SYNTHETIC
+PT0579,Beatrice Kowalski,25,F,2026-04-18 01:00:00,2026-04-18 13:00:00,Elective Pre-Op Workup,Low,2,3,CKD Stage 3B,stable vitals; asymptomatic,12,Discharged,0,100.0,SYNTHETIC
+PT0580,Ravi Okello,75,M,2026-04-18 19:00:00,2026-04-19 07:00:00,Elective Pre-Op Workup,Low,1,2,Atrial Fibrillation,stable vitals; asymptomatic,12,Discharged,0,100.0,SYNTHETIC
+PT0581,Nadia Kowalski,77,F,2026-04-10 21:00:00,2026-04-13 05:00:00,Status Epilepticus,Severe,6,7,Cirrhosis (Child-Pugh B),incontinence; altered consciousness,56,Step-Down,0,100.0,SYNTHETIC
+PT0582,Diego Hoffman,29,M,2026-04-07 21:00:00,2026-04-09 15:00:00,Community-Acquired Pneumonia,Moderate,4,4,None,pleuritic chest pain; dyspnoea,42,Discharged,0,50.0,SYNTHETIC
+PT0583,Anastasia Zhang,20,F,2026-04-18 17:00:00,2026-04-24 10:00:00,Major Burn (30% TBSA),Critical,10,10,Obesity (BMI 38),severe pain; extensive burns; hypovolaemia,137,Step-Down,0,44.4,SYNTHETIC
+PT0584,Jorge Kim,89,M,2026-04-15 09:00:00,2026-04-20 20:00:00,Major Burn (30% TBSA),Critical,10,10,CKD Stage 3B,severe pain; extensive burns,131,Rapid Response Called,1,33.3,SYNTHETIC
+PT0585,Thomas Reyes,24,M,2026-04-24 18:00:00,2026-04-25 18:00:00,Community-Acquired Pneumonia,Moderate,3,3,None,productive cough; pleuritic chest pain,24,Discharged,0,50.0,SYNTHETIC
+PT0586,Wei Reyes,44,M,2026-04-24 23:00:00,2026-04-25 03:00:00,UTI - IV Abx Transition to PO,Low,1,1,None,dysuria; suprapubic discomfort; urinary frequency,4,Discharged,0,100.0,SYNTHETIC
+PT0587,Tariq Costa,35,M,2026-04-05 05:00:00,2026-04-05 11:00:00,Syncope - Observation,Low,2,2,None,light-headedness; transient loss of consciousness,6,Discharged,0,100.0,SYNTHETIC
+PT0588,Diego Mbeki,52,M,2026-04-21 05:00:00,2026-04-26 03:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,8,None,gross hematuria; convulsions; high-grade fever,118,Step-Down,0,41.7,SYNTHETIC
+PT0589,Pavel Brooks,70,M,2026-04-23 14:00:00,2026-04-26 16:00:00,GI Hemorrhage - Variceal,Severe,5,5,None,melaena; pallor,74,Stabilized,0,33.3,SYNTHETIC
+PT0590,Anya Moreau,69,F,2026-04-23 01:00:00,2026-04-25 04:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,9,COPD,projectile vomiting; petechial rash,51,Deceased,1,83.3,SYNTHETIC
+PT0591,Hassan Mbeki,58,M,2026-04-25 12:00:00,2026-04-27 16:00:00,Suspected Cerebral Malaria,Critical,10,10,Sickle Cell Disease,convulsions; impaired consciousness; rigors; fever,52,Step-Down,0,77.8,SYNTHETIC
+PT0592,Felix Ito,43,M,2026-04-28 11:00:00,2026-05-02 03:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,HIV (suppressed),weakness; dark urine; muscle pain; oliguria,88,Transferred to ICU,1,55.6,SYNTHETIC
+PT0593,Kwame Okello,84,M,2026-04-13 02:00:00,2026-04-13 21:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Post-Transplant (renal),foot pain; localised erythema,19,Discharged,0,50.0,SYNTHETIC
+PT0594,Elena Delano,51,F,2026-04-19 00:00:00,2026-04-19 18:00:00,Elective Pre-Op Workup,Low,2,3,Hypertension,asymptomatic; stable vitals,18,Discharged,0,0.0,SYNTHETIC
+PT0595,Wei Vasquez,62,M,2026-04-01 05:00:00,2026-04-07 22:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Atrial Fibrillation,hypoxaemia; fever; severe dyspnoea,161,Step-Down,0,22.2,SYNTHETIC
+PT0596,Anya Sinclair,30,F,2026-04-23 00:00:00,2026-04-24 21:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Type 2 Diabetes,localised erythema; foot pain,45,Step-Down,0,50.0,SYNTHETIC
+PT0597,Diego Okafor,85,M,2026-04-21 07:00:00,2026-04-25 02:00:00,Septic Shock - Abdominal Source,Critical,8,8,HIV (suppressed),fever; tachycardia; abdominal pain,91,Transferred to ICU,1,44.4,SYNTHETIC
+PT0598,Olga Mbeki,38,F,2026-04-28 03:00:00,2026-04-29 16:00:00,Diabetic Ulcer - Infected,Moderate,4,5,CHF (EF 30%),foot pain; localised erythema; wound drainage,37,Transferred to ICU,1,0.0,SYNTHETIC
+PT0599,Zara Diallo,78,F,2026-04-22 21:00:00,2026-04-24 17:00:00,Post-Appendectomy Recovery,Moderate,3,3,None,incisional pain; reduced appetite; nausea,44,Step-Down,0,100.0,SYNTHETIC
+PT0600,Sofia Moreau,55,F,2026-04-18 10:00:00,2026-04-21 15:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,None,fever; dry cough,77,Step-Down,0,11.1,SYNTHETIC
+PT0601,Sarah Moreau,71,F,2026-04-21 17:00:00,2026-04-22 19:00:00,Eclampsia,Severe,6,7,Atrial Fibrillation,severe hypertension; headache,26,Stabilized,0,33.3,SYNTHETIC
+PT0602,Chen Kim,57,M,2026-04-15 21:00:00,2026-04-16 03:00:00,Chronic Anemia - Transfusion,Low,1,2,Type 2 Diabetes,exertional dyspnoea; pallor,6,Discharged,0,0.0,SYNTHETIC
+PT0603,Emeka Tanaka,37,M,2026-04-06 21:00:00,2026-04-07 16:00:00,Chronic Anemia - Transfusion,Low,1,1,None,exertional dyspnoea; pallor; fatigue,19,Discharged,0,0.0,SYNTHETIC
+PT0604,Anya Ito,53,F,2026-04-15 11:00:00,2026-04-16 17:00:00,Cellulitis on IV Abx,Moderate,4,5,Hypertension,low-grade fever; swelling,30,Discharged,0,100.0,SYNTHETIC
+PT0605,Elise Delano,87,F,2026-04-06 06:00:00,2026-04-06 21:00:00,Stable CHF - Med Adjustment,Low,2,3,Post-Transplant (renal),mild ankle swelling; orthopnoea,15,Discharged,0,100.0,SYNTHETIC
+PT0606,Olga Zhang,49,F,2026-04-23 16:00:00,2026-04-24 01:00:00,Chronic Anemia - Transfusion,Low,1,2,Type 2 Diabetes,exertional dyspnoea; fatigue,9,Step-Down,0,0.0,SYNTHETIC
+PT0607,Emeka Al-Rashid,41,M,2026-04-02 22:00:00,2026-04-03 16:00:00,UTI - IV Abx Transition to PO,Low,2,3,HIV (suppressed),urinary frequency; suprapubic discomfort,18,Deceased,1,0.0,SYNTHETIC
+PT0608,Aisha Tanaka,29,F,2026-04-24 02:00:00,2026-04-25 20:00:00,Post-CABG Day 1,Severe,5,5,Type 2 Diabetes,sternal wound pain; mild dyspnoea; reduced mobility,42,Step-Down,0,16.7,SYNTHETIC
+PT0609,Jorge Kim,30,M,2026-04-02 03:00:00,2026-04-08 12:00:00,Suspected Cerebral Malaria,Critical,10,10,Cirrhosis (Child-Pugh B),convulsions; impaired consciousness,153,Stabilized,0,88.9,SYNTHETIC
+PT0610,Thomas Abadi,83,M,2026-04-11 05:00:00,2026-04-12 20:00:00,Diabetic Ulcer - Infected,Moderate,3,3,CKD Stage 3B,foot pain; wound drainage; localised erythema,39,Rapid Response Called,1,100.0,SYNTHETIC
+PT0611,Omar Vasquez,20,M,2026-04-03 19:00:00,2026-04-06 16:00:00,Acetaminophen Overdose,Severe,6,7,Post-Transplant (renal),right upper quadrant pain; nausea,69,Stabilized,0,83.3,SYNTHETIC
+PT0612,Anya Patel,36,F,2026-04-13 23:00:00,2026-04-17 00:00:00,GI Hemorrhage - Variceal,Severe,7,7,Sickle Cell Disease,pallor; haematemesis; hypotension,73,Rapid Response Called,1,83.3,SYNTHETIC
+PT0613,Yuki Al-Rashid,25,F,2026-04-20 19:00:00,2026-04-22 15:00:00,Cellulitis on IV Abx,Moderate,4,4,CKD Stage 3B,swelling; low-grade fever; limb erythema; warmth,44,Step-Down,0,100.0,SYNTHETIC
+PT0614,Ingrid Hoffman,38,F,2026-04-27 23:00:00,2026-04-28 16:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,foot pain; localised erythema; wound drainage,17,Discharged,0,100.0,SYNTHETIC
+PT0615,Luis Okafor,82,M,2026-04-06 23:00:00,2026-04-09 04:00:00,Diabetic Ulcer - Infected,Moderate,3,3,None,localised erythema; foot pain; wound drainage,53,Discharged,0,50.0,SYNTHETIC
+PT0616,Sergei Abadi,20,M,2026-04-14 17:00:00,2026-04-15 19:00:00,Post-Appendectomy Recovery,Moderate,4,5,Hypertension,nausea; reduced appetite,26,Step-Down,0,50.0,SYNTHETIC
+PT0617,Ali Petrov,28,M,2026-04-18 15:00:00,2026-04-25 06:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,8,Sickle Cell Disease,petechial rash; abdominal guarding; gross hematuria; projectile vomiting,159,Step-Down,0,75.0,SYNTHETIC
+PT0618,Kwame Delano,77,M,2026-04-26 15:00:00,2026-04-27 20:00:00,Post-Appendectomy Recovery,Moderate,3,4,Cirrhosis (Child-Pugh B),incisional pain; reduced appetite; nausea,29,Discharged,0,50.0,SYNTHETIC
+PT0619,Marcus Mueller,46,M,2026-04-16 06:00:00,2026-04-19 11:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,10,Sickle Cell Disease,gross hematuria; projectile vomiting,77,Rapid Response Called,1,66.7,SYNTHETIC
+PT0620,David Abadi,39,M,2026-04-28 05:00:00,2026-04-28 23:00:00,Chronic Anemia - Transfusion,Low,1,1,CKD Stage 3B,exertional dyspnoea; pallor,18,Stabilized,0,0.0,SYNTHETIC
+PT0621,Anya Larsen,84,F,2026-04-06 11:00:00,2026-04-06 15:00:00,UTI - IV Abx Transition to PO,Low,1,2,Type 2 Diabetes,urinary frequency; dysuria,4,Transferred to ICU,1,100.0,SYNTHETIC
+PT0622,Tariq Larsen,73,M,2026-04-20 08:00:00,2026-04-20 12:00:00,Elective Pre-Op Workup,Low,2,3,Sickle Cell Disease,asymptomatic; stable vitals,4,Discharged,0,100.0,SYNTHETIC
+PT0623,Jorge Nguyen,71,M,2026-04-02 20:00:00,2026-04-04 22:00:00,Post-Appendectomy Recovery,Moderate,4,5,Cirrhosis (Child-Pugh B),incisional pain; reduced appetite; nausea,50,Transferred to ICU,1,100.0,SYNTHETIC
+PT0624,Marcus Tanaka,27,M,2026-04-02 01:00:00,2026-04-06 04:00:00,Status Epilepticus,Severe,6,7,Type 2 Diabetes,incontinence; altered consciousness,99,Step-Down,0,66.7,SYNTHETIC
+PT0625,Aisha Johansson,49,F,2026-04-02 04:00:00,2026-04-08 11:00:00,Septic Shock - Abdominal Source,Critical,10,10,Sickle Cell Disease,fever; tachycardia; hypotension,151,Stabilized,0,44.4,SYNTHETIC
+PT0626,Aisha Hoffman,28,F,2026-04-04 02:00:00,2026-04-10 15:00:00,Suspected Cerebral Malaria,Critical,9,9,Post-Transplant (renal),rigors; fever; impaired consciousness; convulsions,157,Stabilized,0,55.6,SYNTHETIC
+PT0627,Thomas Santos,89,M,2026-04-03 08:00:00,2026-04-07 21:00:00,Septic Shock - Abdominal Source,Critical,8,9,CKD Stage 3B,abdominal pain; fever; oliguria; tachycardia,109,Transferred to ICU,1,44.4,SYNTHETIC
+PT0628,Hassan Patel,77,M,2026-04-29 03:00:00,2026-04-29 21:00:00,UTI - IV Abx Transition to PO,Low,2,3,Hypertension,urinary frequency; suprapubic discomfort,18,Discharged,0,100.0,SYNTHETIC
+PT0629,Sarah Okello,26,F,2026-04-26 01:00:00,2026-04-29 00:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,10,Post-Transplant (renal),high-grade fever; petechial rash,71,Transferred to ICU,1,75.0,SYNTHETIC
+PT0630,Maria Brooks,35,F,2026-04-21 12:00:00,2026-04-22 03:00:00,Syncope - Observation,Low,2,3,Cirrhosis (Child-Pugh B),transient loss of consciousness; light-headedness,15,Discharged,0,100.0,SYNTHETIC
+PT0631,Nadia Fernandez,57,F,2026-04-24 02:00:00,2026-04-26 09:00:00,Cellulitis on IV Abx,Moderate,4,5,Atrial Fibrillation,warmth; low-grade fever,55,Rapid Response Called,1,0.0,SYNTHETIC
+PT0632,Pavel Delano,43,M,2026-04-22 15:00:00,2026-04-23 13:00:00,Syncope - Observation,Low,1,1,CKD Stage 3B,light-headedness; transient loss of consciousness,22,Transferred to ICU,1,0.0,SYNTHETIC
+PT0633,Fatima Okello,56,F,2026-04-30 12:00:00,2026-05-02 22:00:00,Status Epilepticus,Severe,7,8,Obesity (BMI 38),incontinence; altered consciousness; prolonged seizure activity,58,Step-Down,0,83.3,SYNTHETIC
+PT0634,Sarah Costa,79,F,2026-04-28 06:00:00,2026-05-01 03:00:00,Suspected Cerebral Malaria,Critical,9,9,Hypertension,impaired consciousness; rigors; fever; convulsions,69,Deceased,1,88.9,SYNTHETIC
+PT0635,Chen Tanaka,55,M,2026-04-04 03:00:00,2026-04-08 08:00:00,Major Burn (30% TBSA),Critical,8,8,Cirrhosis (Child-Pugh B),extensive burns; tachycardia,101,Transferred to ICU,1,66.7,SYNTHETIC
+PT0636,Carmen Vasquez,88,F,2026-04-08 10:00:00,2026-04-11 19:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,Hypertension,petechial rash; convulsions; projectile vomiting,81,Rapid Response Called,1,58.3,SYNTHETIC
+PT0637,Elena Kim,57,F,2026-04-06 20:00:00,2026-04-09 01:00:00,Post-CABG Day 1,Severe,5,6,CKD Stage 3B,sternal wound pain; reduced mobility; mild dyspnoea,53,Step-Down,0,83.3,SYNTHETIC
+PT0638,Emeka Moreau,42,M,2026-04-27 14:00:00,2026-05-02 23:00:00,Major Burn (30% TBSA),Critical,10,10,None,extensive burns; tachycardia; hypovolaemia; severe pain,129,Transferred to ICU,1,33.3,SYNTHETIC
+PT0639,Tariq Moreau,37,M,2026-04-11 10:00:00,2026-04-12 17:00:00,Acetaminophen Overdose,Severe,7,8,HIV (suppressed),malaise; nausea; right upper quadrant pain,31,Step-Down,0,0.0,SYNTHETIC
+PT0640,Sergei Reyes,26,M,2026-04-22 16:00:00,2026-04-25 16:00:00,Post-CABG Day 1,Severe,5,5,None,sternal wound pain; mild dyspnoea; reduced mobility,72,Stabilized,0,66.7,SYNTHETIC
+PT0641,Hiroshi Santos,81,M,2026-04-20 19:00:00,2026-04-21 02:00:00,Syncope - Observation,Low,2,3,Obesity (BMI 38),light-headedness; transient loss of consciousness,7,Discharged,0,100.0,SYNTHETIC
+PT0642,Grace Brooks,57,F,2026-04-09 15:00:00,2026-04-10 10:00:00,Stable CHF - Med Adjustment,Low,1,1,Hypertension,orthopnoea; mild ankle swelling,19,Discharged,0,0.0,SYNTHETIC
+PT0643,Anastasia Bergstrom,84,F,2026-04-06 17:00:00,2026-04-08 16:00:00,Community-Acquired Pneumonia,Moderate,4,4,Post-Transplant (renal),pleuritic chest pain; fever,47,Step-Down,0,50.0,SYNTHETIC
+PT0644,Priya Costa,58,F,2026-04-20 22:00:00,2026-04-21 10:00:00,Syncope - Observation,Low,2,3,HIV (suppressed),light-headedness; transient loss of consciousness,12,Stabilized,0,100.0,SYNTHETIC
+PT0645,Raj Costa,30,M,2026-04-16 07:00:00,2026-04-17 12:00:00,GI Hemorrhage - Variceal,Severe,6,6,Sickle Cell Disease,haematemesis; melaena; pallor,29,Stabilized,0,66.7,SYNTHETIC
+PT0646,David Al-Rashid,35,M,2026-04-15 01:00:00,2026-04-17 02:00:00,Status Epilepticus,Severe,6,7,Hypertension,incontinence; altered consciousness; prolonged seizure activity,49,Step-Down,0,50.0,SYNTHETIC
+PT0647,Hiroshi Johansson,47,M,2026-04-18 05:00:00,2026-04-21 00:00:00,Eclampsia,Severe,6,6,None,seizure; severe hypertension; visual disturbance; headache,67,Stabilized,0,50.0,SYNTHETIC
+PT0648,Zara Mueller,72,F,2026-04-20 16:00:00,2026-04-21 03:00:00,Syncope - Observation,Low,2,2,None,light-headedness; transient loss of consciousness,11,Stabilized,0,100.0,SYNTHETIC
+PT0649,Andre Nakamura,63,M,2026-04-25 15:00:00,2026-04-25 21:00:00,Elective Pre-Op Workup,Low,1,1,Cirrhosis (Child-Pugh B),asymptomatic; stable vitals,6,Stabilized,0,100.0,SYNTHETIC
+PT0650,Diego Larsen,60,M,2026-04-01 23:00:00,2026-04-03 07:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Cirrhosis (Child-Pugh B),wound drainage; foot pain,32,Discharged,0,100.0,SYNTHETIC
+PT0651,Beatrice Fernandez,60,F,2026-04-03 17:00:00,2026-04-05 03:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Hypertension,wound drainage; localised erythema; foot pain,34,Rapid Response Called,1,100.0,SYNTHETIC
+PT0652,James Kim,26,M,2026-04-02 08:00:00,2026-04-10 17:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Post-Transplant (renal),dry cough; severe dyspnoea; fever; hypoxaemia,201,Stabilized,0,44.4,SYNTHETIC
+PT0653,Yuki Johansson,70,F,2026-04-16 17:00:00,2026-04-17 06:00:00,Syncope - Observation,Low,1,1,Obesity (BMI 38),transient loss of consciousness; light-headedness,13,Discharged,0,100.0,SYNTHETIC
+PT0654,Kofi Al-Rashid,57,M,2026-04-03 22:00:00,2026-04-05 07:00:00,Cellulitis on IV Abx,Moderate,4,4,None,warmth; limb erythema,33,Stabilized,0,0.0,SYNTHETIC
+PT0655,Raj Ito,36,M,2026-04-22 10:00:00,2026-04-23 03:00:00,Stable CHF - Med Adjustment,Low,2,2,CHF (EF 30%),mild ankle swelling; orthopnoea,17,Rapid Response Called,1,0.0,SYNTHETIC
+PT0656,Ali Reyes,54,M,2026-04-21 22:00:00,2026-04-24 18:00:00,GI Hemorrhage - Variceal,Severe,7,8,Cirrhosis (Child-Pugh B),haematemesis; hypotension; pallor,68,Step-Down,0,50.0,SYNTHETIC
+PT0657,Tariq Hoffman,67,M,2026-04-18 17:00:00,2026-04-20 12:00:00,Eclampsia,Severe,6,6,CHF (EF 30%),visual disturbance; severe hypertension,43,Stabilized,0,83.3,SYNTHETIC
+PT0658,Sarah Tanaka,81,F,2026-04-07 17:00:00,2026-04-12 00:00:00,Suspected Cerebral Malaria,Critical,8,8,None,convulsions; rigors; fever; impaired consciousness,103,Stabilized,0,66.7,SYNTHETIC
+PT0659,Pavel Okafor,82,M,2026-04-14 21:00:00,2026-04-20 18:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,None,hypoxaemia; dry cough; severe dyspnoea,141,Transferred to ICU,1,44.4,SYNTHETIC
+PT0660,James Brooks,19,M,2026-04-18 00:00:00,2026-04-19 21:00:00,Post-Appendectomy Recovery,Moderate,4,5,Cirrhosis (Child-Pugh B),nausea; incisional pain,45,Transferred to ICU,1,100.0,SYNTHETIC
+PT0661,Aisha Larsen,78,F,2026-04-04 12:00:00,2026-04-05 18:00:00,Post-Appendectomy Recovery,Moderate,4,4,Obesity (BMI 38),incisional pain; nausea; reduced appetite,30,Discharged,0,100.0,SYNTHETIC
+PT0662,Elena Ito,52,F,2026-04-23 19:00:00,2026-05-02 21:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,Atrial Fibrillation,hypoxaemia; severe dyspnoea; fever,218,Deceased,1,33.3,SYNTHETIC
+PT0663,Raj Zhang,57,M,2026-04-19 20:00:00,2026-04-27 00:00:00,Suspected Cerebral Malaria,Critical,10,10,Post-Transplant (renal),fever; impaired consciousness,172,Rapid Response Called,1,88.9,SYNTHETIC
+PT0664,Elena Vasquez,21,F,2026-04-11 04:00:00,2026-04-11 20:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Hypertension,wound drainage; localised erythema,16,Discharged,0,100.0,SYNTHETIC
+PT0665,Anya Larsen,83,F,2026-04-08 03:00:00,2026-04-15 15:00:00,Septic Shock - Abdominal Source,Critical,8,9,Type 2 Diabetes,fever; abdominal pain,180,Transferred to ICU,1,55.6,SYNTHETIC
+PT0666,Kwame Brooks,31,M,2026-04-17 20:00:00,2026-04-20 18:00:00,Status Epilepticus,Severe,7,8,Hypertension,prolonged seizure activity; incontinence,70,Step-Down,0,50.0,SYNTHETIC
+PT0667,Elena Tanaka,65,F,2026-04-20 13:00:00,2026-04-22 10:00:00,Acetaminophen Overdose,Severe,5,5,HIV (suppressed),malaise; right upper quadrant pain,45,Stabilized,0,16.7,SYNTHETIC
+PT0668,Mei Johansson,59,F,2026-04-23 21:00:00,2026-04-24 20:00:00,UTI - IV Abx Transition to PO,Low,2,3,Type 2 Diabetes,urinary frequency; dysuria,23,Stabilized,0,0.0,SYNTHETIC
+PT0669,Jorge Bergstrom,75,M,2026-04-30 08:00:00,2026-05-04 21:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,10,COPD,weakness; oliguria; muscle pain; dark urine,109,Step-Down,0,66.7,SYNTHETIC
+PT0670,Olga Fernandez,49,F,2026-04-06 07:00:00,2026-04-10 17:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,CKD Stage 3B,petechial rash; abdominal guarding,106,Stabilized,0,75.0,SYNTHETIC
+PT0671,Kofi Moreau,60,M,2026-04-17 00:00:00,2026-04-17 10:00:00,Chronic Anemia - Transfusion,Low,2,2,Hypertension,fatigue; pallor; exertional dyspnoea,10,Discharged,0,0.0,SYNTHETIC
+PT0672,Sergei Reyes,61,M,2026-04-18 16:00:00,2026-04-25 19:00:00,Suspected Cerebral Malaria,Critical,10,10,None,fever; rigors; impaired consciousness,171,Transferred to ICU,1,55.6,SYNTHETIC
+PT0673,Priya Bergstrom,18,F,2026-04-10 11:00:00,2026-04-14 13:00:00,GI Hemorrhage - Variceal,Severe,7,7,None,hypotension; haematemesis; melaena,98,Transferred to ICU,1,33.3,SYNTHETIC
+PT0674,Chen Vasquez,77,M,2026-04-08 09:00:00,2026-04-15 07:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,8,COPD,muscle pain; oliguria; dark urine; weakness,166,Stabilized,0,44.4,SYNTHETIC
+PT0675,Yuki Singh,28,F,2026-04-13 04:00:00,2026-04-20 07:00:00,Major Burn (30% TBSA),Critical,10,10,Hypertension,severe pain; tachycardia; hypovolaemia,171,Stabilized,0,66.7,SYNTHETIC
+PT0676,Raj Petrov,66,M,2026-04-19 11:00:00,2026-04-21 11:00:00,Post-Appendectomy Recovery,Moderate,4,5,Post-Transplant (renal),nausea; incisional pain,48,Transferred to ICU,1,50.0,SYNTHETIC
+PT0677,Ali Al-Rashid,54,M,2026-04-08 11:00:00,2026-04-12 14:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,None,weakness; muscle pain; dark urine,99,Rapid Response Called,1,66.7,SYNTHETIC
+PT0678,Zara Okafor,19,F,2026-04-21 00:00:00,2026-04-22 21:00:00,Acetaminophen Overdose,Severe,5,5,None,nausea; malaise,45,Stabilized,0,33.3,SYNTHETIC
+PT0679,Ivan Tanaka,70,M,2026-04-16 22:00:00,2026-04-18 00:00:00,Cellulitis on IV Abx,Moderate,4,4,None,swelling; low-grade fever; limb erythema,26,Stabilized,0,100.0,SYNTHETIC
+PT0680,Ravi Kim,67,M,2026-04-15 20:00:00,2026-04-18 13:00:00,Status Epilepticus,Severe,6,7,Atrial Fibrillation,altered consciousness; incontinence; prolonged seizure activity,65,Step-Down,0,83.3,SYNTHETIC
+PT0681,Yuki Petrov,50,F,2026-04-29 20:00:00,2026-05-01 19:00:00,Suspected Cerebral Malaria,Critical,9,10,Sickle Cell Disease,impaired consciousness; rigors; convulsions; fever,47,Rapid Response Called,1,66.7,SYNTHETIC
+PT0682,Anya Hoffman,84,F,2026-04-28 11:00:00,2026-05-06 09:00:00,Major Burn (30% TBSA),Critical,8,8,Type 2 Diabetes,tachycardia; hypovolaemia; extensive burns,190,Transferred to ICU,1,55.6,SYNTHETIC
+PT0683,Mei Abadi,31,F,2026-04-17 07:00:00,2026-04-20 18:00:00,Eclampsia,Severe,7,8,Post-Transplant (renal),visual disturbance; headache; seizure,83,Transferred to ICU,1,50.0,SYNTHETIC
+PT0684,Kofi Abadi,30,M,2026-04-14 03:00:00,2026-04-15 00:00:00,Status Epilepticus,Severe,7,8,HIV (suppressed),altered consciousness; prolonged seizure activity,21,Transferred to ICU,1,50.0,SYNTHETIC
+PT0685,Felix Singh,80,M,2026-04-08 12:00:00,2026-04-10 15:00:00,Eclampsia,Severe,7,7,HIV (suppressed),severe hypertension; seizure,51,Stabilized,0,66.7,SYNTHETIC
+PT0686,Andre Fernandez,39,M,2026-04-08 19:00:00,2026-04-10 09:00:00,Status Epilepticus,Severe,5,5,Hypertension,altered consciousness; incontinence; prolonged seizure activity,38,Step-Down,0,50.0,SYNTHETIC
+PT0687,Hassan Patel,25,M,2026-04-25 23:00:00,2026-04-27 15:00:00,Post-CABG Day 1,Severe,5,5,Cirrhosis (Child-Pugh B),reduced mobility; sternal wound pain; mild dyspnoea,40,Stabilized,0,100.0,SYNTHETIC
+PT0688,Priya Patel,78,F,2026-04-01 07:00:00,2026-04-03 18:00:00,Status Epilepticus,Severe,7,7,None,incontinence; altered consciousness; prolonged seizure activity,59,Stabilized,0,50.0,SYNTHETIC
+PT0689,Thomas Moreau,63,M,2026-04-11 05:00:00,2026-04-13 20:00:00,Acetaminophen Overdose,Severe,6,6,None,right upper quadrant pain; malaise; nausea,63,Rapid Response Called,1,16.7,SYNTHETIC
+PT0690,Andre Nakamura,75,M,2026-04-06 05:00:00,2026-04-09 00:00:00,Diabetic Ulcer - Infected,Moderate,3,4,CKD Stage 3B,localised erythema; wound drainage; foot pain,67,Discharged,0,0.0,SYNTHETIC
+PT0691,Felix Singh,47,M,2026-04-01 17:00:00,2026-04-05 05:00:00,Status Epilepticus,Severe,5,6,Sickle Cell Disease,prolonged seizure activity; altered consciousness; incontinence,84,Step-Down,0,50.0,SYNTHETIC
+PT0692,Dante Ito,42,M,2026-04-29 02:00:00,2026-05-08 07:00:00,Septic Shock - Abdominal Source,Critical,9,10,HIV (suppressed),abdominal pain; tachycardia,221,Step-Down,0,33.3,SYNTHETIC
+PT0693,Elise Nguyen,79,F,2026-04-13 20:00:00,2026-04-20 21:00:00,Suspected Cerebral Malaria,Critical,8,8,Obesity (BMI 38),rigors; fever; impaired consciousness; convulsions,169,Stabilized,0,88.9,SYNTHETIC
+PT0694,Yuki Zhang,67,F,2026-04-04 19:00:00,2026-04-07 05:00:00,Major Burn (30% TBSA),Critical,10,10,None,extensive burns; tachycardia; severe pain,58,Stabilized,0,55.6,SYNTHETIC
+PT0695,Jorge Petrov,46,M,2026-04-28 00:00:00,2026-05-07 06:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,COPD,severe dyspnoea; fever; hypoxaemia,222,Transferred to ICU,1,44.4,SYNTHETIC
+PT0696,Sergei Okello,32,M,2026-04-24 23:00:00,2026-04-27 00:00:00,Diabetic Ulcer - Infected,Moderate,4,5,Sickle Cell Disease,wound drainage; foot pain; localised erythema,49,Discharged,0,100.0,SYNTHETIC
+PT0697,James Okello,66,M,2026-04-05 22:00:00,2026-04-06 13:00:00,Stable CHF - Med Adjustment,Low,1,1,None,mild ankle swelling; orthopnoea,15,Discharged,0,100.0,SYNTHETIC
+PT0698,Luis Vasquez,84,M,2026-04-17 13:00:00,2026-04-18 01:00:00,Stable CHF - Med Adjustment,Low,1,1,None,orthopnoea; mild ankle swelling,12,Transferred to ICU,1,100.0,SYNTHETIC
+PT0699,Yuki Patel,36,F,2026-04-14 11:00:00,2026-04-15 02:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Post-Transplant (renal),wound drainage; localised erythema; foot pain,15,Discharged,0,100.0,SYNTHETIC
+PT0700,Chloe Larsen,79,F,2026-04-22 10:00:00,2026-04-29 05:00:00,Suspected Cerebral Malaria,Critical,10,10,Cirrhosis (Child-Pugh B),convulsions; rigors,163,Stabilized,0,77.8,SYNTHETIC
+PT0701,Luis Diallo,40,M,2026-04-15 05:00:00,2026-04-15 20:00:00,Diabetic Ulcer - Infected,Moderate,3,3,None,wound drainage; foot pain; localised erythema,15,Discharged,0,100.0,SYNTHETIC
+PT0702,Luis Hoffman,27,M,2026-04-15 09:00:00,2026-04-20 19:00:00,Major Burn (30% TBSA),Critical,8,9,Post-Transplant (renal),tachycardia; severe pain; hypovolaemia; extensive burns,130,Stabilized,0,77.8,SYNTHETIC
+PT0703,Luis Diallo,24,M,2026-04-24 09:00:00,2026-04-26 09:00:00,Status Epilepticus,Severe,7,7,None,prolonged seizure activity; altered consciousness,48,Step-Down,0,100.0,SYNTHETIC
+PT0704,Helene Sinclair,31,F,2026-04-09 22:00:00,2026-04-10 15:00:00,Post-Appendectomy Recovery,Moderate,4,4,Atrial Fibrillation,incisional pain; reduced appetite; nausea,17,Stabilized,0,100.0,SYNTHETIC
+PT0705,Diego Larsen,61,M,2026-04-21 05:00:00,2026-04-24 13:00:00,Major Burn (30% TBSA),Critical,8,9,Type 2 Diabetes,extensive burns; hypovolaemia,80,Stabilized,0,66.7,SYNTHETIC
+PT0706,Lina Kowalski,29,F,2026-04-11 06:00:00,2026-04-12 07:00:00,Diabetic Ulcer - Infected,Moderate,3,3,CKD Stage 3B,localised erythema; wound drainage; foot pain,25,Discharged,0,100.0,SYNTHETIC
+PT0707,Omar Brooks,20,M,2026-04-05 23:00:00,2026-04-06 10:00:00,Post-Appendectomy Recovery,Moderate,4,4,CKD Stage 3B,nausea; incisional pain,11,Discharged,0,100.0,SYNTHETIC
+PT0708,Zara Abadi,59,F,2026-04-21 15:00:00,2026-04-30 00:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,COPD,dry cough; hypoxaemia; severe dyspnoea; fever,201,Deceased,1,44.4,SYNTHETIC
+PT0709,Anastasia Tanaka,86,F,2026-04-23 14:00:00,2026-04-29 17:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,10,Post-Transplant (renal),gross hematuria; petechial rash,147,Stabilized,0,75.0,SYNTHETIC
+PT0710,Anya Santos,75,F,2026-04-26 13:00:00,2026-05-05 06:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,None,severe dyspnoea; fever,209,Stabilized,0,44.4,SYNTHETIC
+PT0711,Kofi Fernandez,82,M,2026-04-24 23:00:00,2026-04-26 20:00:00,Status Epilepticus,Severe,7,7,COPD,prolonged seizure activity; incontinence,45,Step-Down,0,66.7,SYNTHETIC
+PT0712,Anastasia Singh,80,F,2026-04-23 03:00:00,2026-04-27 10:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,8,Atrial Fibrillation,gross hematuria; abdominal guarding; convulsions; projectile vomiting,103,Step-Down,0,58.3,SYNTHETIC
+PT0713,Ali Al-Rashid,36,M,2026-04-05 05:00:00,2026-04-05 10:00:00,Syncope - Observation,Low,1,1,None,transient loss of consciousness; light-headedness,5,Discharged,0,0.0,SYNTHETIC
+PT0714,Beatrice Al-Rashid,51,F,2026-04-06 11:00:00,2026-04-10 03:00:00,Status Epilepticus,Severe,7,8,Cirrhosis (Child-Pugh B),altered consciousness; prolonged seizure activity; incontinence,88,Stabilized,0,83.3,SYNTHETIC
+PT0715,Grace Costa,42,F,2026-04-30 15:00:00,2026-05-03 05:00:00,Septic Shock - Abdominal Source,Critical,9,10,Sickle Cell Disease,hypotension; fever; tachycardia; oliguria,62,Stabilized,0,77.8,SYNTHETIC
+PT0716,Beatrice Kim,86,F,2026-04-17 04:00:00,2026-04-17 14:00:00,Cellulitis on IV Abx,Moderate,3,4,Cirrhosis (Child-Pugh B),warmth; limb erythema; low-grade fever; swelling,10,Transferred to ICU,1,100.0,SYNTHETIC
+PT0717,Mei Okafor,19,F,2026-04-15 05:00:00,2026-04-17 13:00:00,Acetaminophen Overdose,Severe,7,8,Type 2 Diabetes,nausea; right upper quadrant pain,56,Stabilized,0,0.0,SYNTHETIC
+PT0718,Grace Patel,54,F,2026-04-14 01:00:00,2026-04-20 12:00:00,ARDS - Post Viral Pneumonia,Critical,8,9,Post-Transplant (renal),severe dyspnoea; fever; hypoxaemia,155,Step-Down,0,66.7,SYNTHETIC
+PT0719,Sarah Santos,19,F,2026-04-08 17:00:00,2026-04-12 21:00:00,Suspected Cerebral Malaria,Critical,8,9,Cirrhosis (Child-Pugh B),rigors; impaired consciousness; fever; convulsions,100,Transferred to ICU,1,66.7,SYNTHETIC
+PT0720,Anya Sinclair,76,F,2026-04-12 09:00:00,2026-04-14 07:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,10,CHF (EF 30%),dark urine; weakness; oliguria; muscle pain,46,Stabilized,0,66.7,SYNTHETIC
+PT0721,Emeka Costa,70,M,2026-04-23 05:00:00,2026-04-23 12:00:00,Syncope - Observation,Low,2,3,Atrial Fibrillation,transient loss of consciousness; light-headedness,7,Discharged,0,100.0,SYNTHETIC
+PT0722,James Kowalski,72,M,2026-04-03 10:00:00,2026-04-04 19:00:00,GI Hemorrhage - Variceal,Severe,5,6,COPD,hypotension; pallor; melaena; haematemesis,33,Stabilized,0,33.3,SYNTHETIC
+PT0723,Zara Petrov,86,F,2026-04-27 07:00:00,2026-04-27 14:00:00,Syncope - Observation,Low,1,1,HIV (suppressed),transient loss of consciousness; light-headedness,7,Discharged,0,100.0,SYNTHETIC
+PT0724,Anya Ito,64,F,2026-04-29 18:00:00,2026-05-05 19:00:00,Suspected Cerebral Malaria,Critical,10,10,Obesity (BMI 38),impaired consciousness; fever,145,Step-Down,0,44.4,SYNTHETIC
+PT0725,David Singh,56,M,2026-04-05 19:00:00,2026-04-06 08:00:00,Chronic Anemia - Transfusion,Low,2,3,COPD,fatigue; pallor; exertional dyspnoea,13,Discharged,0,0.0,SYNTHETIC
+PT0726,Chen Delano,25,M,2026-04-28 10:00:00,2026-04-29 00:00:00,Stable CHF - Med Adjustment,Low,2,3,Hypertension,orthopnoea; mild ankle swelling,14,Discharged,0,100.0,SYNTHETIC
+PT0727,Leila Okello,19,F,2026-04-15 22:00:00,2026-04-19 14:00:00,Eclampsia,Severe,6,6,Type 2 Diabetes,visual disturbance; severe hypertension,88,Rapid Response Called,1,66.7,SYNTHETIC
+PT0728,Chen Okafor,78,M,2026-04-21 19:00:00,2026-04-21 23:00:00,Syncope - Observation,Low,1,1,HIV (suppressed),light-headedness; transient loss of consciousness,4,Step-Down,0,0.0,SYNTHETIC
+PT0729,Pavel Singh,63,M,2026-04-12 11:00:00,2026-04-15 08:00:00,Major Burn (30% TBSA),Critical,10,10,None,tachycardia; extensive burns; hypovolaemia,69,Step-Down,0,44.4,SYNTHETIC
+PT0730,Tariq Zhang,43,M,2026-04-06 16:00:00,2026-04-11 10:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,Atrial Fibrillation,fever; severe dyspnoea; dry cough,114,Stabilized,0,66.7,SYNTHETIC
+PT0731,Wei Singh,32,M,2026-04-30 02:00:00,2026-04-30 08:00:00,Chronic Anemia - Transfusion,Low,2,2,None,exertional dyspnoea; pallor; fatigue,6,Discharged,0,100.0,SYNTHETIC
+PT0732,Maria Moreau,19,F,2026-04-30 04:00:00,2026-04-30 11:00:00,Syncope - Observation,Low,1,1,None,light-headedness; transient loss of consciousness,7,Stabilized,0,100.0,SYNTHETIC
+PT0733,Luis Petrov,51,M,2026-04-07 12:00:00,2026-04-17 03:00:00,Septic Shock - Abdominal Source,Critical,9,10,Hypertension,hypotension; oliguria; abdominal pain; fever,231,Step-Down,0,33.3,SYNTHETIC
+PT0734,Chen Petrov,37,M,2026-04-22 10:00:00,2026-04-30 01:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,None,hypoxaemia; fever,183,Transferred to ICU,1,55.6,SYNTHETIC
+PT0735,Grace Vasquez,66,F,2026-04-01 18:00:00,2026-04-04 19:00:00,Post-CABG Day 1,Severe,5,6,COPD,sternal wound pain; mild dyspnoea,73,Step-Down,0,83.3,SYNTHETIC
+PT0736,Tariq Brooks,32,M,2026-04-21 10:00:00,2026-04-22 18:00:00,GI Hemorrhage - Variceal,Severe,5,6,Cirrhosis (Child-Pugh B),pallor; hypotension; haematemesis; melaena,32,Stabilized,0,16.7,SYNTHETIC
+PT0737,Pavel Diallo,59,M,2026-04-08 18:00:00,2026-04-09 07:00:00,Cellulitis on IV Abx,Moderate,3,3,Cirrhosis (Child-Pugh B),limb erythema; swelling,13,Transferred to ICU,1,0.0,SYNTHETIC
+PT0738,Omar Bergstrom,30,M,2026-04-11 18:00:00,2026-04-12 06:00:00,UTI - IV Abx Transition to PO,Low,1,1,HIV (suppressed),urinary frequency; suprapubic discomfort; dysuria,12,Discharged,0,100.0,SYNTHETIC
+PT0739,Maria Okello,67,F,2026-04-26 03:00:00,2026-04-27 20:00:00,Community-Acquired Pneumonia,Moderate,4,4,None,pleuritic chest pain; productive cough; fever; dyspnoea,41,Discharged,0,0.0,SYNTHETIC
+PT0740,Lina Kowalski,30,F,2026-04-28 22:00:00,2026-04-29 05:00:00,UTI - IV Abx Transition to PO,Low,1,2,CKD Stage 3B,suprapubic discomfort; urinary frequency,7,Stabilized,0,100.0,SYNTHETIC
+PT0741,Aisha Johansson,88,F,2026-04-07 13:00:00,2026-04-07 18:00:00,Chronic Anemia - Transfusion,Low,1,2,Post-Transplant (renal),fatigue; exertional dyspnoea,5,Discharged,0,0.0,SYNTHETIC
+PT0742,Pavel Costa,55,M,2026-04-18 21:00:00,2026-04-24 21:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Type 2 Diabetes,severe dyspnoea; dry cough; hypoxaemia; fever,144,Stabilized,0,66.7,SYNTHETIC
+PT0743,Emeka Diallo,74,M,2026-04-17 23:00:00,2026-04-20 22:00:00,Status Epilepticus,Severe,7,7,None,incontinence; prolonged seizure activity; altered consciousness,71,Step-Down,0,83.3,SYNTHETIC
+PT0744,Grace Tanaka,82,F,2026-04-01 03:00:00,2026-04-01 09:00:00,UTI - IV Abx Transition to PO,Low,2,2,Hypertension,dysuria; suprapubic discomfort; urinary frequency,6,Transferred to ICU,1,100.0,SYNTHETIC
+PT0745,John Johansson,36,M,2026-04-10 13:00:00,2026-04-11 16:00:00,Post-CABG Day 1,Severe,7,7,Type 2 Diabetes,sternal wound pain; reduced mobility; mild dyspnoea,27,Stabilized,0,50.0,SYNTHETIC
+PT0746,Emeka Vasquez,88,M,2026-04-01 01:00:00,2026-04-05 04:00:00,GI Hemorrhage - Variceal,Severe,5,5,Post-Transplant (renal),hypotension; melaena; haematemesis,99,Stabilized,0,0.0,SYNTHETIC
+PT0747,Mei Santos,50,F,2026-04-27 16:00:00,2026-04-27 20:00:00,UTI - IV Abx Transition to PO,Low,2,2,Cirrhosis (Child-Pugh B),dysuria; urinary frequency; suprapubic discomfort,4,Step-Down,0,0.0,SYNTHETIC
+PT0748,Sarah Kowalski,46,F,2026-04-27 17:00:00,2026-04-29 12:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,foot pain; wound drainage; localised erythema,43,Step-Down,0,50.0,SYNTHETIC
+PT0749,Helene Brooks,81,F,2026-04-19 12:00:00,2026-04-20 13:00:00,Diabetic Ulcer - Infected,Moderate,3,3,Obesity (BMI 38),localised erythema; wound drainage,25,Discharged,0,100.0,SYNTHETIC
+PT0750,Anastasia Zhang,38,F,2026-04-08 16:00:00,2026-04-09 10:00:00,Stable CHF - Med Adjustment,Low,2,2,None,mild ankle swelling; orthopnoea,18,Stabilized,0,100.0,SYNTHETIC
+PT0751,Amara Okafor,19,F,2026-04-20 09:00:00,2026-04-28 13:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,8,HIV (suppressed),oliguria; dark urine; weakness,196,Step-Down,0,33.3,SYNTHETIC
+PT0752,Hassan Delano,52,M,2026-04-28 11:00:00,2026-04-30 10:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,None,hypoxaemia; severe dyspnoea,47,Stabilized,0,66.7,SYNTHETIC
+PT0753,Elena Reyes,79,F,2026-04-15 10:00:00,2026-04-23 02:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,Post-Transplant (renal),convulsions; petechial rash,184,Rapid Response Called,1,83.3,SYNTHETIC
+PT0754,Nadia Okello,23,F,2026-04-24 04:00:00,2026-04-24 12:00:00,Chronic Anemia - Transfusion,Low,1,1,Hypertension,pallor; fatigue; exertional dyspnoea,8,Step-Down,0,100.0,SYNTHETIC
+PT0755,Wei Nguyen,54,M,2026-04-02 00:00:00,2026-04-03 00:00:00,Cellulitis on IV Abx,Moderate,3,3,CKD Stage 3B,low-grade fever; limb erythema; warmth,24,Discharged,0,0.0,SYNTHETIC
+PT0756,Jorge Santos,33,M,2026-04-10 13:00:00,2026-04-13 06:00:00,ARDS - Post Viral Pneumonia,Critical,9,9,COPD,fever; severe dyspnoea; hypoxaemia,65,Transferred to ICU,1,22.2,SYNTHETIC
+PT0757,Ali Sinclair,62,M,2026-04-26 14:00:00,2026-04-29 19:00:00,Major Burn (30% TBSA),Critical,9,10,Post-Transplant (renal),tachycardia; extensive burns; severe pain; hypovolaemia,77,Step-Down,0,33.3,SYNTHETIC
+PT0758,Jorge Moreau,58,M,2026-04-04 06:00:00,2026-04-05 07:00:00,Post-CABG Day 1,Severe,7,7,None,mild dyspnoea; sternal wound pain,25,Step-Down,0,0.0,SYNTHETIC
+PT0759,Dante Reyes,34,M,2026-04-19 05:00:00,2026-04-19 16:00:00,Chronic Anemia - Transfusion,Low,1,2,Type 2 Diabetes,fatigue; exertional dyspnoea,11,Discharged,0,0.0,SYNTHETIC
+PT0760,Thomas Petrov,71,M,2026-04-18 15:00:00,2026-04-20 20:00:00,Cellulitis on IV Abx,Moderate,4,4,None,swelling; limb erythema; low-grade fever; warmth,53,Discharged,0,0.0,SYNTHETIC
+PT0761,Sofia Petrov,48,F,2026-04-25 18:00:00,2026-04-26 07:00:00,Elective Pre-Op Workup,Low,1,1,HIV (suppressed),asymptomatic; stable vitals,13,Discharged,0,100.0,SYNTHETIC
+PT0762,Elena Moreau,76,F,2026-04-03 13:00:00,2026-04-04 05:00:00,Elective Pre-Op Workup,Low,2,2,COPD,asymptomatic; stable vitals,16,Transferred to ICU,1,0.0,SYNTHETIC
+PT0763,John Zhang,65,M,2026-04-06 21:00:00,2026-04-08 09:00:00,GI Hemorrhage - Variceal,Severe,5,5,None,melaena; pallor; haematemesis; hypotension,36,Rapid Response Called,1,50.0,SYNTHETIC
+PT0764,Jorge Fernandez,36,M,2026-04-26 08:00:00,2026-04-29 15:00:00,Septic Shock - Abdominal Source,Critical,9,9,None,hypotension; tachycardia,79,Deceased,1,44.4,SYNTHETIC
+PT0765,Marcus Fernandez,70,M,2026-04-08 18:00:00,2026-04-10 16:00:00,Cellulitis on IV Abx,Moderate,3,3,None,warmth; swelling; low-grade fever; limb erythema,46,Discharged,0,0.0,SYNTHETIC
+PT0766,Luis Patel,68,M,2026-04-26 18:00:00,2026-05-04 03:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,8,8,Sickle Cell Disease,muscle pain; oliguria,177,Rapid Response Called,1,66.7,SYNTHETIC
+PT0767,Kwame Diallo,84,M,2026-04-10 16:00:00,2026-04-13 14:00:00,Post-CABG Day 1,Severe,7,8,Post-Transplant (renal),reduced mobility; sternal wound pain,70,Transferred to ICU,1,16.7,SYNTHETIC
+PT0768,Grace Ito,58,F,2026-04-24 20:00:00,2026-05-02 09:00:00,Suspected Cerebral Malaria,Critical,8,8,HIV (suppressed),rigors; impaired consciousness,181,Stabilized,0,55.6,SYNTHETIC
+PT0769,Hassan Kim,64,M,2026-04-09 07:00:00,2026-04-14 03:00:00,Suspected Cerebral Malaria,Critical,9,10,Sickle Cell Disease,fever; rigors,116,Stabilized,0,22.2,SYNTHETIC
+PT0770,John Johansson,88,M,2026-04-10 00:00:00,2026-04-16 16:00:00,Major Burn (30% TBSA),Critical,10,10,Type 2 Diabetes,hypovolaemia; extensive burns,160,Step-Down,0,77.8,SYNTHETIC
+PT0771,John Abadi,29,M,2026-04-25 01:00:00,2026-04-30 22:00:00,Septic Shock - Abdominal Source,Critical,10,10,CHF (EF 30%),fever; tachycardia,141,Stabilized,0,77.8,SYNTHETIC
+PT0772,Hiroshi Johansson,70,M,2026-04-16 04:00:00,2026-04-16 18:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Cirrhosis (Child-Pugh B),foot pain; wound drainage; localised erythema,14,Discharged,0,100.0,SYNTHETIC
+PT0773,Maria Delano,28,F,2026-04-02 14:00:00,2026-04-03 04:00:00,Stable CHF - Med Adjustment,Low,2,3,Obesity (BMI 38),mild ankle swelling; orthopnoea,14,Discharged,0,0.0,SYNTHETIC
+PT0774,Amara Reyes,55,F,2026-04-23 00:00:00,2026-05-02 14:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,COPD,dark urine; muscle pain; oliguria; weakness,230,Deceased,1,33.3,SYNTHETIC
+PT0775,David Santos,30,M,2026-04-26 21:00:00,2026-04-27 10:00:00,Diabetic Ulcer - Infected,Moderate,3,4,Hypertension,foot pain; localised erythema,13,Rapid Response Called,1,50.0,SYNTHETIC
+PT0776,Kwame Nakamura,64,M,2026-04-14 09:00:00,2026-04-18 00:00:00,Septic Shock - Abdominal Source,Critical,9,10,Type 2 Diabetes,hypotension; fever; oliguria,87,Deceased,1,22.2,SYNTHETIC
+PT0777,Raj Diallo,23,M,2026-04-19 20:00:00,2026-04-21 12:00:00,Post-Appendectomy Recovery,Moderate,4,5,Obesity (BMI 38),incisional pain; nausea,40,Discharged,0,100.0,SYNTHETIC
+PT0778,Diego Nakamura,82,M,2026-04-22 20:00:00,2026-04-23 11:00:00,UTI - IV Abx Transition to PO,Low,1,2,Obesity (BMI 38),urinary frequency; dysuria; suprapubic discomfort,15,Step-Down,0,100.0,SYNTHETIC
+PT0779,Ali Brooks,66,M,2026-04-11 10:00:00,2026-04-19 09:00:00,Suspected Cerebral Malaria,Critical,10,10,None,fever; rigors; convulsions; impaired consciousness,191,Step-Down,0,44.4,SYNTHETIC
+PT0780,James Mueller,28,M,2026-04-15 21:00:00,2026-04-17 12:00:00,Diabetic Ulcer - Infected,Moderate,4,4,Sickle Cell Disease,foot pain; localised erythema; wound drainage,39,Step-Down,0,0.0,SYNTHETIC
+PT0781,Hassan Mbeki,32,M,2026-04-03 18:00:00,2026-04-05 01:00:00,Cellulitis on IV Abx,Moderate,3,4,HIV (suppressed),low-grade fever; limb erythema; warmth,31,Stabilized,0,0.0,SYNTHETIC
+PT0782,Kwame Sinclair,25,M,2026-04-14 15:00:00,2026-04-15 11:00:00,Chronic Anemia - Transfusion,Low,1,1,Sickle Cell Disease,pallor; exertional dyspnoea,20,Stabilized,0,0.0,SYNTHETIC
+PT0783,Chen Vasquez,36,M,2026-04-30 04:00:00,2026-05-02 23:00:00,Status Epilepticus,Severe,5,5,None,altered consciousness; prolonged seizure activity; incontinence,67,Step-Down,0,66.7,SYNTHETIC
+PT0784,James Johansson,72,M,2026-04-29 13:00:00,2026-05-02 08:00:00,Post-Appendectomy Recovery,Moderate,4,4,Post-Transplant (renal),incisional pain; reduced appetite; nausea,67,Step-Down,0,0.0,SYNTHETIC
+PT0785,Amara Moreau,67,F,2026-04-30 09:00:00,2026-05-02 19:00:00,Cellulitis on IV Abx,Moderate,4,5,Obesity (BMI 38),low-grade fever; warmth,58,Rapid Response Called,1,0.0,SYNTHETIC
+PT0786,Amara Okafor,81,F,2026-04-14 12:00:00,2026-04-14 16:00:00,Stable CHF - Med Adjustment,Low,1,2,Cirrhosis (Child-Pugh B),orthopnoea; mild ankle swelling,4,Stabilized,0,100.0,SYNTHETIC
+PT0787,Omar Nguyen,22,M,2026-04-06 08:00:00,2026-04-13 21:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,9,None,petechial rash; gross hematuria; high-grade fever,181,Step-Down,0,66.7,SYNTHETIC
+PT0788,Mei Diallo,65,F,2026-04-10 05:00:00,2026-04-10 21:00:00,Elective Pre-Op Workup,Low,1,2,CHF (EF 30%),asymptomatic; stable vitals,16,Step-Down,0,0.0,SYNTHETIC
+PT0789,Luis Nguyen,84,M,2026-04-20 10:00:00,2026-04-26 19:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Obesity (BMI 38),fever; hypoxaemia; dry cough,153,Step-Down,0,22.2,SYNTHETIC
+PT0790,Leila Singh,54,F,2026-04-07 22:00:00,2026-04-09 08:00:00,Community-Acquired Pneumonia,Moderate,3,4,Post-Transplant (renal),dyspnoea; fever; pleuritic chest pain,34,Discharged,0,100.0,SYNTHETIC
+PT0791,Emeka Hoffman,87,M,2026-04-27 07:00:00,2026-05-02 16:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,Sickle Cell Disease,dry cough; fever,129,Stabilized,0,22.2,SYNTHETIC
+PT0792,Felix Fernandez,78,M,2026-04-10 00:00:00,2026-04-13 14:00:00,Suspected Cerebral Malaria,Critical,10,10,Atrial Fibrillation,rigors; fever; convulsions,86,Step-Down,0,66.7,SYNTHETIC
+PT0793,Diego Bergstrom,71,M,2026-04-22 15:00:00,2026-04-23 11:00:00,Diabetic Ulcer - Infected,Moderate,3,3,Cirrhosis (Child-Pugh B),foot pain; localised erythema; wound drainage,20,Step-Down,0,100.0,SYNTHETIC
+PT0794,Diego Vasquez,73,M,2026-04-23 03:00:00,2026-05-01 07:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,COPD,projectile vomiting; petechial rash; convulsions; gross hematuria,196,Transferred to ICU,1,50.0,SYNTHETIC
+PT0795,Chen Ito,40,M,2026-04-25 15:00:00,2026-04-27 05:00:00,Diabetic Ulcer - Infected,Moderate,3,3,None,foot pain; localised erythema,38,Transferred to ICU,1,0.0,SYNTHETIC
+PT0796,Anastasia Singh,51,F,2026-04-06 09:00:00,2026-04-09 14:00:00,GI Hemorrhage - Variceal,Severe,5,5,None,pallor; hypotension,77,Step-Down,0,33.3,SYNTHETIC
+PT0797,Chen Okafor,66,M,2026-04-27 19:00:00,2026-05-04 15:00:00,Septic Shock - Abdominal Source,Critical,8,8,HIV (suppressed),fever; oliguria,164,Rapid Response Called,1,44.4,SYNTHETIC
+PT0798,Leila Brooks,66,F,2026-04-10 11:00:00,2026-04-11 15:00:00,Community-Acquired Pneumonia,Moderate,3,4,Hypertension,fever; pleuritic chest pain,28,Stabilized,0,50.0,SYNTHETIC
+PT0799,Omar Okafor,33,M,2026-04-25 17:00:00,2026-04-28 04:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,CKD Stage 3B,weakness; dark urine,59,Rapid Response Called,1,44.4,SYNTHETIC
+PT0800,Omar Santos,70,M,2026-04-16 10:00:00,2026-04-20 12:00:00,Major Burn (30% TBSA),Critical,8,9,Type 2 Diabetes,extensive burns; severe pain; tachycardia,98,Rapid Response Called,1,33.3,SYNTHETIC
+PT0801,Chen Larsen,19,M,2026-04-20 05:00:00,2026-04-22 17:00:00,Cellulitis on IV Abx,Moderate,4,5,Cirrhosis (Child-Pugh B),warmth; low-grade fever,60,Discharged,0,0.0,SYNTHETIC
+PT0802,Lina Ito,42,F,2026-04-21 15:00:00,2026-04-28 00:00:00,Suspected Cerebral Malaria,Critical,8,9,Cirrhosis (Child-Pugh B),fever; rigors; impaired consciousness; convulsions,153,Stabilized,0,100.0,SYNTHETIC
+PT0803,Elena Nguyen,46,F,2026-04-05 21:00:00,2026-04-06 05:00:00,Syncope - Observation,Low,1,2,Hypertension,light-headedness; transient loss of consciousness,8,Discharged,0,100.0,SYNTHETIC
+PT0804,Ingrid Abadi,83,F,2026-04-24 12:00:00,2026-04-25 04:00:00,Chronic Anemia - Transfusion,Low,1,2,Type 2 Diabetes,exertional dyspnoea; pallor; fatigue,16,Discharged,0,100.0,SYNTHETIC
+PT0805,Raj Zhang,73,M,2026-04-26 01:00:00,2026-04-27 23:00:00,Post-CABG Day 1,Severe,6,7,Type 2 Diabetes,sternal wound pain; reduced mobility,46,Step-Down,0,66.7,SYNTHETIC
+PT0806,Chloe Abadi,65,F,2026-04-17 08:00:00,2026-04-20 05:00:00,Acetaminophen Overdose,Severe,7,8,Type 2 Diabetes,malaise; right upper quadrant pain,69,Stabilized,0,33.3,SYNTHETIC
+PT0807,Raj Santos,41,M,2026-04-18 11:00:00,2026-04-22 10:00:00,Suspected Cerebral Malaria,Critical,10,10,Atrial Fibrillation,convulsions; impaired consciousness; fever; rigors,95,Step-Down,0,55.6,SYNTHETIC
+PT0808,Carmen Mueller,19,F,2026-04-16 20:00:00,2026-04-20 03:00:00,Septic Shock - Abdominal Source,Critical,8,9,Sickle Cell Disease,fever; oliguria; hypotension,79,Step-Down,0,22.2,SYNTHETIC
+PT0809,Ravi Reyes,89,M,2026-04-17 10:00:00,2026-04-19 12:00:00,Acetaminophen Overdose,Severe,5,5,Post-Transplant (renal),nausea; malaise; right upper quadrant pain,50,Transferred to ICU,1,33.3,SYNTHETIC
+PT0810,Anya Okafor,81,F,2026-04-14 13:00:00,2026-04-14 23:00:00,Stable CHF - Med Adjustment,Low,2,3,Sickle Cell Disease,mild ankle swelling; orthopnoea,10,Discharged,0,100.0,SYNTHETIC
+PT0811,Diego Patel,54,M,2026-04-14 22:00:00,2026-04-21 05:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,COPD,hypoxaemia; fever; severe dyspnoea,151,Stabilized,0,66.7,SYNTHETIC
+PT0812,Elena Bergstrom,20,F,2026-04-02 13:00:00,2026-04-04 16:00:00,Post-Appendectomy Recovery,Moderate,4,5,COPD,reduced appetite; incisional pain; nausea,51,Discharged,0,100.0,SYNTHETIC
+PT0813,Emeka Singh,56,M,2026-04-18 01:00:00,2026-04-19 09:00:00,Eclampsia,Severe,6,7,Cirrhosis (Child-Pugh B),headache; severe hypertension; seizure; visual disturbance,32,Step-Down,0,50.0,SYNTHETIC
+PT0814,Pavel Ito,73,M,2026-04-01 10:00:00,2026-04-04 07:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,Hypertension,fever; dry cough,69,Stabilized,0,55.6,SYNTHETIC
+PT0815,Chen Kowalski,56,M,2026-04-03 05:00:00,2026-04-04 05:00:00,Community-Acquired Pneumonia,Moderate,3,3,None,productive cough; dyspnoea,24,Discharged,0,50.0,SYNTHETIC
+PT0816,Tariq Ito,33,M,2026-04-08 06:00:00,2026-04-11 10:00:00,Diabetic Ulcer - Infected,Moderate,4,4,None,foot pain; localised erythema,76,Transferred to ICU,1,0.0,SYNTHETIC
+PT0817,Helene Santos,80,F,2026-04-23 06:00:00,2026-04-25 06:00:00,Cellulitis on IV Abx,Moderate,4,4,Sickle Cell Disease,low-grade fever; swelling,48,Discharged,0,0.0,SYNTHETIC
+PT0818,John Okafor,27,M,2026-04-04 12:00:00,2026-04-06 21:00:00,Post-CABG Day 1,Severe,6,6,None,sternal wound pain; mild dyspnoea; reduced mobility,57,Stabilized,0,83.3,SYNTHETIC
+PT0819,Elena Larsen,85,F,2026-04-17 10:00:00,2026-04-19 05:00:00,Status Epilepticus,Severe,6,6,None,prolonged seizure activity; altered consciousness; incontinence,43,Stabilized,0,50.0,SYNTHETIC
+PT0820,Tariq Costa,69,M,2026-04-10 08:00:00,2026-04-15 01:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,Type 2 Diabetes,weakness; dark urine; oliguria,113,Rapid Response Called,1,55.6,SYNTHETIC
+PT0821,Diego Kim,20,M,2026-04-07 06:00:00,2026-04-10 04:00:00,Eclampsia,Severe,7,7,Sickle Cell Disease,seizure; visual disturbance,70,Transferred to ICU,1,33.3,SYNTHETIC
+PT0822,Marcus Petrov,45,M,2026-04-06 01:00:00,2026-04-06 17:00:00,Syncope - Observation,Low,2,3,Cirrhosis (Child-Pugh B),light-headedness; transient loss of consciousness,16,Step-Down,0,100.0,SYNTHETIC
+PT0823,Mei Nguyen,72,F,2026-04-16 18:00:00,2026-04-18 04:00:00,Acetaminophen Overdose,Severe,5,6,Obesity (BMI 38),malaise; right upper quadrant pain,34,Stabilized,0,16.7,SYNTHETIC
+PT0824,Grace Kim,32,F,2026-04-22 01:00:00,2026-04-22 15:00:00,UTI - IV Abx Transition to PO,Low,2,3,Post-Transplant (renal),dysuria; suprapubic discomfort; urinary frequency,14,Discharged,0,100.0,SYNTHETIC
+PT0825,David Fernandez,68,M,2026-04-05 07:00:00,2026-04-07 08:00:00,Post-CABG Day 1,Severe,5,6,Type 2 Diabetes,mild dyspnoea; reduced mobility,49,Step-Down,0,50.0,SYNTHETIC
+PT0826,Chloe Hoffman,30,F,2026-04-09 16:00:00,2026-04-11 19:00:00,Post-CABG Day 1,Severe,6,6,Hypertension,reduced mobility; mild dyspnoea; sternal wound pain,51,Step-Down,0,100.0,SYNTHETIC
+PT0827,Zara Kowalski,60,F,2026-04-14 10:00:00,2026-04-18 05:00:00,Eclampsia,Severe,7,7,Hypertension,severe hypertension; seizure,91,Transferred to ICU,1,50.0,SYNTHETIC
+PT0828,Jorge Petrov,19,M,2026-04-12 06:00:00,2026-04-14 23:00:00,Cellulitis on IV Abx,Moderate,4,4,CKD Stage 3B,warmth; swelling,65,Transferred to ICU,1,0.0,SYNTHETIC
+PT0829,Ravi Delano,85,M,2026-04-02 22:00:00,2026-04-03 02:00:00,Chronic Anemia - Transfusion,Low,1,1,Obesity (BMI 38),pallor; exertional dyspnoea; fatigue,4,Rapid Response Called,1,100.0,SYNTHETIC
+PT0830,Sarah Patel,50,F,2026-04-21 22:00:00,2026-04-25 07:00:00,Eclampsia,Severe,7,8,Cirrhosis (Child-Pugh B),headache; visual disturbance; severe hypertension,81,Transferred to ICU,1,83.3,SYNTHETIC
+PT0831,Pavel Johansson,36,M,2026-04-29 07:00:00,2026-05-02 08:00:00,Acetaminophen Overdose,Severe,7,7,None,nausea; right upper quadrant pain; malaise,73,Stabilized,0,83.3,SYNTHETIC
+PT0832,Carmen Petrov,66,F,2026-04-30 16:00:00,2026-05-05 20:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,CHF (EF 30%),convulsions; high-grade fever; petechial rash,124,Step-Down,0,66.7,SYNTHETIC
+PT0833,Sergei Larsen,53,M,2026-04-12 07:00:00,2026-04-12 22:00:00,Elective Pre-Op Workup,Low,2,2,Post-Transplant (renal),stable vitals; asymptomatic,15,Discharged,0,0.0,SYNTHETIC
+PT0834,Ravi Nguyen,81,M,2026-04-20 09:00:00,2026-04-23 17:00:00,Acetaminophen Overdose,Severe,7,8,Type 2 Diabetes,right upper quadrant pain; nausea; malaise,80,Transferred to ICU,1,66.7,SYNTHETIC
+PT0835,Jorge Sinclair,26,M,2026-04-29 08:00:00,2026-04-29 17:00:00,Syncope - Observation,Low,2,3,CHF (EF 30%),light-headedness; transient loss of consciousness,9,Discharged,0,0.0,SYNTHETIC
+PT0836,David Zhang,18,M,2026-04-21 20:00:00,2026-04-23 23:00:00,Eclampsia,Severe,7,7,Type 2 Diabetes,visual disturbance; severe hypertension,51,Stabilized,0,50.0,SYNTHETIC
+PT0837,Carmen Santos,28,F,2026-04-07 14:00:00,2026-04-08 23:00:00,Eclampsia,Severe,7,8,Sickle Cell Disease,headache; seizure; visual disturbance; severe hypertension,33,Stabilized,0,16.7,SYNTHETIC
+PT0838,Ivan Bergstrom,51,M,2026-04-29 22:00:00,2026-05-01 20:00:00,Community-Acquired Pneumonia,Moderate,3,3,None,dyspnoea; fever; productive cough,46,Discharged,0,50.0,SYNTHETIC
+PT0839,Raj Fernandez,88,M,2026-04-25 16:00:00,2026-04-26 11:00:00,Cellulitis on IV Abx,Moderate,4,4,None,warmth; low-grade fever; limb erythema; swelling,19,Step-Down,0,0.0,SYNTHETIC
+PT0840,James Johansson,58,M,2026-04-17 00:00:00,2026-04-17 17:00:00,Stable CHF - Med Adjustment,Low,2,2,Post-Transplant (renal),mild ankle swelling; orthopnoea,17,Discharged,0,0.0,SYNTHETIC
+PT0841,Andre Moreau,56,M,2026-04-20 16:00:00,2026-04-21 05:00:00,Cellulitis on IV Abx,Moderate,4,5,HIV (suppressed),limb erythema; warmth; low-grade fever; swelling,13,Step-Down,0,0.0,SYNTHETIC
+PT0842,Carmen Sinclair,24,F,2026-04-06 08:00:00,2026-04-07 01:00:00,UTI - IV Abx Transition to PO,Low,2,3,CKD Stage 3B,dysuria; urinary frequency; suprapubic discomfort,17,Step-Down,0,0.0,SYNTHETIC
+PT0843,Sergei Patel,83,M,2026-04-25 03:00:00,2026-04-28 02:00:00,Acetaminophen Overdose,Severe,7,8,Type 2 Diabetes,right upper quadrant pain; nausea; malaise,71,Step-Down,0,50.0,SYNTHETIC
+PT0844,Olga Sinclair,18,F,2026-04-29 19:00:00,2026-04-30 11:00:00,Elective Pre-Op Workup,Low,2,2,COPD,stable vitals; asymptomatic,16,Discharged,0,100.0,SYNTHETIC
+PT0845,Sarah Okafor,78,F,2026-04-23 04:00:00,2026-04-25 11:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,8,CHF (EF 30%),convulsions; high-grade fever,55,Stabilized,0,75.0,SYNTHETIC
+PT0846,Hassan Vasquez,73,M,2026-04-08 20:00:00,2026-04-13 01:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,HIV (suppressed),fever; dry cough; hypoxaemia; severe dyspnoea,101,Stabilized,0,44.4,SYNTHETIC
+PT0847,Raj Sinclair,55,M,2026-04-30 20:00:00,2026-05-04 04:00:00,GI Hemorrhage - Variceal,Severe,5,6,Post-Transplant (renal),pallor; melaena,80,Stabilized,0,33.3,SYNTHETIC
+PT0848,Ravi Petrov,72,M,2026-04-30 18:00:00,2026-05-03 02:00:00,Community-Acquired Pneumonia,Moderate,4,5,HIV (suppressed),dyspnoea; fever,56,Discharged,0,50.0,SYNTHETIC
+PT0849,Andre Patel,63,M,2026-04-13 22:00:00,2026-04-14 02:00:00,Stable CHF - Med Adjustment,Low,2,3,CKD Stage 3B,orthopnoea; mild ankle swelling,4,Rapid Response Called,1,100.0,SYNTHETIC
+PT0850,Omar Delano,37,M,2026-04-09 23:00:00,2026-04-14 02:00:00,Major Burn (30% TBSA),Critical,9,10,Post-Transplant (renal),tachycardia; hypovolaemia; extensive burns; severe pain,99,Transferred to ICU,1,77.8,SYNTHETIC
+PT0851,Aisha Costa,66,F,2026-04-29 02:00:00,2026-05-03 05:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,9,9,None,oliguria; dark urine; muscle pain,99,Step-Down,0,66.7,SYNTHETIC
+PT0852,Helene Diallo,26,F,2026-04-14 19:00:00,2026-04-15 09:00:00,Syncope - Observation,Low,2,3,COPD,light-headedness; transient loss of consciousness,14,Discharged,0,100.0,SYNTHETIC
+PT0853,Yuki Patel,71,F,2026-04-14 19:00:00,2026-04-18 05:00:00,ARDS - Post Viral Pneumonia,Critical,9,10,Sickle Cell Disease,hypoxaemia; severe dyspnoea; fever; dry cough,82,Stabilized,0,55.6,SYNTHETIC
+PT0854,Ingrid Patel,75,F,2026-04-16 23:00:00,2026-04-23 14:00:00,Suspected Cerebral Malaria,Critical,10,10,Type 2 Diabetes,fever; rigors; impaired consciousness; convulsions,159,Step-Down,0,88.9,SYNTHETIC
+PT0855,Sofia Zhang,73,F,2026-04-29 23:00:00,2026-05-02 00:00:00,Status Epilepticus,Severe,6,7,Obesity (BMI 38),prolonged seizure activity; incontinence,49,Stabilized,0,66.7,SYNTHETIC
+PT0856,Ravi Delano,85,M,2026-04-01 05:00:00,2026-04-05 22:00:00,ARDS - Post Viral Pneumonia,Critical,8,8,CKD Stage 3B,severe dyspnoea; hypoxaemia; dry cough,113,Stabilized,0,44.4,SYNTHETIC
+PT0857,Helene Hoffman,66,F,2026-04-24 20:00:00,2026-04-25 05:00:00,Chronic Anemia - Transfusion,Low,2,3,Cirrhosis (Child-Pugh B),exertional dyspnoea; pallor,9,Discharged,0,0.0,SYNTHETIC
+PT0858,Kofi Reyes,46,M,2026-04-22 06:00:00,2026-04-22 14:00:00,Syncope - Observation,Low,2,2,Type 2 Diabetes,light-headedness; transient loss of consciousness,8,Discharged,0,100.0,SYNTHETIC
+PT0859,Tariq Moreau,69,M,2026-04-23 19:00:00,2026-04-29 22:00:00,Septic Shock - Abdominal Source,Critical,8,8,Atrial Fibrillation,oliguria; tachycardia,147,Rapid Response Called,1,55.6,SYNTHETIC
+PT0860,Elise Santos,51,F,2026-04-28 20:00:00,2026-04-30 15:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Obesity (BMI 38),fever; hypoxaemia,43,Transferred to ICU,1,66.7,SYNTHETIC
+PT0861,Kofi Zhang,22,M,2026-04-29 07:00:00,2026-04-29 11:00:00,Elective Pre-Op Workup,Low,2,2,None,stable vitals; asymptomatic,4,Discharged,0,100.0,SYNTHETIC
+PT0862,Ali Kowalski,81,M,2026-04-06 12:00:00,2026-04-06 23:00:00,UTI - IV Abx Transition to PO,Low,1,2,Post-Transplant (renal),dysuria; suprapubic discomfort; urinary frequency,11,Discharged,0,0.0,SYNTHETIC
+PT0863,Diego Petrov,24,M,2026-04-02 02:00:00,2026-04-03 20:00:00,Eclampsia,Severe,5,5,CKD Stage 3B,visual disturbance; headache; seizure; severe hypertension,42,Step-Down,0,50.0,SYNTHETIC
+PT0864,Mei Diallo,73,F,2026-04-06 00:00:00,2026-04-08 05:00:00,Cellulitis on IV Abx,Moderate,3,4,Type 2 Diabetes,swelling; warmth; limb erythema; low-grade fever,53,Discharged,0,100.0,SYNTHETIC
+PT0865,Fatima Fernandez,25,F,2026-04-23 21:00:00,2026-04-30 23:00:00,Severe Febrile Illness - Unknown Etiology,Critical,8,9,HIV (suppressed),high-grade fever; convulsions,170,Rapid Response Called,1,25.0,SYNTHETIC
+PT0866,Leila Kim,68,F,2026-04-26 16:00:00,2026-04-30 12:00:00,Eclampsia,Severe,5,6,Cirrhosis (Child-Pugh B),headache; seizure,92,Stabilized,0,50.0,SYNTHETIC
+PT0867,Jorge Okafor,64,M,2026-04-22 02:00:00,2026-04-30 06:00:00,Septic Shock - Abdominal Source,Critical,9,9,Post-Transplant (renal),tachycardia; hypotension; abdominal pain; oliguria,196,Stabilized,0,66.7,SYNTHETIC
+PT0868,Olga Santos,70,F,2026-04-24 02:00:00,2026-04-27 00:00:00,Post-CABG Day 1,Severe,6,6,None,sternal wound pain; reduced mobility,70,Step-Down,0,83.3,SYNTHETIC
+PT0869,James Zhang,36,M,2026-04-24 14:00:00,2026-04-28 01:00:00,Acute Kidney Injury - Rhabdomyolysis,Critical,10,10,Hypertension,dark urine; weakness,83,Deceased,1,55.6,SYNTHETIC
+PT0870,Sergei Mbeki,28,M,2026-04-02 10:00:00,2026-04-03 07:00:00,Post-Appendectomy Recovery,Moderate,3,4,CKD Stage 3B,reduced appetite; nausea; incisional pain,21,Stabilized,0,100.0,SYNTHETIC
+PT0871,Grace Petrov,73,F,2026-04-02 21:00:00,2026-04-06 01:00:00,Severe Febrile Illness - Unknown Etiology,Critical,9,10,HIV (suppressed),abdominal guarding; convulsions,76,Stabilized,0,75.0,SYNTHETIC
+PT0872,David Al-Rashid,72,M,2026-04-12 04:00:00,2026-04-14 15:00:00,Community-Acquired Pneumonia,Moderate,3,4,CHF (EF 30%),fever; productive cough; dyspnoea; pleuritic chest pain,59,Rapid Response Called,1,0.0,SYNTHETIC
+PT0873,Grace Kowalski,48,F,2026-04-25 10:00:00,2026-04-29 07:00:00,Eclampsia,Severe,7,8,Obesity (BMI 38),headache; seizure; severe hypertension; visual disturbance,93,Stabilized,0,50.0,SYNTHETIC
+PT0874,Emeka Larsen,64,M,2026-04-13 14:00:00,2026-04-15 13:00:00,Post-CABG Day 1,Severe,5,6,Hypertension,reduced mobility; sternal wound pain; mild dyspnoea,47,Rapid Response Called,1,83.3,SYNTHETIC
+PT0875,Emeka Brooks,20,M,2026-04-25 06:00:00,2026-04-25 21:00:00,UTI - IV Abx Transition to PO,Low,1,2,Type 2 Diabetes,dysuria; urinary frequency; suprapubic discomfort,15,Discharged,0,0.0,SYNTHETIC
+PT0876,David Moreau,74,M,2026-04-25 17:00:00,2026-04-25 23:00:00,Chronic Anemia - Transfusion,Low,1,1,HIV (suppressed),pallor; exertional dyspnoea; fatigue,6,Discharged,0,0.0,SYNTHETIC
+PT0877,Omar Nakamura,32,M,2026-04-08 10:00:00,2026-04-08 18:00:00,Chronic Anemia - Transfusion,Low,1,2,Hypertension,pallor; fatigue; exertional dyspnoea,8,Step-Down,0,0.0,SYNTHETIC
+PT0878,Anya Nguyen,63,F,2026-04-10 17:00:00,2026-04-11 07:00:00,Post-Appendectomy Recovery,Moderate,4,5,CKD Stage 3B,nausea; reduced appetite; incisional pain,14,Discharged,0,50.0,SYNTHETIC
+PT0879,Ali Mueller,65,M,2026-04-19 22:00:00,2026-04-20 16:00:00,Community-Acquired Pneumonia,Moderate,3,4,Type 2 Diabetes,productive cough; dyspnoea; pleuritic chest pain; fever,18,Discharged,0,50.0,SYNTHETIC
+PT0880,Sergei Singh,78,M,2026-04-26 21:00:00,2026-04-29 02:00:00,Eclampsia,Severe,5,6,CKD Stage 3B,visual disturbance; headache; severe hypertension,53,Step-Down,0,66.7,SYNTHETIC
+PT0881,Raj Moreau,66,M,2026-04-02 02:00:00,2026-04-05 00:00:00,Suspected Cerebral Malaria,Critical,9,10,COPD,impaired consciousness; rigors; convulsions; fever,70,Stabilized,0,33.3,SYNTHETIC
+PT0882,Grace Mbeki,85,F,2026-04-22 11:00:00,2026-04-29 07:00:00,Septic Shock - Abdominal Source,Critical,8,9,Hypertension,oliguria; abdominal pain; tachycardia; fever,164,Stabilized,0,55.6,SYNTHETIC
+PT0883,Jorge Nguyen,49,M,2026-04-09 07:00:00,2026-04-09 21:00:00,Syncope - Observation,Low,2,3,Cirrhosis (Child-Pugh B),transient loss of consciousness; light-headedness,14,Rapid Response Called,1,100.0,SYNTHETIC
+PT0884,Thomas Kowalski,82,M,2026-04-18 11:00:00,2026-04-23 06:00:00,ARDS - Post Viral Pneumonia,Critical,10,10,Hypertension,fever; dry cough,115,Transferred to ICU,1,33.3,SYNTHETIC
+PT0885,Ali Mueller,51,M,2026-04-06 08:00:00,2026-04-08 09:00:00,Post-Appendectomy Recovery,Moderate,4,5,Hypertension,incisional pain; nausea; reduced appetite,49,Discharged,0,100.0,SYNTHETIC
+PT0886,Wei Okafor,39,M,2026-04-25 13:00:00,2026-04-26 19:00:00,Cellulitis on IV Abx,Moderate,4,4,Post-Transplant (renal),warmth; limb erythema; low-grade fever; swelling,30,Transferred to ICU,1,100.0,SYNTHETIC
+PT0887,Hiroshi Al-Rashid,83,M,2026-04-19 09:00:00,2026-04-19 13:00:00,Chronic Anemia - Transfusion,Low,1,1,COPD,fatigue; pallor; exertional dyspnoea,4,Discharged,0,100.0,SYNTHETIC
+PT0888,Pavel Sinclair,27,M,2026-04-13 12:00:00,2026-04-14 06:00:00,Diabetic Ulcer - Infected,Moderate,3,3,None,localised erythema; wound drainage; foot pain,18,Discharged,0,0.0,SYNTHETIC
+PT0889,Sergei Costa,83,M,2026-04-21 08:00:00,2026-04-23 13:00:00,Cellulitis on IV Abx,Moderate,4,4,None,warmth; swelling,53,Discharged,0,0.0,SYNTHETIC
+PT0890,Ravi Fernandez,81,M,2026-04-19 17:00:00,2026-04-20 14:00:00,Community-Acquired Pneumonia,Moderate,4,5,HIV (suppressed),pleuritic chest pain; productive cough; dyspnoea; fever,21,Discharged,0,0.0,SYNTHETIC
+PT0891,Olga Santos,44,F,2026-04-17 09:00:00,2026-04-17 19:00:00,Syncope - Observation,Low,2,3,Atrial Fibrillation,transient loss of consciousness; light-headedness,10,Discharged,0,100.0,SYNTHETIC
+PT0892,Ravi Santos,80,M,2026-04-13 03:00:00,2026-04-13 10:00:00,UTI - IV Abx Transition to PO,Low,2,3,Type 2 Diabetes,urinary frequency; suprapubic discomfort,7,Discharged,0,100.0,SYNTHETIC
+PT0893,Nadia Bergstrom,44,F,2026-04-05 12:00:00,2026-04-07 12:00:00,Post-CABG Day 1,Severe,7,7,None,reduced mobility; sternal wound pain; mild dyspnoea,48,Step-Down,0,50.0,SYNTHETIC
+PT0894,Elena Ito,54,F,2026-04-01 06:00:00,2026-04-06 11:00:00,Suspected Cerebral Malaria,Critical,10,10,Post-Transplant (renal),convulsions; fever,125,Transferred to ICU,1,66.7,SYNTHETIC
+PT0895,Felix Sinclair,35,M,2026-04-06 02:00:00,2026-04-07 15:00:00,Post-Appendectomy Recovery,Moderate,4,5,Type 2 Diabetes,nausea; reduced appetite; incisional pain,37,Discharged,0,50.0,SYNTHETIC
+PT0896,Pavel Reyes,82,M,2026-04-10 11:00:00,2026-04-18 23:00:00,Septic Shock - Abdominal Source,Critical,10,10,None,tachycardia; hypotension,204,Step-Down,0,22.2,SYNTHETIC
+PT0897,Sergei Kowalski,84,M,2026-04-30 08:00:00,2026-04-30 18:00:00,Syncope - Observation,Low,1,1,None,light-headedness; transient loss of consciousness,10,Stabilized,0,100.0,SYNTHETIC
+PT0898,Anya Hoffman,78,F,2026-04-11 11:00:00,2026-04-14 10:00:00,Suspected Cerebral Malaria,Critical,10,10,Sickle Cell Disease,rigors; fever; convulsions; impaired consciousness,71,Step-Down,0,33.3,SYNTHETIC
+PT0899,Chloe Petrov,80,F,2026-04-04 18:00:00,2026-04-08 00:00:00,Eclampsia,Severe,5,6,Hypertension,severe hypertension; seizure; visual disturbance; headache,78,Transferred to ICU,1,50.0,SYNTHETIC
+PT0900,Elise Kim,79,F,2026-04-12 05:00:00,2026-04-19 21:00:00,Suspected Cerebral Malaria,Critical,9,9,None,impaired consciousness; convulsions; rigors,184,Transferred to ICU,1,55.6,SYNTHETIC

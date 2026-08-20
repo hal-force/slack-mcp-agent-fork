@@ -1,0 +1,2048 @@
+patient_id,skill_id,skill_name,data_classification
+PT0001,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0001,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0001,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0002,SK06,Central Line / PICC Management,SYNTHETIC
+PT0003,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0004,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0004,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0004,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0004,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0005,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0005,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0005,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0006,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0007,SK06,Central Line / PICC Management,SYNTHETIC
+PT0007,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0007,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0008,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0009,SK06,Central Line / PICC Management,SYNTHETIC
+PT0009,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0009,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0010,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0010,SK06,Central Line / PICC Management,SYNTHETIC
+PT0010,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0011,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0012,SK06,Central Line / PICC Management,SYNTHETIC
+PT0013,SK05,Ventilator Management,SYNTHETIC
+PT0013,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0013,SK06,Central Line / PICC Management,SYNTHETIC
+PT0014,SK05,Ventilator Management,SYNTHETIC
+PT0014,SK06,Central Line / PICC Management,SYNTHETIC
+PT0015,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0015,SK06,Central Line / PICC Management,SYNTHETIC
+PT0015,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0016,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0016,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0017,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0017,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0018,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0019,SK06,Central Line / PICC Management,SYNTHETIC
+PT0019,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0019,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0020,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0020,SK06,Central Line / PICC Management,SYNTHETIC
+PT0020,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0021,SK06,Central Line / PICC Management,SYNTHETIC
+PT0022,SK06,Central Line / PICC Management,SYNTHETIC
+PT0023,SK06,Central Line / PICC Management,SYNTHETIC
+PT0023,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0023,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0024,SK05,Ventilator Management,SYNTHETIC
+PT0024,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0024,SK06,Central Line / PICC Management,SYNTHETIC
+PT0025,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0026,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0026,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0026,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0027,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0027,SK06,Central Line / PICC Management,SYNTHETIC
+PT0027,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0028,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0028,SK06,Central Line / PICC Management,SYNTHETIC
+PT0028,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0029,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0030,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0030,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0031,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0031,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0032,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0032,SK06,Central Line / PICC Management,SYNTHETIC
+PT0032,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0033,SK05,Ventilator Management,SYNTHETIC
+PT0033,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0033,SK06,Central Line / PICC Management,SYNTHETIC
+PT0034,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0034,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0034,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0035,SK05,Ventilator Management,SYNTHETIC
+PT0035,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0035,SK06,Central Line / PICC Management,SYNTHETIC
+PT0036,SK06,Central Line / PICC Management,SYNTHETIC
+PT0037,SK06,Central Line / PICC Management,SYNTHETIC
+PT0038,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0038,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0039,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0040,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0040,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0041,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0041,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0041,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0042,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0043,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0044,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0044,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0044,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0045,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0046,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0047,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0047,SK06,Central Line / PICC Management,SYNTHETIC
+PT0047,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0048,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0048,SK06,Central Line / PICC Management,SYNTHETIC
+PT0048,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0049,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0049,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0049,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0050,SK06,Central Line / PICC Management,SYNTHETIC
+PT0050,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0050,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0051,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0051,SK06,Central Line / PICC Management,SYNTHETIC
+PT0051,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0052,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0052,SK06,Central Line / PICC Management,SYNTHETIC
+PT0052,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0053,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0053,SK06,Central Line / PICC Management,SYNTHETIC
+PT0053,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0054,SK06,Central Line / PICC Management,SYNTHETIC
+PT0055,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0055,SK06,Central Line / PICC Management,SYNTHETIC
+PT0055,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0056,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0056,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0056,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0057,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0057,SK06,Central Line / PICC Management,SYNTHETIC
+PT0057,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0058,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0058,SK06,Central Line / PICC Management,SYNTHETIC
+PT0058,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0059,SK06,Central Line / PICC Management,SYNTHETIC
+PT0060,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0060,SK06,Central Line / PICC Management,SYNTHETIC
+PT0060,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0061,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0061,SK06,Central Line / PICC Management,SYNTHETIC
+PT0061,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0062,SK06,Central Line / PICC Management,SYNTHETIC
+PT0062,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0062,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0063,SK06,Central Line / PICC Management,SYNTHETIC
+PT0064,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0065,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0065,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0066,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0067,SK06,Central Line / PICC Management,SYNTHETIC
+PT0068,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0068,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0069,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0069,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0069,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0070,SK05,Ventilator Management,SYNTHETIC
+PT0070,SK06,Central Line / PICC Management,SYNTHETIC
+PT0071,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0071,SK06,Central Line / PICC Management,SYNTHETIC
+PT0071,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0072,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0072,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0072,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0073,SK05,Ventilator Management,SYNTHETIC
+PT0073,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0073,SK06,Central Line / PICC Management,SYNTHETIC
+PT0074,SK05,Ventilator Management,SYNTHETIC
+PT0074,SK06,Central Line / PICC Management,SYNTHETIC
+PT0075,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0076,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0077,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0077,SK06,Central Line / PICC Management,SYNTHETIC
+PT0077,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0078,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0079,SK06,Central Line / PICC Management,SYNTHETIC
+PT0080,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0080,SK06,Central Line / PICC Management,SYNTHETIC
+PT0080,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0081,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0081,SK06,Central Line / PICC Management,SYNTHETIC
+PT0081,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0082,SK06,Central Line / PICC Management,SYNTHETIC
+PT0083,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0083,SK06,Central Line / PICC Management,SYNTHETIC
+PT0083,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0084,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0084,SK06,Central Line / PICC Management,SYNTHETIC
+PT0084,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0085,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0086,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0086,SK06,Central Line / PICC Management,SYNTHETIC
+PT0086,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0087,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0087,SK06,Central Line / PICC Management,SYNTHETIC
+PT0087,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0088,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0088,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0089,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0089,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0090,SK06,Central Line / PICC Management,SYNTHETIC
+PT0091,SK06,Central Line / PICC Management,SYNTHETIC
+PT0091,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0091,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0092,SK05,Ventilator Management,SYNTHETIC
+PT0092,SK06,Central Line / PICC Management,SYNTHETIC
+PT0093,SK06,Central Line / PICC Management,SYNTHETIC
+PT0093,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0093,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0094,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0094,SK06,Central Line / PICC Management,SYNTHETIC
+PT0094,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0095,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0095,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0095,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0096,SK06,Central Line / PICC Management,SYNTHETIC
+PT0096,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0096,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0097,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0097,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0098,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0099,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0099,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0100,SK06,Central Line / PICC Management,SYNTHETIC
+PT0100,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0100,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0101,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0101,SK06,Central Line / PICC Management,SYNTHETIC
+PT0101,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0102,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0103,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0103,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0104,SK06,Central Line / PICC Management,SYNTHETIC
+PT0105,SK06,Central Line / PICC Management,SYNTHETIC
+PT0106,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0106,SK06,Central Line / PICC Management,SYNTHETIC
+PT0106,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0107,SK05,Ventilator Management,SYNTHETIC
+PT0107,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0107,SK06,Central Line / PICC Management,SYNTHETIC
+PT0108,SK06,Central Line / PICC Management,SYNTHETIC
+PT0108,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0108,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0109,SK06,Central Line / PICC Management,SYNTHETIC
+PT0110,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0111,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0111,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0112,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0112,SK06,Central Line / PICC Management,SYNTHETIC
+PT0112,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0113,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0113,SK06,Central Line / PICC Management,SYNTHETIC
+PT0113,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0114,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0114,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0114,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0115,SK05,Ventilator Management,SYNTHETIC
+PT0115,SK06,Central Line / PICC Management,SYNTHETIC
+PT0116,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0116,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0116,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0117,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0117,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0117,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0118,SK05,Ventilator Management,SYNTHETIC
+PT0118,SK06,Central Line / PICC Management,SYNTHETIC
+PT0119,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0119,SK06,Central Line / PICC Management,SYNTHETIC
+PT0119,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0120,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0120,SK06,Central Line / PICC Management,SYNTHETIC
+PT0120,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0121,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0121,SK06,Central Line / PICC Management,SYNTHETIC
+PT0121,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0122,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0122,SK06,Central Line / PICC Management,SYNTHETIC
+PT0122,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0123,SK06,Central Line / PICC Management,SYNTHETIC
+PT0124,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0125,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0125,SK06,Central Line / PICC Management,SYNTHETIC
+PT0125,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0126,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0126,SK06,Central Line / PICC Management,SYNTHETIC
+PT0126,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0127,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0127,SK06,Central Line / PICC Management,SYNTHETIC
+PT0127,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0128,SK06,Central Line / PICC Management,SYNTHETIC
+PT0128,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0128,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0129,SK05,Ventilator Management,SYNTHETIC
+PT0129,SK06,Central Line / PICC Management,SYNTHETIC
+PT0130,SK05,Ventilator Management,SYNTHETIC
+PT0130,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0130,SK06,Central Line / PICC Management,SYNTHETIC
+PT0131,SK06,Central Line / PICC Management,SYNTHETIC
+PT0132,SK06,Central Line / PICC Management,SYNTHETIC
+PT0133,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0134,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0134,SK06,Central Line / PICC Management,SYNTHETIC
+PT0134,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0135,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0136,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0137,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0137,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0137,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0137,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0138,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0138,SK06,Central Line / PICC Management,SYNTHETIC
+PT0138,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0139,SK06,Central Line / PICC Management,SYNTHETIC
+PT0140,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0141,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0141,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0141,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0142,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0143,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0143,SK06,Central Line / PICC Management,SYNTHETIC
+PT0143,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0144,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0144,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0144,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0145,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0145,SK06,Central Line / PICC Management,SYNTHETIC
+PT0145,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0146,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0146,SK06,Central Line / PICC Management,SYNTHETIC
+PT0146,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0147,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0147,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0147,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0148,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0148,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0149,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0149,SK06,Central Line / PICC Management,SYNTHETIC
+PT0149,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0150,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0150,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0150,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0151,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0151,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0152,SK05,Ventilator Management,SYNTHETIC
+PT0152,SK06,Central Line / PICC Management,SYNTHETIC
+PT0153,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0154,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0155,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0155,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0155,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0156,SK06,Central Line / PICC Management,SYNTHETIC
+PT0156,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0156,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0157,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0158,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0159,SK06,Central Line / PICC Management,SYNTHETIC
+PT0160,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0160,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0160,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0161,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0161,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0161,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0162,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0162,SK06,Central Line / PICC Management,SYNTHETIC
+PT0162,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0163,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0163,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0163,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0164,SK05,Ventilator Management,SYNTHETIC
+PT0164,SK06,Central Line / PICC Management,SYNTHETIC
+PT0165,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0165,SK06,Central Line / PICC Management,SYNTHETIC
+PT0165,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0166,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0166,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0166,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0167,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0167,SK06,Central Line / PICC Management,SYNTHETIC
+PT0167,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0168,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0168,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0168,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0169,SK05,Ventilator Management,SYNTHETIC
+PT0169,SK06,Central Line / PICC Management,SYNTHETIC
+PT0170,SK06,Central Line / PICC Management,SYNTHETIC
+PT0171,SK06,Central Line / PICC Management,SYNTHETIC
+PT0172,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0172,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0172,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0172,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0173,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0173,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0173,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0174,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0174,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0175,SK05,Ventilator Management,SYNTHETIC
+PT0175,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0175,SK06,Central Line / PICC Management,SYNTHETIC
+PT0176,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0176,SK06,Central Line / PICC Management,SYNTHETIC
+PT0176,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0177,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0178,SK06,Central Line / PICC Management,SYNTHETIC
+PT0179,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0180,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0180,SK06,Central Line / PICC Management,SYNTHETIC
+PT0180,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0181,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0182,SK06,Central Line / PICC Management,SYNTHETIC
+PT0182,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0182,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0183,SK06,Central Line / PICC Management,SYNTHETIC
+PT0183,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0183,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0184,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0184,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0185,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0185,SK06,Central Line / PICC Management,SYNTHETIC
+PT0185,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0186,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0186,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0187,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0187,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0188,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0188,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0189,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0189,SK06,Central Line / PICC Management,SYNTHETIC
+PT0189,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0190,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0191,SK06,Central Line / PICC Management,SYNTHETIC
+PT0191,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0191,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0192,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0192,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0193,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0194,SK06,Central Line / PICC Management,SYNTHETIC
+PT0195,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0196,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0196,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0197,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0197,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0197,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0198,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0198,SK06,Central Line / PICC Management,SYNTHETIC
+PT0198,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0199,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0199,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0200,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0200,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0200,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0201,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0201,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0201,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0202,SK05,Ventilator Management,SYNTHETIC
+PT0202,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0202,SK06,Central Line / PICC Management,SYNTHETIC
+PT0203,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0203,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0203,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0204,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0204,SK06,Central Line / PICC Management,SYNTHETIC
+PT0204,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0205,SK06,Central Line / PICC Management,SYNTHETIC
+PT0205,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0205,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0206,SK05,Ventilator Management,SYNTHETIC
+PT0206,SK06,Central Line / PICC Management,SYNTHETIC
+PT0207,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0208,SK06,Central Line / PICC Management,SYNTHETIC
+PT0209,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0209,SK06,Central Line / PICC Management,SYNTHETIC
+PT0209,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0210,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0210,SK06,Central Line / PICC Management,SYNTHETIC
+PT0210,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0211,SK05,Ventilator Management,SYNTHETIC
+PT0211,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0211,SK06,Central Line / PICC Management,SYNTHETIC
+PT0212,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0212,SK06,Central Line / PICC Management,SYNTHETIC
+PT0212,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0213,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0213,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0214,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0214,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0214,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0214,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0215,SK06,Central Line / PICC Management,SYNTHETIC
+PT0216,SK06,Central Line / PICC Management,SYNTHETIC
+PT0216,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0216,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0217,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0217,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0218,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0218,SK06,Central Line / PICC Management,SYNTHETIC
+PT0218,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0219,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0219,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0220,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0221,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0222,SK05,Ventilator Management,SYNTHETIC
+PT0222,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0222,SK06,Central Line / PICC Management,SYNTHETIC
+PT0223,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0223,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0223,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0224,SK05,Ventilator Management,SYNTHETIC
+PT0224,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0224,SK06,Central Line / PICC Management,SYNTHETIC
+PT0225,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0225,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0225,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0225,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0226,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0226,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0226,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0226,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0227,SK06,Central Line / PICC Management,SYNTHETIC
+PT0228,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0229,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0229,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0230,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0230,SK06,Central Line / PICC Management,SYNTHETIC
+PT0230,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0231,SK06,Central Line / PICC Management,SYNTHETIC
+PT0232,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0232,SK06,Central Line / PICC Management,SYNTHETIC
+PT0232,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0233,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0233,SK06,Central Line / PICC Management,SYNTHETIC
+PT0233,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0234,SK06,Central Line / PICC Management,SYNTHETIC
+PT0234,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0234,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0235,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0235,SK06,Central Line / PICC Management,SYNTHETIC
+PT0235,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0236,SK06,Central Line / PICC Management,SYNTHETIC
+PT0236,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0236,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0237,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0238,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0239,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0239,SK06,Central Line / PICC Management,SYNTHETIC
+PT0239,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0240,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0240,SK06,Central Line / PICC Management,SYNTHETIC
+PT0240,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0241,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0241,SK06,Central Line / PICC Management,SYNTHETIC
+PT0241,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0242,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0242,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0242,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0243,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0243,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0243,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0244,SK06,Central Line / PICC Management,SYNTHETIC
+PT0245,SK06,Central Line / PICC Management,SYNTHETIC
+PT0245,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0245,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0246,SK05,Ventilator Management,SYNTHETIC
+PT0246,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0246,SK06,Central Line / PICC Management,SYNTHETIC
+PT0247,SK06,Central Line / PICC Management,SYNTHETIC
+PT0247,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0247,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0248,SK06,Central Line / PICC Management,SYNTHETIC
+PT0249,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0250,SK06,Central Line / PICC Management,SYNTHETIC
+PT0251,SK05,Ventilator Management,SYNTHETIC
+PT0251,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0251,SK06,Central Line / PICC Management,SYNTHETIC
+PT0252,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0252,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0252,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0253,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0254,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0255,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0255,SK06,Central Line / PICC Management,SYNTHETIC
+PT0255,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0256,SK06,Central Line / PICC Management,SYNTHETIC
+PT0257,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0257,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0258,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0258,SK06,Central Line / PICC Management,SYNTHETIC
+PT0258,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0259,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0259,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0259,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0260,SK05,Ventilator Management,SYNTHETIC
+PT0260,SK06,Central Line / PICC Management,SYNTHETIC
+PT0261,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0261,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0261,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0262,SK06,Central Line / PICC Management,SYNTHETIC
+PT0263,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0264,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0264,SK06,Central Line / PICC Management,SYNTHETIC
+PT0264,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0265,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0265,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0266,SK05,Ventilator Management,SYNTHETIC
+PT0266,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0266,SK06,Central Line / PICC Management,SYNTHETIC
+PT0267,SK06,Central Line / PICC Management,SYNTHETIC
+PT0268,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0269,SK05,Ventilator Management,SYNTHETIC
+PT0269,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0269,SK06,Central Line / PICC Management,SYNTHETIC
+PT0270,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0270,SK06,Central Line / PICC Management,SYNTHETIC
+PT0270,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0271,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0271,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0272,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0272,SK06,Central Line / PICC Management,SYNTHETIC
+PT0272,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0273,SK06,Central Line / PICC Management,SYNTHETIC
+PT0273,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0273,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0274,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0274,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0274,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0274,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0275,SK05,Ventilator Management,SYNTHETIC
+PT0275,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0275,SK06,Central Line / PICC Management,SYNTHETIC
+PT0276,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0276,SK06,Central Line / PICC Management,SYNTHETIC
+PT0276,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0277,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0277,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0277,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0277,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0278,SK05,Ventilator Management,SYNTHETIC
+PT0278,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0278,SK06,Central Line / PICC Management,SYNTHETIC
+PT0279,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0279,SK06,Central Line / PICC Management,SYNTHETIC
+PT0279,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0280,SK05,Ventilator Management,SYNTHETIC
+PT0280,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0280,SK06,Central Line / PICC Management,SYNTHETIC
+PT0281,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0281,SK06,Central Line / PICC Management,SYNTHETIC
+PT0281,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0282,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0283,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0283,SK06,Central Line / PICC Management,SYNTHETIC
+PT0283,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0284,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0284,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0285,SK06,Central Line / PICC Management,SYNTHETIC
+PT0286,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0286,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0287,SK06,Central Line / PICC Management,SYNTHETIC
+PT0287,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0287,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0288,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0288,SK06,Central Line / PICC Management,SYNTHETIC
+PT0288,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0289,SK06,Central Line / PICC Management,SYNTHETIC
+PT0290,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0290,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0291,SK06,Central Line / PICC Management,SYNTHETIC
+PT0292,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0292,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0292,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0293,SK05,Ventilator Management,SYNTHETIC
+PT0293,SK06,Central Line / PICC Management,SYNTHETIC
+PT0294,SK06,Central Line / PICC Management,SYNTHETIC
+PT0295,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0295,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0296,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0296,SK06,Central Line / PICC Management,SYNTHETIC
+PT0296,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0297,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0297,SK06,Central Line / PICC Management,SYNTHETIC
+PT0297,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0298,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0298,SK06,Central Line / PICC Management,SYNTHETIC
+PT0298,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0299,SK06,Central Line / PICC Management,SYNTHETIC
+PT0300,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0300,SK06,Central Line / PICC Management,SYNTHETIC
+PT0300,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0301,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0302,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0302,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0302,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0302,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0303,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0303,SK06,Central Line / PICC Management,SYNTHETIC
+PT0303,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0304,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0304,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0304,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0305,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0305,SK06,Central Line / PICC Management,SYNTHETIC
+PT0305,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0306,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0306,SK06,Central Line / PICC Management,SYNTHETIC
+PT0306,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0307,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0307,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0307,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0308,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0308,SK06,Central Line / PICC Management,SYNTHETIC
+PT0308,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0309,SK05,Ventilator Management,SYNTHETIC
+PT0309,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0309,SK06,Central Line / PICC Management,SYNTHETIC
+PT0310,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0310,SK06,Central Line / PICC Management,SYNTHETIC
+PT0310,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0311,SK05,Ventilator Management,SYNTHETIC
+PT0311,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0311,SK06,Central Line / PICC Management,SYNTHETIC
+PT0312,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0312,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0312,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0313,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0313,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0313,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0314,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0315,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0315,SK06,Central Line / PICC Management,SYNTHETIC
+PT0315,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0316,SK06,Central Line / PICC Management,SYNTHETIC
+PT0317,SK06,Central Line / PICC Management,SYNTHETIC
+PT0318,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0318,SK06,Central Line / PICC Management,SYNTHETIC
+PT0318,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0319,SK06,Central Line / PICC Management,SYNTHETIC
+PT0320,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0321,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0321,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0321,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0322,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0322,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0323,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0323,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0323,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0324,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0325,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0325,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0326,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0327,SK06,Central Line / PICC Management,SYNTHETIC
+PT0328,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0329,SK06,Central Line / PICC Management,SYNTHETIC
+PT0330,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0330,SK06,Central Line / PICC Management,SYNTHETIC
+PT0330,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0331,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0331,SK06,Central Line / PICC Management,SYNTHETIC
+PT0331,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0332,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0332,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0332,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0332,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0333,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0334,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0334,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0334,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0334,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0335,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0336,SK05,Ventilator Management,SYNTHETIC
+PT0336,SK06,Central Line / PICC Management,SYNTHETIC
+PT0337,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0338,SK06,Central Line / PICC Management,SYNTHETIC
+PT0339,SK06,Central Line / PICC Management,SYNTHETIC
+PT0340,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0341,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0341,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0342,SK05,Ventilator Management,SYNTHETIC
+PT0342,SK06,Central Line / PICC Management,SYNTHETIC
+PT0343,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0343,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0343,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0344,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0345,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0345,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0345,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0346,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0346,SK06,Central Line / PICC Management,SYNTHETIC
+PT0346,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0347,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0347,SK06,Central Line / PICC Management,SYNTHETIC
+PT0347,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0348,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0348,SK06,Central Line / PICC Management,SYNTHETIC
+PT0348,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0349,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0349,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0349,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0350,SK05,Ventilator Management,SYNTHETIC
+PT0350,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0350,SK06,Central Line / PICC Management,SYNTHETIC
+PT0351,SK06,Central Line / PICC Management,SYNTHETIC
+PT0352,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0353,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0354,SK05,Ventilator Management,SYNTHETIC
+PT0354,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0354,SK06,Central Line / PICC Management,SYNTHETIC
+PT0355,SK06,Central Line / PICC Management,SYNTHETIC
+PT0356,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0356,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0357,SK06,Central Line / PICC Management,SYNTHETIC
+PT0357,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0357,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0358,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0359,SK06,Central Line / PICC Management,SYNTHETIC
+PT0359,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0359,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0360,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0360,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0360,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0361,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0361,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0361,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0362,SK05,Ventilator Management,SYNTHETIC
+PT0362,SK06,Central Line / PICC Management,SYNTHETIC
+PT0363,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0363,SK06,Central Line / PICC Management,SYNTHETIC
+PT0363,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0364,SK05,Ventilator Management,SYNTHETIC
+PT0364,SK06,Central Line / PICC Management,SYNTHETIC
+PT0365,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0365,SK06,Central Line / PICC Management,SYNTHETIC
+PT0365,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0366,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0366,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0367,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0367,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0367,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0368,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0368,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0368,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0369,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0369,SK06,Central Line / PICC Management,SYNTHETIC
+PT0369,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0370,SK05,Ventilator Management,SYNTHETIC
+PT0370,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0370,SK06,Central Line / PICC Management,SYNTHETIC
+PT0371,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0371,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0371,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0372,SK05,Ventilator Management,SYNTHETIC
+PT0372,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0372,SK06,Central Line / PICC Management,SYNTHETIC
+PT0373,SK06,Central Line / PICC Management,SYNTHETIC
+PT0373,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0373,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0374,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0375,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0376,SK06,Central Line / PICC Management,SYNTHETIC
+PT0376,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0376,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0377,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0377,SK06,Central Line / PICC Management,SYNTHETIC
+PT0377,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0378,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0379,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0379,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0380,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0380,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0380,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0381,SK05,Ventilator Management,SYNTHETIC
+PT0381,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0381,SK06,Central Line / PICC Management,SYNTHETIC
+PT0382,SK05,Ventilator Management,SYNTHETIC
+PT0382,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0382,SK06,Central Line / PICC Management,SYNTHETIC
+PT0383,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0384,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0384,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0385,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0385,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0385,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0386,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0386,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0386,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0387,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0387,SK06,Central Line / PICC Management,SYNTHETIC
+PT0387,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0388,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0388,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0388,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0389,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0390,SK06,Central Line / PICC Management,SYNTHETIC
+PT0391,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0391,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0391,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0392,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0392,SK06,Central Line / PICC Management,SYNTHETIC
+PT0392,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0393,SK06,Central Line / PICC Management,SYNTHETIC
+PT0394,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0394,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0394,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0395,SK05,Ventilator Management,SYNTHETIC
+PT0395,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0395,SK06,Central Line / PICC Management,SYNTHETIC
+PT0396,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0396,SK06,Central Line / PICC Management,SYNTHETIC
+PT0396,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0397,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0397,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0398,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0399,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0400,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0400,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0400,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0401,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0402,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0403,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0404,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0404,SK06,Central Line / PICC Management,SYNTHETIC
+PT0404,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0405,SK06,Central Line / PICC Management,SYNTHETIC
+PT0406,SK06,Central Line / PICC Management,SYNTHETIC
+PT0407,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0407,SK06,Central Line / PICC Management,SYNTHETIC
+PT0407,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0408,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0408,SK06,Central Line / PICC Management,SYNTHETIC
+PT0408,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0409,SK06,Central Line / PICC Management,SYNTHETIC
+PT0410,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0411,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0411,SK06,Central Line / PICC Management,SYNTHETIC
+PT0411,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0412,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0413,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0413,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0413,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0414,SK06,Central Line / PICC Management,SYNTHETIC
+PT0415,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0415,SK06,Central Line / PICC Management,SYNTHETIC
+PT0415,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0416,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0416,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0416,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0417,SK06,Central Line / PICC Management,SYNTHETIC
+PT0418,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0419,SK06,Central Line / PICC Management,SYNTHETIC
+PT0420,SK06,Central Line / PICC Management,SYNTHETIC
+PT0421,SK05,Ventilator Management,SYNTHETIC
+PT0421,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0421,SK06,Central Line / PICC Management,SYNTHETIC
+PT0422,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0422,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0422,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0422,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0423,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0423,SK06,Central Line / PICC Management,SYNTHETIC
+PT0423,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0424,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0424,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0424,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0425,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0425,SK06,Central Line / PICC Management,SYNTHETIC
+PT0425,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0426,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0427,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0427,SK06,Central Line / PICC Management,SYNTHETIC
+PT0427,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0428,SK06,Central Line / PICC Management,SYNTHETIC
+PT0429,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0429,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0430,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0430,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0430,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0431,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0431,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0431,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0432,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0432,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0432,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0433,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0433,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0433,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0434,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0434,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0435,SK05,Ventilator Management,SYNTHETIC
+PT0435,SK06,Central Line / PICC Management,SYNTHETIC
+PT0436,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0436,SK06,Central Line / PICC Management,SYNTHETIC
+PT0436,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0437,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0438,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0439,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0439,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0440,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0440,SK06,Central Line / PICC Management,SYNTHETIC
+PT0440,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0441,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0441,SK06,Central Line / PICC Management,SYNTHETIC
+PT0441,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0442,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0442,SK06,Central Line / PICC Management,SYNTHETIC
+PT0442,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0443,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0443,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0444,SK05,Ventilator Management,SYNTHETIC
+PT0444,SK06,Central Line / PICC Management,SYNTHETIC
+PT0445,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0445,SK06,Central Line / PICC Management,SYNTHETIC
+PT0445,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0446,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0446,SK06,Central Line / PICC Management,SYNTHETIC
+PT0446,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0447,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0448,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0449,SK06,Central Line / PICC Management,SYNTHETIC
+PT0450,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0451,SK06,Central Line / PICC Management,SYNTHETIC
+PT0452,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0453,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0453,SK06,Central Line / PICC Management,SYNTHETIC
+PT0453,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0454,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0455,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0456,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0456,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0457,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0457,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0457,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0457,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0458,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0458,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0458,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0459,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0460,SK06,Central Line / PICC Management,SYNTHETIC
+PT0460,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0460,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0461,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0461,SK06,Central Line / PICC Management,SYNTHETIC
+PT0461,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0462,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0462,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0462,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0463,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0463,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0464,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0464,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0464,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0464,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0465,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0465,SK06,Central Line / PICC Management,SYNTHETIC
+PT0465,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0466,SK05,Ventilator Management,SYNTHETIC
+PT0466,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0466,SK06,Central Line / PICC Management,SYNTHETIC
+PT0467,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0468,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0468,SK06,Central Line / PICC Management,SYNTHETIC
+PT0468,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0469,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0469,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0469,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0469,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0470,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0471,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0472,SK05,Ventilator Management,SYNTHETIC
+PT0472,SK06,Central Line / PICC Management,SYNTHETIC
+PT0473,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0473,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0473,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0473,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0474,SK06,Central Line / PICC Management,SYNTHETIC
+PT0475,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0475,SK06,Central Line / PICC Management,SYNTHETIC
+PT0475,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0476,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0476,SK06,Central Line / PICC Management,SYNTHETIC
+PT0476,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0477,SK06,Central Line / PICC Management,SYNTHETIC
+PT0478,SK06,Central Line / PICC Management,SYNTHETIC
+PT0478,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0478,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0479,SK06,Central Line / PICC Management,SYNTHETIC
+PT0480,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0480,SK06,Central Line / PICC Management,SYNTHETIC
+PT0480,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0481,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0481,SK06,Central Line / PICC Management,SYNTHETIC
+PT0481,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0482,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0483,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0483,SK06,Central Line / PICC Management,SYNTHETIC
+PT0483,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0484,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0485,SK05,Ventilator Management,SYNTHETIC
+PT0485,SK06,Central Line / PICC Management,SYNTHETIC
+PT0486,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0486,SK06,Central Line / PICC Management,SYNTHETIC
+PT0486,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0487,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0487,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0487,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0488,SK05,Ventilator Management,SYNTHETIC
+PT0488,SK06,Central Line / PICC Management,SYNTHETIC
+PT0489,SK06,Central Line / PICC Management,SYNTHETIC
+PT0490,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0491,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0491,SK06,Central Line / PICC Management,SYNTHETIC
+PT0491,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0492,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0493,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0493,SK06,Central Line / PICC Management,SYNTHETIC
+PT0493,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0494,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0494,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0494,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0495,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0495,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0495,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0496,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0496,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0496,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0497,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0498,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0498,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0498,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0499,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0499,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0499,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0499,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0500,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0500,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0500,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0500,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0501,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0501,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0501,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0502,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0503,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0503,SK06,Central Line / PICC Management,SYNTHETIC
+PT0503,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0504,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0505,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0506,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0506,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0506,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0507,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0508,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0508,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0508,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0509,SK05,Ventilator Management,SYNTHETIC
+PT0509,SK06,Central Line / PICC Management,SYNTHETIC
+PT0510,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0510,SK06,Central Line / PICC Management,SYNTHETIC
+PT0510,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0511,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0512,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0513,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0513,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0514,SK06,Central Line / PICC Management,SYNTHETIC
+PT0514,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0514,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0515,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0516,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0516,SK06,Central Line / PICC Management,SYNTHETIC
+PT0516,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0517,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0517,SK06,Central Line / PICC Management,SYNTHETIC
+PT0517,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0518,SK05,Ventilator Management,SYNTHETIC
+PT0518,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0518,SK06,Central Line / PICC Management,SYNTHETIC
+PT0519,SK06,Central Line / PICC Management,SYNTHETIC
+PT0520,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0520,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0520,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0521,SK06,Central Line / PICC Management,SYNTHETIC
+PT0522,SK06,Central Line / PICC Management,SYNTHETIC
+PT0522,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0522,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0523,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0523,SK06,Central Line / PICC Management,SYNTHETIC
+PT0523,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0524,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0524,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0524,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0525,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0525,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0525,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0526,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0526,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0527,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0527,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0528,SK06,Central Line / PICC Management,SYNTHETIC
+PT0529,SK06,Central Line / PICC Management,SYNTHETIC
+PT0530,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0530,SK06,Central Line / PICC Management,SYNTHETIC
+PT0530,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0531,SK06,Central Line / PICC Management,SYNTHETIC
+PT0531,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0531,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0532,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0533,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0533,SK06,Central Line / PICC Management,SYNTHETIC
+PT0533,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0534,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0535,SK06,Central Line / PICC Management,SYNTHETIC
+PT0536,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0536,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0537,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0538,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0538,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0538,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0539,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0539,SK06,Central Line / PICC Management,SYNTHETIC
+PT0539,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0540,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0540,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0540,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0541,SK06,Central Line / PICC Management,SYNTHETIC
+PT0542,SK05,Ventilator Management,SYNTHETIC
+PT0542,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0542,SK06,Central Line / PICC Management,SYNTHETIC
+PT0543,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0543,SK06,Central Line / PICC Management,SYNTHETIC
+PT0543,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0544,SK05,Ventilator Management,SYNTHETIC
+PT0544,SK06,Central Line / PICC Management,SYNTHETIC
+PT0545,SK06,Central Line / PICC Management,SYNTHETIC
+PT0546,SK05,Ventilator Management,SYNTHETIC
+PT0546,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0546,SK06,Central Line / PICC Management,SYNTHETIC
+PT0547,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0547,SK06,Central Line / PICC Management,SYNTHETIC
+PT0547,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0548,SK06,Central Line / PICC Management,SYNTHETIC
+PT0549,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0549,SK06,Central Line / PICC Management,SYNTHETIC
+PT0549,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0550,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0551,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0551,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0551,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0552,SK06,Central Line / PICC Management,SYNTHETIC
+PT0552,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0552,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0553,SK05,Ventilator Management,SYNTHETIC
+PT0553,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0553,SK06,Central Line / PICC Management,SYNTHETIC
+PT0554,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0554,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0555,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0555,SK06,Central Line / PICC Management,SYNTHETIC
+PT0555,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0556,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0556,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0557,SK06,Central Line / PICC Management,SYNTHETIC
+PT0558,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0558,SK06,Central Line / PICC Management,SYNTHETIC
+PT0558,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0559,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0559,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0559,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0560,SK06,Central Line / PICC Management,SYNTHETIC
+PT0561,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0561,SK06,Central Line / PICC Management,SYNTHETIC
+PT0561,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0562,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0562,SK06,Central Line / PICC Management,SYNTHETIC
+PT0562,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0563,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0563,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0563,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0563,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0564,SK05,Ventilator Management,SYNTHETIC
+PT0564,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0564,SK06,Central Line / PICC Management,SYNTHETIC
+PT0565,SK06,Central Line / PICC Management,SYNTHETIC
+PT0566,SK06,Central Line / PICC Management,SYNTHETIC
+PT0566,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0566,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0567,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0567,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0568,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0568,SK06,Central Line / PICC Management,SYNTHETIC
+PT0568,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0569,SK06,Central Line / PICC Management,SYNTHETIC
+PT0570,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0570,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0571,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0572,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0572,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0572,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0573,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0573,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0573,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0574,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0574,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0574,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0575,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0575,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0576,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0576,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0576,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0576,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0577,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0577,SK06,Central Line / PICC Management,SYNTHETIC
+PT0577,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0578,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0578,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0578,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0579,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0580,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0581,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0581,SK06,Central Line / PICC Management,SYNTHETIC
+PT0581,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0582,SK05,Ventilator Management,SYNTHETIC
+PT0582,SK06,Central Line / PICC Management,SYNTHETIC
+PT0583,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0583,SK06,Central Line / PICC Management,SYNTHETIC
+PT0583,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0584,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0584,SK06,Central Line / PICC Management,SYNTHETIC
+PT0584,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0585,SK05,Ventilator Management,SYNTHETIC
+PT0585,SK06,Central Line / PICC Management,SYNTHETIC
+PT0586,SK06,Central Line / PICC Management,SYNTHETIC
+PT0587,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0588,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0588,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0588,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0588,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0589,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0589,SK06,Central Line / PICC Management,SYNTHETIC
+PT0589,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0590,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0590,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0590,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0590,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0591,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0591,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0591,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0592,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0592,SK06,Central Line / PICC Management,SYNTHETIC
+PT0592,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0593,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0593,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0594,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0595,SK05,Ventilator Management,SYNTHETIC
+PT0595,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0595,SK06,Central Line / PICC Management,SYNTHETIC
+PT0596,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0596,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0597,SK06,Central Line / PICC Management,SYNTHETIC
+PT0597,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0597,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0598,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0598,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0599,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0599,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0600,SK05,Ventilator Management,SYNTHETIC
+PT0600,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0600,SK06,Central Line / PICC Management,SYNTHETIC
+PT0601,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0601,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0601,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0602,SK06,Central Line / PICC Management,SYNTHETIC
+PT0603,SK06,Central Line / PICC Management,SYNTHETIC
+PT0604,SK06,Central Line / PICC Management,SYNTHETIC
+PT0605,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0606,SK06,Central Line / PICC Management,SYNTHETIC
+PT0607,SK06,Central Line / PICC Management,SYNTHETIC
+PT0608,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0608,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0608,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0609,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0609,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0609,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0610,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0610,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0611,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0611,SK06,Central Line / PICC Management,SYNTHETIC
+PT0611,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0612,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0612,SK06,Central Line / PICC Management,SYNTHETIC
+PT0612,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0613,SK06,Central Line / PICC Management,SYNTHETIC
+PT0614,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0614,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0615,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0615,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0616,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0616,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0617,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0617,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0617,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0617,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0618,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0618,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0619,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0619,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0619,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0619,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0620,SK06,Central Line / PICC Management,SYNTHETIC
+PT0621,SK06,Central Line / PICC Management,SYNTHETIC
+PT0622,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0623,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0623,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0624,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0624,SK06,Central Line / PICC Management,SYNTHETIC
+PT0624,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0625,SK06,Central Line / PICC Management,SYNTHETIC
+PT0625,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0625,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0626,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0626,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0626,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0627,SK06,Central Line / PICC Management,SYNTHETIC
+PT0627,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0627,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0628,SK06,Central Line / PICC Management,SYNTHETIC
+PT0629,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0629,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0629,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0629,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0630,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0631,SK06,Central Line / PICC Management,SYNTHETIC
+PT0632,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0633,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0633,SK06,Central Line / PICC Management,SYNTHETIC
+PT0633,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0634,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0634,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0634,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0635,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0635,SK06,Central Line / PICC Management,SYNTHETIC
+PT0635,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0636,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0636,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0636,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0636,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0637,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0637,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0637,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0638,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0638,SK06,Central Line / PICC Management,SYNTHETIC
+PT0638,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0639,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0639,SK06,Central Line / PICC Management,SYNTHETIC
+PT0639,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0640,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0640,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0640,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0641,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0642,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0643,SK05,Ventilator Management,SYNTHETIC
+PT0643,SK06,Central Line / PICC Management,SYNTHETIC
+PT0644,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0645,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0645,SK06,Central Line / PICC Management,SYNTHETIC
+PT0645,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0646,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0646,SK06,Central Line / PICC Management,SYNTHETIC
+PT0646,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0647,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0647,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0647,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0648,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0649,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0650,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0650,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0651,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0651,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0652,SK05,Ventilator Management,SYNTHETIC
+PT0652,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0652,SK06,Central Line / PICC Management,SYNTHETIC
+PT0653,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0654,SK06,Central Line / PICC Management,SYNTHETIC
+PT0655,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0656,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0656,SK06,Central Line / PICC Management,SYNTHETIC
+PT0656,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0657,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0657,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0657,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0658,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0658,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0658,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0659,SK05,Ventilator Management,SYNTHETIC
+PT0659,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0659,SK06,Central Line / PICC Management,SYNTHETIC
+PT0660,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0660,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0661,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0661,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0662,SK05,Ventilator Management,SYNTHETIC
+PT0662,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0662,SK06,Central Line / PICC Management,SYNTHETIC
+PT0663,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0663,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0663,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0664,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0664,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0665,SK06,Central Line / PICC Management,SYNTHETIC
+PT0665,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0665,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0666,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0666,SK06,Central Line / PICC Management,SYNTHETIC
+PT0666,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0667,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0667,SK06,Central Line / PICC Management,SYNTHETIC
+PT0667,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0668,SK06,Central Line / PICC Management,SYNTHETIC
+PT0669,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0669,SK06,Central Line / PICC Management,SYNTHETIC
+PT0669,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0670,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0670,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0670,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0670,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0671,SK06,Central Line / PICC Management,SYNTHETIC
+PT0672,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0672,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0672,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0673,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0673,SK06,Central Line / PICC Management,SYNTHETIC
+PT0673,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0674,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0674,SK06,Central Line / PICC Management,SYNTHETIC
+PT0674,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0675,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0675,SK06,Central Line / PICC Management,SYNTHETIC
+PT0675,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0676,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0676,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0677,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0677,SK06,Central Line / PICC Management,SYNTHETIC
+PT0677,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0678,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0678,SK06,Central Line / PICC Management,SYNTHETIC
+PT0678,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0679,SK06,Central Line / PICC Management,SYNTHETIC
+PT0680,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0680,SK06,Central Line / PICC Management,SYNTHETIC
+PT0680,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0681,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0681,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0681,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0682,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0682,SK06,Central Line / PICC Management,SYNTHETIC
+PT0682,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0683,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0683,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0683,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0684,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0684,SK06,Central Line / PICC Management,SYNTHETIC
+PT0684,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0685,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0685,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0685,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0686,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0686,SK06,Central Line / PICC Management,SYNTHETIC
+PT0686,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0687,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0687,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0687,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0688,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0688,SK06,Central Line / PICC Management,SYNTHETIC
+PT0688,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0689,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0689,SK06,Central Line / PICC Management,SYNTHETIC
+PT0689,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0690,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0690,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0691,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0691,SK06,Central Line / PICC Management,SYNTHETIC
+PT0691,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0692,SK06,Central Line / PICC Management,SYNTHETIC
+PT0692,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0692,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0693,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0693,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0693,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0694,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0694,SK06,Central Line / PICC Management,SYNTHETIC
+PT0694,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0695,SK05,Ventilator Management,SYNTHETIC
+PT0695,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0695,SK06,Central Line / PICC Management,SYNTHETIC
+PT0696,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0696,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0697,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0698,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0699,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0699,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0700,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0700,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0700,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0701,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0701,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0702,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0702,SK06,Central Line / PICC Management,SYNTHETIC
+PT0702,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0703,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0703,SK06,Central Line / PICC Management,SYNTHETIC
+PT0703,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0704,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0704,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0705,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0705,SK06,Central Line / PICC Management,SYNTHETIC
+PT0705,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0706,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0706,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0707,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0707,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0708,SK05,Ventilator Management,SYNTHETIC
+PT0708,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0708,SK06,Central Line / PICC Management,SYNTHETIC
+PT0709,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0709,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0709,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0709,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0710,SK05,Ventilator Management,SYNTHETIC
+PT0710,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0710,SK06,Central Line / PICC Management,SYNTHETIC
+PT0711,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0711,SK06,Central Line / PICC Management,SYNTHETIC
+PT0711,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0712,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0712,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0712,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0712,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0713,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0714,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0714,SK06,Central Line / PICC Management,SYNTHETIC
+PT0714,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0715,SK06,Central Line / PICC Management,SYNTHETIC
+PT0715,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0715,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0716,SK06,Central Line / PICC Management,SYNTHETIC
+PT0717,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0717,SK06,Central Line / PICC Management,SYNTHETIC
+PT0717,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0718,SK05,Ventilator Management,SYNTHETIC
+PT0718,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0718,SK06,Central Line / PICC Management,SYNTHETIC
+PT0719,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0719,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0719,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0720,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0720,SK06,Central Line / PICC Management,SYNTHETIC
+PT0720,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0721,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0722,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0722,SK06,Central Line / PICC Management,SYNTHETIC
+PT0722,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0723,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0724,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0724,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0724,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0725,SK06,Central Line / PICC Management,SYNTHETIC
+PT0726,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0727,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0727,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0727,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0728,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0729,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0729,SK06,Central Line / PICC Management,SYNTHETIC
+PT0729,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0730,SK05,Ventilator Management,SYNTHETIC
+PT0730,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0730,SK06,Central Line / PICC Management,SYNTHETIC
+PT0731,SK06,Central Line / PICC Management,SYNTHETIC
+PT0732,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0733,SK06,Central Line / PICC Management,SYNTHETIC
+PT0733,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0733,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0734,SK05,Ventilator Management,SYNTHETIC
+PT0734,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0734,SK06,Central Line / PICC Management,SYNTHETIC
+PT0735,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0735,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0735,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0736,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0736,SK06,Central Line / PICC Management,SYNTHETIC
+PT0736,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0737,SK06,Central Line / PICC Management,SYNTHETIC
+PT0738,SK06,Central Line / PICC Management,SYNTHETIC
+PT0739,SK05,Ventilator Management,SYNTHETIC
+PT0739,SK06,Central Line / PICC Management,SYNTHETIC
+PT0740,SK06,Central Line / PICC Management,SYNTHETIC
+PT0741,SK06,Central Line / PICC Management,SYNTHETIC
+PT0742,SK05,Ventilator Management,SYNTHETIC
+PT0742,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0742,SK06,Central Line / PICC Management,SYNTHETIC
+PT0743,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0743,SK06,Central Line / PICC Management,SYNTHETIC
+PT0743,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0744,SK06,Central Line / PICC Management,SYNTHETIC
+PT0745,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0745,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0745,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0746,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0746,SK06,Central Line / PICC Management,SYNTHETIC
+PT0746,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0747,SK06,Central Line / PICC Management,SYNTHETIC
+PT0748,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0748,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0749,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0749,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0750,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0751,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0751,SK06,Central Line / PICC Management,SYNTHETIC
+PT0751,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0752,SK05,Ventilator Management,SYNTHETIC
+PT0752,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0752,SK06,Central Line / PICC Management,SYNTHETIC
+PT0753,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0753,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0753,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0753,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0754,SK06,Central Line / PICC Management,SYNTHETIC
+PT0755,SK06,Central Line / PICC Management,SYNTHETIC
+PT0756,SK05,Ventilator Management,SYNTHETIC
+PT0756,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0756,SK06,Central Line / PICC Management,SYNTHETIC
+PT0757,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0757,SK06,Central Line / PICC Management,SYNTHETIC
+PT0757,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0758,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0758,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0758,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0759,SK06,Central Line / PICC Management,SYNTHETIC
+PT0760,SK06,Central Line / PICC Management,SYNTHETIC
+PT0761,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0762,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0763,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0763,SK06,Central Line / PICC Management,SYNTHETIC
+PT0763,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0764,SK06,Central Line / PICC Management,SYNTHETIC
+PT0764,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0764,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0765,SK06,Central Line / PICC Management,SYNTHETIC
+PT0766,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0766,SK06,Central Line / PICC Management,SYNTHETIC
+PT0766,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0767,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0767,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0767,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0768,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0768,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0768,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0769,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0769,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0769,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0770,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0770,SK06,Central Line / PICC Management,SYNTHETIC
+PT0770,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0771,SK06,Central Line / PICC Management,SYNTHETIC
+PT0771,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0771,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0772,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0772,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0773,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0774,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0774,SK06,Central Line / PICC Management,SYNTHETIC
+PT0774,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0775,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0775,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0776,SK06,Central Line / PICC Management,SYNTHETIC
+PT0776,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0776,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0777,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0777,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0778,SK06,Central Line / PICC Management,SYNTHETIC
+PT0779,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0779,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0779,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0780,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0780,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0781,SK06,Central Line / PICC Management,SYNTHETIC
+PT0782,SK06,Central Line / PICC Management,SYNTHETIC
+PT0783,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0783,SK06,Central Line / PICC Management,SYNTHETIC
+PT0783,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0784,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0784,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0785,SK06,Central Line / PICC Management,SYNTHETIC
+PT0786,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0787,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0787,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0787,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0787,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0788,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0789,SK05,Ventilator Management,SYNTHETIC
+PT0789,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0789,SK06,Central Line / PICC Management,SYNTHETIC
+PT0790,SK05,Ventilator Management,SYNTHETIC
+PT0790,SK06,Central Line / PICC Management,SYNTHETIC
+PT0791,SK05,Ventilator Management,SYNTHETIC
+PT0791,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0791,SK06,Central Line / PICC Management,SYNTHETIC
+PT0792,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0792,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0792,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0793,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0793,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0794,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0794,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0794,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0794,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0795,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0795,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0796,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0796,SK06,Central Line / PICC Management,SYNTHETIC
+PT0796,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0797,SK06,Central Line / PICC Management,SYNTHETIC
+PT0797,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0797,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0798,SK05,Ventilator Management,SYNTHETIC
+PT0798,SK06,Central Line / PICC Management,SYNTHETIC
+PT0799,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0799,SK06,Central Line / PICC Management,SYNTHETIC
+PT0799,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0800,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0800,SK06,Central Line / PICC Management,SYNTHETIC
+PT0800,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0801,SK06,Central Line / PICC Management,SYNTHETIC
+PT0802,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0802,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0802,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0803,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0804,SK06,Central Line / PICC Management,SYNTHETIC
+PT0805,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0805,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0805,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0806,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0806,SK06,Central Line / PICC Management,SYNTHETIC
+PT0806,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0807,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0807,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0807,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0808,SK06,Central Line / PICC Management,SYNTHETIC
+PT0808,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0808,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0809,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0809,SK06,Central Line / PICC Management,SYNTHETIC
+PT0809,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0810,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0811,SK05,Ventilator Management,SYNTHETIC
+PT0811,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0811,SK06,Central Line / PICC Management,SYNTHETIC
+PT0812,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0812,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0813,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0813,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0813,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0814,SK05,Ventilator Management,SYNTHETIC
+PT0814,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0814,SK06,Central Line / PICC Management,SYNTHETIC
+PT0815,SK05,Ventilator Management,SYNTHETIC
+PT0815,SK06,Central Line / PICC Management,SYNTHETIC
+PT0816,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0816,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0817,SK06,Central Line / PICC Management,SYNTHETIC
+PT0818,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0818,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0818,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0819,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0819,SK06,Central Line / PICC Management,SYNTHETIC
+PT0819,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0820,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0820,SK06,Central Line / PICC Management,SYNTHETIC
+PT0820,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0821,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0821,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0821,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0822,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0823,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0823,SK06,Central Line / PICC Management,SYNTHETIC
+PT0823,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0824,SK06,Central Line / PICC Management,SYNTHETIC
+PT0825,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0825,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0825,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0826,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0826,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0826,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0827,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0827,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0827,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0828,SK06,Central Line / PICC Management,SYNTHETIC
+PT0829,SK06,Central Line / PICC Management,SYNTHETIC
+PT0830,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0830,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0830,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0831,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0831,SK06,Central Line / PICC Management,SYNTHETIC
+PT0831,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0832,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0832,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0832,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0832,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0833,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0834,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0834,SK06,Central Line / PICC Management,SYNTHETIC
+PT0834,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0835,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0836,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0836,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0836,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0837,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0837,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0837,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0838,SK05,Ventilator Management,SYNTHETIC
+PT0838,SK06,Central Line / PICC Management,SYNTHETIC
+PT0839,SK06,Central Line / PICC Management,SYNTHETIC
+PT0840,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0841,SK06,Central Line / PICC Management,SYNTHETIC
+PT0842,SK06,Central Line / PICC Management,SYNTHETIC
+PT0843,SK13,Toxicology/Overdose Management,SYNTHETIC
+PT0843,SK06,Central Line / PICC Management,SYNTHETIC
+PT0843,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0844,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0845,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0845,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0845,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0845,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0846,SK05,Ventilator Management,SYNTHETIC
+PT0846,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0846,SK06,Central Line / PICC Management,SYNTHETIC
+PT0847,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0847,SK06,Central Line / PICC Management,SYNTHETIC
+PT0847,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0848,SK05,Ventilator Management,SYNTHETIC
+PT0848,SK06,Central Line / PICC Management,SYNTHETIC
+PT0849,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0850,SK09,Burn/Trauma Wound Care,SYNTHETIC
+PT0850,SK06,Central Line / PICC Management,SYNTHETIC
+PT0850,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0851,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0851,SK06,Central Line / PICC Management,SYNTHETIC
+PT0851,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0852,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0853,SK05,Ventilator Management,SYNTHETIC
+PT0853,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0853,SK06,Central Line / PICC Management,SYNTHETIC
+PT0854,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0854,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0854,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0855,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0855,SK06,Central Line / PICC Management,SYNTHETIC
+PT0855,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0856,SK05,Ventilator Management,SYNTHETIC
+PT0856,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0856,SK06,Central Line / PICC Management,SYNTHETIC
+PT0857,SK06,Central Line / PICC Management,SYNTHETIC
+PT0858,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0859,SK06,Central Line / PICC Management,SYNTHETIC
+PT0859,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0859,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0860,SK05,Ventilator Management,SYNTHETIC
+PT0860,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0860,SK06,Central Line / PICC Management,SYNTHETIC
+PT0861,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0862,SK06,Central Line / PICC Management,SYNTHETIC
+PT0863,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0863,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0863,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0864,SK06,Central Line / PICC Management,SYNTHETIC
+PT0865,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0865,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0865,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0865,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0866,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0866,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0866,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0867,SK06,Central Line / PICC Management,SYNTHETIC
+PT0867,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0867,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0868,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0868,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0868,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0869,SK08,Continuous Renal Replacement Therapy,SYNTHETIC
+PT0869,SK06,Central Line / PICC Management,SYNTHETIC
+PT0869,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0870,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0870,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0871,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0871,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0871,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0871,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0872,SK05,Ventilator Management,SYNTHETIC
+PT0872,SK06,Central Line / PICC Management,SYNTHETIC
+PT0873,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0873,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0873,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0874,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0874,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0874,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0875,SK06,Central Line / PICC Management,SYNTHETIC
+PT0876,SK06,Central Line / PICC Management,SYNTHETIC
+PT0877,SK06,Central Line / PICC Management,SYNTHETIC
+PT0878,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0878,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0879,SK05,Ventilator Management,SYNTHETIC
+PT0879,SK06,Central Line / PICC Management,SYNTHETIC
+PT0880,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0880,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0880,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0881,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0881,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0881,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0882,SK06,Central Line / PICC Management,SYNTHETIC
+PT0882,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0882,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0883,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0884,SK05,Ventilator Management,SYNTHETIC
+PT0884,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0884,SK06,Central Line / PICC Management,SYNTHETIC
+PT0885,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0885,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0886,SK06,Central Line / PICC Management,SYNTHETIC
+PT0887,SK06,Central Line / PICC Management,SYNTHETIC
+PT0888,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0888,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0889,SK06,Central Line / PICC Management,SYNTHETIC
+PT0890,SK05,Ventilator Management,SYNTHETIC
+PT0890,SK06,Central Line / PICC Management,SYNTHETIC
+PT0891,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0892,SK06,Central Line / PICC Management,SYNTHETIC
+PT0893,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0893,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0893,SK14,Cardiac Arrest / Code Team Lead,SYNTHETIC
+PT0894,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0894,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0894,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0895,SK04,Post-Surgical Wound Assessment,SYNTHETIC
+PT0895,SK15,Pain Management (PCA/Epidural),SYNTHETIC
+PT0896,SK06,Central Line / PICC Management,SYNTHETIC
+PT0896,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0896,SK03,Hemorrhagic/DIC Monitoring,SYNTHETIC
+PT0897,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0898,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0898,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0898,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC
+PT0899,SK12,Obstetric Emergency Management,SYNTHETIC
+PT0899,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0899,SK07,Hemodynamic Monitoring (Art Line/Swan),SYNTHETIC
+PT0900,SK01,IV-Antimalarial/Antiviral Mgmt,SYNTHETIC
+PT0900,SK02,Neuro Monitoring (Seizure Protocol),SYNTHETIC
+PT0900,SK10,Isolation/Infection Control (BSL-3),SYNTHETIC

@@ -102,6 +102,41 @@ test("report routing needs a user token (Canvas is user-scoped)", () => {
   assert.ok(!intents.includes(INTENTS.CANVAS), "no user token → no Canvas");
 });
 
+// ---- TRIAGE intent (nurse-assignment scenario) ----
+test("triage vocabulary routes to TRIAGE (when Tableau enabled)", () => {
+  for (const msg of [
+    "a new patient was just admitted, which nurse should take them?",
+    "compare nurse skill match for the current caseload",
+    "what's the staffing risk on the unit given acuity?",
+  ]) {
+    const { intents } = classifyIntent(msg, CAPS);
+    assert.ok(intents.includes(INTENTS.TRIAGE), `"${msg}" should route to TRIAGE`);
+  }
+});
+
+test("TRIAGE is gated on tableauEnabled", () => {
+  const { intents } = classifyIntent("which nurse should take this patient?", {
+    ...CAPS,
+    tableauEnabled: false,
+  });
+  assert.ok(!intents.includes(INTENTS.TRIAGE));
+});
+
+test("generic analytics questions do NOT trigger TRIAGE", () => {
+  for (const msg of ["show me the sales numbers", "pull the latest report", "what are my key metrics"]) {
+    const { intents } = classifyIntent(msg, CAPS);
+    assert.ok(!intents.includes(INTENTS.TRIAGE), `"${msg}" should not be TRIAGE`);
+  }
+});
+
+test("TRIAGE does not force the full model on its own (baseline-neutral)", () => {
+  // A pure triage message (no tableau/canvas/search signal) must not flip
+  // useFullModel — otherwise it would change model selection with the flag off.
+  const { useFullModel, intents } = classifyIntent("which nurse should take this patient?", CAPS);
+  assert.ok(intents.includes(INTENTS.TRIAGE));
+  assert.equal(useFullModel, false);
+});
+
 test("lexicalWantTableau matches datasource names / analytics language", () => {
   assert.ok(lexicalWantTableau("the OTF Grants Enriched datasource"));
   assert.ok(lexicalWantTableau("published workbook in tableau"));

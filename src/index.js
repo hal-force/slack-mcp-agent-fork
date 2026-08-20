@@ -14,7 +14,9 @@ if (process.env.GCP_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CRED
 const { App, Assistant } = require("@slack/bolt");
 const { receiver } = require("./slack/receiver");
 const { registerTableauWebhook } = require("./jobs/tableauWebhook");
+const { registerDailyBriefTrigger } = require("./jobs/dailyBriefTrigger");
 const { getAiResponse } = require("./assistant/respond");
+const { runSupervised } = require("./agents/supervisor");
 const { getInstallation } = require("./install-kit/installationStore");
 const { getInstallUrl } = require("./install-kit/env");
 const { getUserPreferences } = require("./preferences/userPreferences");
@@ -48,6 +50,11 @@ const app = new App({
 // events endpoint, so it doesn't touch Slack signature verification). No-ops
 // unless TABLEAU_WEBHOOK_SECRET is set. See src/jobs/tableauWebhook.js.
 registerTableauWebhook(receiver);
+
+// Scheduled daily-brief HTTP trigger → EventBridge Scheduler (AWS) POSTs here
+// once a day, standing in for Heroku Scheduler's `vhaDailyBrief.js --daily`.
+// No-ops unless VHA_DAILY_JOB_SECRET is set. See src/jobs/dailyBriefTrigger.js.
+registerDailyBriefTrigger(receiver);
 
 // function_executed: Bolt skips the immediate Events API ack and relies on app.function's autoAcknowledge,
 // which runs after other global middleware. That can exceed Slack's HTTP ack window while Vertex runs.
@@ -144,20 +151,29 @@ app.event("app_mention", async ({ event, body, client, logger }) => {
       }),
     ]);
     const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
-    const response = await getAiResponse({
-      userMessage,
-      threadHistory,
-      skillContext: skillContext || undefined,
-      uploads: skillResult.uploads,
-      sideEffects: skillResult.sideEffects,
-      googleSearchActive: skillResult.googleSearchActive,
-      systemPromptSections: skillResult.systemPromptSections,
-      userToken,
-      defaultCanvasChannelId: event.channel,
-      teamId,
-      useFullModel,
-      tableauMcpBaseUrl,
-    });
+    // Route through the supervisor. With AGENTS_ENABLED off (default) and no
+    // specialist injected, runSupervised delegates to getAiResponse with these
+    // exact args — behavior-neutral. A later slice injects the triage specialist.
+    const response = await runSupervised(
+      {
+        intents,
+        aiParams: {
+          userMessage,
+          threadHistory,
+          skillContext: skillContext || undefined,
+          uploads: skillResult.uploads,
+          sideEffects: skillResult.sideEffects,
+          googleSearchActive: skillResult.googleSearchActive,
+          systemPromptSections: skillResult.systemPromptSections,
+          userToken,
+          defaultCanvasChannelId: event.channel,
+          teamId,
+          useFullModel,
+          tableauMcpBaseUrl,
+        },
+      },
+      { getAiResponse },
+    );
     const threadTs = event.thread_ts || event.ts;
     const replyText =
       installation ? response.text : `${response.text}\n\n---\n${getAuthorizeMessage()}`;
@@ -354,20 +370,28 @@ const assistant = new Assistant({
       ]);
 
       const skillContext = [localeContext, ...skillResult.contextParts].filter(Boolean).join("\n");
-      const response = await getAiResponse({
-        userMessage: text,
-        threadHistory,
-        skillContext: skillContext || undefined,
-        uploads: skillResult.uploads,
-        sideEffects: skillResult.sideEffects,
-        googleSearchActive: skillResult.googleSearchActive,
-        systemPromptSections: skillResult.systemPromptSections,
-        userToken,
-        defaultCanvasChannelId: contextChannelId || channel,
-        teamId,
-        useFullModel,
-        tableauMcpBaseUrl,
-      });
+      // Supervisor pass-through (see app_mention handler above). Neutral with the
+      // flag off; injects the triage specialist in a later slice.
+      const response = await runSupervised(
+        {
+          intents,
+          aiParams: {
+            userMessage: text,
+            threadHistory,
+            skillContext: skillContext || undefined,
+            uploads: skillResult.uploads,
+            sideEffects: skillResult.sideEffects,
+            googleSearchActive: skillResult.googleSearchActive,
+            systemPromptSections: skillResult.systemPromptSections,
+            userToken,
+            defaultCanvasChannelId: contextChannelId || channel,
+            teamId,
+            useFullModel,
+            tableauMcpBaseUrl,
+          },
+        },
+        { getAiResponse },
+      );
 
       const replyText =
         installation ? response.text : `${response.text}\n\n---\n${getAuthorizeMessage()}`;

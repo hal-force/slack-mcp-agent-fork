@@ -1,0 +1,86 @@
+{
+  "dataset_version": "2.0.0",
+  "data_classification": "SYNTHETIC",
+  "generated_utc": "2026-08-19 23:00:35",
+  "seed": 42,
+  "row_counts": {
+    "skills_reference.csv": 16,
+    "nurses.csv": 20,
+    "nurse_skills.csv": 112,
+    "patients.csv": 900,
+    "patient_required_skills.csv": 2047,
+    "assignments.csv": 1665,
+    "unit_snapshots.csv": 2880,
+    "clinical_notes.csv": 127
+  },
+  "planted_effects_config": {
+    "AI_ASSIGNMENT_RATE": 0.55,
+    "AI_CANDIDATE_POOL": 5,
+    "MANUAL_CANDIDATE_POOL": 2,
+    "AI_SKILL_WEIGHT": 1.0,
+    "AI_WORKLOAD_WEIGHT": 0.6,
+    "OUTCOME_BASE_ADVERSE": {
+      "Critical": 0.42,
+      "Severe": 0.22,
+      "Moderate": 0.08,
+      "Low": 0.02
+    },
+    "SKILL_MATCH_PROTECTION": 0.55,
+    "WORKLOAD_PENALTY": 0.2,
+    "COMORBIDITY_PENALTY": 0.12,
+    "LOS_SKILL_EFFECT": 0.3
+  },
+  "measured_effects": {
+    "n_patients": 900,
+    "n_assignments": 1665,
+    "assignment_method_counts": {
+      "Manual": 751,
+      "AI-Recommended": 914
+    },
+    "mean_skill_match_ai_pct": 75.0,
+    "mean_skill_match_manual_pct": 33.1,
+    "mean_workload_ai": 0.06,
+    "mean_workload_manual": 0.0,
+    "overall_adverse_rate_pct": 24.1,
+    "adverse_rate_high_skill_match_pct": 17.1,
+    "adverse_rate_low_skill_match_pct": 27.9,
+    "n_high_skill_match": 315,
+    "n_low_skill_match": 585,
+    "per_acuity": {
+      "Critical": {
+        "n": 276,
+        "adverse_rate_pct": 39.5,
+        "adverse_rate_high_skill_match_pct": 36.6,
+        "adverse_rate_low_skill_match_pct": 40.0,
+        "n_high_skill_match": 41,
+        "n_low_skill_match": 235
+      },
+      "Severe": {
+        "n": 213,
+        "adverse_rate_pct": 23.5,
+        "adverse_rate_high_skill_match_pct": 17.3,
+        "adverse_rate_low_skill_match_pct": 25.5,
+        "n_high_skill_match": 52,
+        "n_low_skill_match": 161
+      },
+      "Moderate": {
+        "n": 179,
+        "adverse_rate_pct": 18.4,
+        "adverse_rate_high_skill_match_pct": 21.9,
+        "adverse_rate_low_skill_match_pct": 16.0,
+        "n_high_skill_match": 73,
+        "n_low_skill_match": 106
+      },
+      "Low": {
+        "n": 232,
+        "adverse_rate_pct": 10.8,
+        "adverse_rate_high_skill_match_pct": 9.4,
+        "adverse_rate_low_skill_match_pct": 13.3,
+        "n_high_skill_match": 149,
+        "n_low_skill_match": 83
+      }
+    },
+    "mean_los_high_skill_match_h": 35.2,
+    "mean_los_low_skill_match_h": 74.8
+  }
+}

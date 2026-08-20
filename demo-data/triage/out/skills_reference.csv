@@ -1,0 +1,17 @@
+skill_id,skill_name,skill_category,data_classification
+SK01,IV-Antimalarial/Antiviral Mgmt,Pharmacological,SYNTHETIC
+SK02,Neuro Monitoring (Seizure Protocol),Neurological,SYNTHETIC
+SK03,Hemorrhagic/DIC Monitoring,Hematological,SYNTHETIC
+SK04,Post-Surgical Wound Assessment,Surgical,SYNTHETIC
+SK05,Ventilator Management,Respiratory,SYNTHETIC
+SK06,Central Line / PICC Management,Vascular Access,SYNTHETIC
+SK07,Hemodynamic Monitoring (Art Line/Swan),Cardiovascular,SYNTHETIC
+SK08,Continuous Renal Replacement Therapy,Renal,SYNTHETIC
+SK09,Burn/Trauma Wound Care,Surgical,SYNTHETIC
+SK10,Isolation/Infection Control (BSL-3),Infection Control,SYNTHETIC
+SK11,Pediatric Critical Care,Specialty,SYNTHETIC
+SK12,Obstetric Emergency Management,Specialty,SYNTHETIC
+SK13,Toxicology/Overdose Management,Pharmacological,SYNTHETIC
+SK14,Cardiac Arrest / Code Team Lead,Cardiovascular,SYNTHETIC
+SK15,Pain Management (PCA/Epidural),Pharmacological,SYNTHETIC
+SK16,Tracheostomy Care,Respiratory,SYNTHETIC
