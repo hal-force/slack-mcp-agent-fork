@@ -259,6 +259,25 @@ Copy `terraform.tfvars.prod.example` (not the plain one) as your starting point.
 force resource **replacement** (they rebuild the VPC and/or destroy the database).
 Safe changes are the durability/KMS/monitoring/digest knobs above.
 
+### Application-level hardening (agent env vars)
+
+These are agent **environment variables** (set on the App Runner service / Heroku
+config, or via `TF_VAR_*` → Secrets Manager), independent of the Terraform infra
+knobs above. Each defaults to the demo's current behavior, so setting them is
+opt-in and non-breaking:
+
+| Env var | Prod value | Effect |
+| --- | --- | --- |
+| `REQUIRE_TOKEN_ENC` | `1` | **Fail closed** on token encryption: if `TOKEN_ENC_KEY` is unset, installs are refused with a loud error instead of silently persisting OAuth tokens in plaintext. Pair with a real `TOKEN_ENC_KEY` (`openssl rand -base64 32`). |
+| `LLM_REQUEST_TIMEOUT_MS` | `60000` (tune) | Per-request timeout across Bedrock/Vertex/gateway LLM calls, so a hung upstream fails the turn cleanly instead of tying up the instance. |
+| `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_MS` | `30` / `60000` | Per-IP cap on the secret-in-path trigger routes (Tableau refresh, daily brief, triage admission), throttling online guessing of a path secret. Generous defaults; real callers fire a handful of times a day. |
+| `RATE_LIMIT_DISABLED` | unset | `1` bypasses the limiter (load tests only). |
+| `TABLEAU_MCP_ALLOW_PRIVATE` | `1` here | The private-VPC MCP has an internal host, so the deployment-default URL is intentionally private; this relaxes the SSRF guard **for the env URL only**. User-supplied App-Home URLs remain blocked. |
+
+Defensive HTTP response headers (nosniff, `X-Frame-Options: DENY`, `Referrer-Policy`,
+and HSTS over TLS) are always on — no configuration, nothing to break on the JSON
+routes. See `src/install-kit/httpSecurity.js`.
+
 > **Deferred: per-user Tableau OAuth.** The MCP currently authenticates to Tableau
 > with a shared PAT (`AUTH=pat`), and its HTTP endpoint is protected by network
 > isolation (private VPC ingress), not a bearer token. True per-user identity

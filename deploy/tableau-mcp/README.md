@@ -10,9 +10,16 @@ than vendoring the source — upgrades are a one-line bump, no private fork to d
 
 ## Build
 
+For a **local** build (run/test on your own machine), the plain command is fine:
+
 ```bash
 docker build --build-arg TABLEAU_MCP_REF=v4.5.1 -t tableau-mcp:local deploy/tableau-mcp
 ```
+
+When building the image you'll **push to ECR for App Runner**, add
+`--platform linux/amd64 --provenance=false --sbom=false` — App Runner only runs
+amd64 and cannot pull the OCI image index BuildKit produces without those flags.
+See [`../aws/SKILL.md`](../aws/SKILL.md) Phase 2 for the full push sequence.
 
 ## Runtime environment
 

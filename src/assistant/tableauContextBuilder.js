@@ -578,9 +578,11 @@ async function buildTableauContext(userMessage = "", opts = {}) {
       datasourceUrls,
     };
   } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Tableau MCP context error:", err.message || err);
-    }
+    // Log unconditionally (only the error message, never secrets): in a live
+    // demo (NODE_ENV=production) a swallowed Tableau failure was previously
+    // invisible, making "the agent answered with no data" impossible to
+    // diagnose. This warn is the one breadcrumb for that case.
+    console.warn("[tableau-context] MCP context unavailable:", err.message || err);
     clearSession(baseUrl);
     return { context: "", datasourceUrls: {} };
   }

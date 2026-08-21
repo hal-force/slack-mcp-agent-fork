@@ -33,7 +33,7 @@ slack-mcp-agent is a Slack app built with the Bolt framework and Prisma for data
 - **Configuration**: Environment variables via dotenv (local) and config vars (e.g. Heroku).
 - **Slack Bolt**: OAuth v2 install flow, installation store, **@mentions** in channels and **Assistant** threads (side panel / DM), and a **Workflow Builder** custom step **Ask AI** (default callback id `9dec78` in code; override with env) that returns a Slack mrkdwn string for downstream steps.
 - **Pluggable LLM backend** (`src/assistant/llmProvider.js`): one `generateReply()` call fronts three backends — **`bedrock`** (AWS Bedrock / Claude, the production default on the reference deployment), **`gateway`** (any OpenAI-compatible `/v1/chat/completions` endpoint), and **`vertex`** (Vertex AI / Gemini). Select with `AI_PROVIDER`; an incomplete gateway/bedrock config falls back to Vertex so a misconfiguration never silently breaks replies. The Bedrock path runs a real agentic **tool-calling loop** (Converse API) so the model can call Tableau MCP tools mid-reply. System prompt tuned for Slack mrkdwn, Slack/Tableau context, report depth, and canvas behavior.
-- **Security hardening**: OAuth tokens **encrypted at rest** (AES-256-GCM, `src/install-kit/tokenCrypto.js`), an **SSRF guard** on the user-settable Tableau MCP URL (`src/assistant/urlSafety.js`), **prompt-injection fencing** of untrusted Slack/Tableau/web context, and **per-user token scoping** in the installation store.
+- **Security hardening**: OAuth tokens **encrypted at rest** (AES-256-GCM, `src/install-kit/tokenCrypto.js`; optional **fail-closed** enforcement via `REQUIRE_TOKEN_ENC`), an **SSRF guard** on the user-settable Tableau MCP URL (`src/assistant/urlSafety.js`), **prompt-injection fencing** of untrusted Slack/Tableau/web context, **per-user token scoping** in the installation store, defensive **HTTP security headers** and **per-IP rate limiting** on the secret-in-path trigger routes (`src/install-kit/httpSecurity.js`), and **bounded LLM request timeouts**.
 - **Health-check framework** (`tests/health/`): a `configcheck` deterministic gate (wired into the Heroku release phase), plus `smoke` / `drift` / `contextrot` suites for post-deploy readiness and ongoing model-drift / context-rot monitoring. See [`tests/health/README.md`](tests/health/README.md).
 - **Slack context**: Builds grounding context from the **Slack MCP** server (`mcp.slack.com`, Streamable HTTP + session) when a **user token** is present, with **Web API** fallback for channel/thread history and search. Requires MCP enabled for the Slack app under Agents & AI Apps when using MCP.
 - **Tableau MCP** (optional): When `TABLEAU_MCP_SERVER` is set, injects compact tool names, can call `list-datasources`, matches user/thread intent for analytics, fetches **`get-datasource-metadata`** when a published source matches, and respects `TABLEAU_MCP_LIST_DATASOURCES` / `TABLEAU_MCP_VERBOSE_TOOLS`.
@@ -129,6 +129,7 @@ Each flagged metric section carries its Tableau view (`src/jobs/vhaMetricViews.j
 
    # Security (recommended in any shared/prod environment)
    TOKEN_ENC_KEY=            # `openssl rand -base64 32` – encrypts OAuth tokens at rest
+   # REQUIRE_TOKEN_ENC=1     # fail closed: refuse installs if TOKEN_ENC_KEY is unset (prod)
 
    # Tableau MCP (optional) – streamable HTTP endpoint, e.g.:
    # TABLEAU_MCP_SERVER=https://<your-tableau-mcp-host>/tableau-mcp
@@ -300,12 +301,18 @@ Add these in the dashboard (or via CLI). **Do not commit secrets to git.**
 | `LLM_GATEWAY_API_KEY` | For gateway | Bearer token for the gateway. **Secret.** |
 | `LLM_GATEWAY_MODEL` | For gateway | Model id, e.g. `claude-sonnet-4-6` |
 | `TOKEN_ENC_KEY` | Recommended | 32-byte key (base64/hex) that encrypts OAuth tokens at rest (AES-256-GCM). Generate with `openssl rand -base64 32`. Unset = plaintext + one-time warning; **malformed = fail loud** (fix or unset). **Secret.** |
+| `REQUIRE_TOKEN_ENC` | Prod hardening | `1`/`true`/`yes` makes a missing `TOKEN_ENC_KEY` **fail closed**: installs are refused with a loud error instead of silently storing tokens in plaintext. Also flips the `TOKEN_ENC_KEY` configcheck from a warning to a hard fail. Default off preserves the local/dev no-key path. |
 | `PGSSLROOTCERT` | Prod DB | Path to the RDS CA bundle (`certs/rds-global-bundle.pem`) so DB TLS verification stays on against Aurora/RDS. See [Database TLS](#database-tls-rdsaurora). |
 | `DATABASE_SSL_NO_VERIFY` | Demo only | `1` skips DB TLS **issuer verification** (TLS stays encrypted). Escape hatch for a demo tier where shipping the CA bundle isn't warranted; do **not** use in production. |
 | `LLM_MAX_OUTPUT_TOKENS` | No | Max reply tokens (default `4096`). Applies to both backends; replies that still hit the cap are flagged as truncated rather than cut silently. |
+| `LLM_REQUEST_TIMEOUT_MS` | No | Per-request timeout for LLM calls across all backends — Bedrock Converse, Vertex/Gemini, and the gateway `fetch` (default `60000`). Bounds a hung upstream so a turn fails cleanly instead of hanging the dyno. |
 | `MCP_HTTP_MAX_ATTEMPTS` | No | MCP HTTP retry attempts on transient 5xx/429/network errors (default `3`) |
 | `MCP_HTTP_RETRY_BASE_MS` | No | Base backoff between MCP retries in ms (default `300`, linear) |
+| `RATE_LIMIT_MAX` | No | Per-IP request cap per window on the secret-in-path trigger routes (Tableau refresh, daily brief, triage admission) — default `30`. Throttles online guessing of a path secret; real callers (EventBridge/Tableau) fire a handful a day. |
+| `RATE_LIMIT_WINDOW_MS` | No | Rate-limit window length in ms (default `60000`). |
+| `RATE_LIMIT_DISABLED` | No | `1` bypasses the trigger-route rate limiter entirely (e.g. a load test). |
 | `TABLEAU_MCP_SERVER` | No | Tableau MCP streamable HTTP URL when you want Tableau context |
+| `TABLEAU_MCP_ALLOW_PRIVATE` | No | `1` lets the **deployment-default** Tableau MCP URL point at a private/internal host (SSRF guard is relaxed for the env URL only). User-supplied App-Home URLs are still blocked. Use only when the MCP server is network-isolated. |
 | `TABLEAU_MCP_LIST_DATASOURCES` | No | Set `1` to always attach a datasource list sample (more API load) |
 | `TABLEAU_MCP_VERBOSE_TOOLS` | No | Set `1` to include long Tableau tool descriptions in context (default is names only) |
 | `TABLEAU_DATASOURCE_BROWSE_URL_TEMPLATE` | No | Optional `https://…/{luid}` pattern so **source_url** is filled when MCP JSON omits browse URLs (site-specific) |

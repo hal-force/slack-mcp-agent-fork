@@ -1,5 +1,6 @@
 const { ExpressReceiver, LogLevel } = require("@slack/bolt");
 const { requireEnv, getBotScopes, getUserScopes, getSlackLogLevel } = require("./env");
+const { securityHeaders } = require("./httpSecurity");
 
 const LOG_LEVEL_MAP = { debug: LogLevel.DEBUG, info: LogLevel.INFO, warn: LogLevel.WARN, error: LogLevel.ERROR };
 const { createInstallationStore } = require("./installationStore");
@@ -36,6 +37,11 @@ function createReceiver() {
 
     logLevel: LOG_LEVEL_MAP[getSlackLogLevel()] ?? LogLevel.INFO,
   });
+
+  // Conservative security headers on every response (matters most for the
+  // browser-facing OAuth install/callback pages; harmless on the JSON routes).
+  // Mounted first so it wraps Slack's own routes and our custom triggers alike.
+  receiver.router.use(securityHeaders());
 
   return receiver;
 }

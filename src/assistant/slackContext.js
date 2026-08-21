@@ -114,11 +114,16 @@ function parseChannelRefs(text) {
   // Plain #channel-name (exclude channel IDs - they look like #C0AL8UCPULW).
   // Require at least one letter so bare "#1", "#2024", "#3-priority" don't
   // trigger a (costly) channel-name resolution scan for non-channels (E5).
-  const plainRe = /#([a-z0-9][a-z0-9._-]*)/gi;
+  // The leading (^|[^\w/]) boundary rejects URL fragments (…/docs#overview),
+  // in-word "#", and markdown anchors so we don't scan/inject unrelated
+  // channels for a pasted link (E5, correctness review).
+  const plainRe = /(^|[^\w/])#([a-z0-9][a-z0-9._-]*)/gi;
   while ((m = plainRe.exec(text)) !== null) {
-    const s = m[1];
+    const s = m[2];
     if (isChannelId(s)) continue;
     if (!/[a-z]/i.test(s)) continue; // purely numeric/symbolic → not a channel ref
+    // Skip CSS/hex colors (#fff, #a1b2c3): all hex digits, length 3/4/6/8.
+    if (/^[0-9a-f]+$/i.test(s) && [3, 4, 6, 8].includes(s.length)) continue;
     names.add(s.toLowerCase());
   }
   return { ids: [...ids], names: [...names] };
@@ -508,9 +513,9 @@ async function buildSlackContext(client, opts = {}) {
       }
     }
   } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("slackContext build error:", err.message);
-    }
+    // Log unconditionally (message only, no secrets) so a live-demo context
+    // failure is diagnosable rather than silent (correctness review #6).
+    console.warn("[slackContext] context build failed:", err.message);
   }
 
   const accessProblems =

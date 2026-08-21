@@ -1,14 +1,23 @@
 require("dotenv").config();
 
 // Heroku: if GCP_SERVICE_ACCOUNT_JSON is set (JSON string), write to temp file for Vertex AI.
-// Write it 0600 (owner read/write only) so the service-account credential isn't
-// left world-readable for other processes on a shared host.
+// Write it 0600 (owner read/write only) inside a private per-process temp dir
+// (mkdtempSync → unpredictable name, 0700) so the service-account credential is
+// neither world-readable nor at a guessable path, and unlink it on exit.
 if (process.env.GCP_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   const fs = require("fs");
   const path = require("path");
-  const tmp = path.join(process.env.TMPDIR || "/tmp", "gcp-sa-" + Date.now() + ".json");
+  const os = require("os");
+  const dir = fs.mkdtempSync(path.join(process.env.TMPDIR || os.tmpdir(), "gcp-sa-"));
+  const tmp = path.join(dir, "key.json");
   fs.writeFileSync(tmp, process.env.GCP_SERVICE_ACCOUNT_JSON, { mode: 0o600 });
   process.env.GOOGLE_APPLICATION_CREDENTIALS = tmp;
+  const cleanup = () => {
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) {}
+  };
+  process.once("exit", cleanup);
+  process.once("SIGTERM", () => { cleanup(); process.exit(0); });
+  process.once("SIGINT", () => { cleanup(); process.exit(0); });
 }
 
 const { App, Assistant } = require("@slack/bolt");

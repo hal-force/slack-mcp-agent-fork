@@ -74,6 +74,24 @@ test("validateDeployConfig: a malformed TOKEN_ENC_KEY FAILs (Fix 1 surfaces here
   assert.match(r.detail, /malformed/);
 });
 
+test("validateDeployConfig: REQUIRE_TOKEN_ENC with no key FAILs closed (not a WARN)", () => {
+  const results = validateDeployConfig(GOOD_ENV, {
+    encryptionEnabled: () => false, // no usable key
+    requireEncryption: () => true, // but enforcement is on
+  });
+  const r = byName(results, "TOKEN_ENC_KEY");
+  assert.equal(r.status, "fail");
+  assert.match(r.detail, /fail closed|refused/i);
+});
+
+test("validateDeployConfig: no key + enforcement OFF still WARNs (unchanged default)", () => {
+  const results = validateDeployConfig(GOOD_ENV, {
+    encryptionEnabled: () => false,
+    requireEncryption: () => false,
+  });
+  assert.equal(byName(results, "TOKEN_ENC_KEY").status, "warn");
+});
+
 test("validateDeployConfig: a private TABLEAU_MCP_SERVER FAILs unless ALLOW_PRIVATE", () => {
   const priv = { ...GOOD_ENV, TABLEAU_MCP_SERVER: "https://127.0.0.1/mcp" };
   assert.equal(byName(validateDeployConfig(priv, { encryptionEnabled: () => true }), "TABLEAU_MCP_SERVER").status, "fail");

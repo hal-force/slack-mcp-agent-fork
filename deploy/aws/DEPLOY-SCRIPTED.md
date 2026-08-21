@@ -87,7 +87,11 @@ terraform apply \
 ```
 
 Note the two `repository_url` outputs, then from the **repo root** authenticate and push.
-**App Runner images must be `linux/amd64`** — on Apple silicon keep the `--platform` flags:
+**All three build flags matter on every machine** (not just Apple silicon):
+`--platform linux/amd64` is the only architecture App Runner runs, and
+`--provenance=false --sbom=false` stop modern Docker/BuildKit from pushing an **OCI
+image index** (a multi-manifest list) that App Runner cannot pull — which fails the
+deploy with an opaque "image not found / manifest" error.
 
 ```bash
 AWS_REGION=<region>; ACCOUNT=<account-id>
@@ -95,14 +99,18 @@ aws ecr get-login-password --region "$AWS_REGION" \
   | docker login --username AWS --password-stdin "$ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
 
 # Slack agent (root Dockerfile)
-docker build --platform linux/amd64 -t <slack_agent_repo_url>:latest .
+docker build --platform linux/amd64 --provenance=false --sbom=false \
+  -t <slack_agent_repo_url>:latest .
 docker push <slack_agent_repo_url>:latest
 
 # Tableau MCP (pinned upstream ref)
-docker build --platform linux/amd64 --build-arg TABLEAU_MCP_REF=v4.5.1 \
-  -t <tableau_mcp_repo_url>:latest deploy/tableau-mcp
+docker build --platform linux/amd64 --provenance=false --sbom=false \
+  --build-arg TABLEAU_MCP_REF=v4.5.1 -t <tableau_mcp_repo_url>:latest deploy/tableau-mcp
 docker push <tableau_mcp_repo_url>:latest
 ```
+
+> Verify a good push with `docker manifest inspect <repo_url>:latest` — you want a
+> single `mediaType: …manifest.v2+json`, **not** `…index.v1+json`.
 
 ---
 
@@ -226,8 +234,25 @@ terraform destroy
 ```
 
 Removes everything. Secrets Manager secrets keep a recovery window (default 30 days)
-unless force-deleted; the Aurora cluster uses `skip_final_snapshot = true`, so no
-snapshot is left behind.
+unless force-deleted; on the **demo** stack the Aurora cluster uses
+`skip_final_snapshot = true`, so no snapshot is left behind. A **production** stack with
+`db_deletion_protection = true` / `db_skip_final_snapshot = false` refuses to destroy
+until protection is removed and leaves a final snapshot — intended; double-check first.
+
+---
+
+## Going to production
+
+These steps stand up a **throwaway demo**. For a real deployment, stand up a **separate**
+stack (own `name_prefix`, own remote state) with the opt-in hardening knobs on rather than
+mutating the demo. Copy `terraform.tfvars.prod.example` instead of the plain example, then
+enable: Aurora deletion protection + final snapshot + 7–35-day backup retention, a
+customer-managed KMS key (`create_secrets_kms_key`), pinned image digests
+(`agent_image_digest` / `mcp_image_digest`), and CloudWatch alarms (`create_alarms`). Each
+defaults to the demo behavior, so turning it on is additive. Use the S3 remote-state backend
+(`backend.tf.prod-example`) before the first prod apply. Full runbook: [`SKILL.md`](SKILL.md)
+→ *Production deployment*; knob reference: [`terraform/README.md`](terraform/README.md) →
+*Production hardening*.
 
 ---
 
@@ -241,3 +266,5 @@ snapshot is left behind.
 | Daily-brief rule never created | You skipped the second apply — `public_base_url` was still `""`. Set it and re-apply. |
 | Slack DMs silently fail | `im:write` missing from `slack_bot_scopes`; add it and reinstall via `/slack/install`. |
 | `docker push` rejected by App Runner | Image isn't `linux/amd64` — rebuild with `--platform linux/amd64`. |
+| App Runner CREATE_FAILED with an opaque "image not found / manifest" error | BuildKit pushed an **OCI image index**, which App Runner can't pull. Rebuild with `--provenance=false --sbom=false`; verify with `docker manifest inspect` (want `manifest.v2+json`, not `index.v1+json`). |
+| `slack-agent` CREATE_FAILED on the TCP health check, logs show `LLM provider FAIL … AI_PROVIDER=bedrock but config incomplete` | The instance role isn't being read as Bedrock creds — confirm the running image includes the role-aware `bedrockConfig()` (App Runner sets no static AWS keys). |

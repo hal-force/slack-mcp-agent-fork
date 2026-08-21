@@ -49,12 +49,15 @@ function registerDailyBriefTrigger(receiver, deps = {}) {
   const run = deps.run || ((opts) => require("./vhaDailyBrief").run(opts));
 
   const express = require("express");
+  const { rateLimiter } = require("../install-kit/httpSecurity");
   const router = receiver.router;
   // No body is required (EventBridge can POST empty), but parse one if sent so a
   // future payload (e.g. {dryRun:true}) is available. Tiny cap — this is a ping.
   const jsonParser = express.json({ limit: "8kb" });
+  // Per-IP throttle: caps brute-forcing of the path secret on this DM-fanout route.
+  const limit = rateLimiter();
 
-  router.post("/jobs/vha-daily/:secret", jsonParser, async (req, res) => {
+  router.post("/jobs/vha-daily/:secret", limit, jsonParser, async (req, res) => {
     if (!safeEqual(req.params.secret || "", secret)) {
       // Same response as an unknown route — don't confirm the path exists.
       logger.warn?.("[daily-brief] rejected request with bad/missing secret");

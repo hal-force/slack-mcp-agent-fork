@@ -36,6 +36,34 @@ test("parseChannelRefs ignores purely numeric #refs (E5) but keeps real names", 
   assert.ok(!names.includes("2024"));
 });
 
+test("parseChannelRefs requires a word boundary before # (no URL fragments / in-word #)", () => {
+  // Markdown anchors and URL fragments must NOT resolve as channel names.
+  const frag = parseChannelRefs("see https://example.com/docs#overview and code#section");
+  assert.deepEqual(frag.names, [], "…/docs#overview and code#section are not channels");
+
+  // A leading # at the very start of the string IS a boundary.
+  const lead = parseChannelRefs("#alerts is the channel");
+  assert.ok(lead.names.includes("alerts"));
+
+  // After punctuation (paren/comma) is a boundary too.
+  const punct = parseChannelRefs("channels (#alpha, #beta) matter");
+  assert.ok(punct.names.includes("alpha") && punct.names.includes("beta"));
+});
+
+test("parseChannelRefs skips CSS/hex colors but keeps hex-shaped names of other lengths", () => {
+  const colors = parseChannelRefs("brand palette #fff #a1b2c3 #DEAD #deadbeef");
+  // 3/4/6/8 hex digits → colors, not channels.
+  for (const c of ["fff", "a1b2c3", "dead", "deadbeef"]) {
+    assert.ok(!colors.names.includes(c), `#${c} treated as a color`);
+  }
+  // A 5-hex-digit token isn't a valid CSS color length → still a channel candidate.
+  const five = parseChannelRefs("ticket #abcde here");
+  assert.ok(five.names.includes("abcde"), "5 hex chars is not a color length");
+  // A hex-shaped-but-longer token with letters beyond hex stays a channel.
+  const nonHex = parseChannelRefs("release #cafe-42");
+  assert.ok(nonHex.names.includes("cafe-42"));
+});
+
 test("named-channel read without a user token refuses and records an access error (S6)", async () => {
   const channelAccessErrors = [];
   const out = await buildSlackContext(strictBotClient(), {

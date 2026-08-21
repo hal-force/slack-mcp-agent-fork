@@ -129,15 +129,26 @@ function validateDeployConfig(env = process.env, deps = {}) {
   // encryptionEnabled() THROWS when TOKEN_ENC_KEY is set-but-malformed (Fix 1);
   // returns false when unset (tokens stored in plaintext); true when usable.
   const encEnabled = deps.encryptionEnabled || (() => require("../../../src/install-kit/tokenCrypto").encryptionEnabled());
+  const requireEnc = deps.requireEncryption || (() => require("../../../src/install-kit/tokenCrypto").requireEncryption());
   try {
     if (encEnabled()) {
       out.push(result("TOKEN_ENC_KEY", "pass", "usable 32-byte key — OAuth tokens encrypted at rest."));
+    } else if (requireEnc()) {
+      // Operator opted into fail-closed enforcement — a missing key means the
+      // app would refuse every install, so block the release here instead.
+      out.push(
+        result(
+          "TOKEN_ENC_KEY",
+          "fail",
+          "REQUIRE_TOKEN_ENC=1 but no key set — installs will be refused (fail closed). Set TOKEN_ENC_KEY (openssl rand -base64 32) or unset REQUIRE_TOKEN_ENC.",
+        ),
+      );
     } else {
       out.push(
         result(
           "TOKEN_ENC_KEY",
           "warn",
-          "not set — OAuth tokens are stored in PLAINTEXT. Set with: heroku config:set TOKEN_ENC_KEY=\"$(openssl rand -base64 32)\"",
+          "not set — OAuth tokens are stored in PLAINTEXT. Set with: heroku config:set TOKEN_ENC_KEY=\"$(openssl rand -base64 32)\" (or REQUIRE_TOKEN_ENC=1 to fail closed).",
         ),
       );
     }

@@ -86,9 +86,12 @@ function registerTriageAdmissionTrigger(receiver, deps = {}) {
         : defaultResolvePoster;
 
   const express = require("express");
+  const { rateLimiter } = require("../install-kit/httpSecurity");
   const jsonParser = express.json({ limit: "16kb" });
+  // Per-IP throttle: caps brute-forcing of the path secret on this channel-posting route.
+  const limit = rateLimiter();
 
-  receiver.router.post("/triage/admission/:secret", jsonParser, async (req, res) => {
+  receiver.router.post("/triage/admission/:secret", limit, jsonParser, async (req, res) => {
     if (!safeEqual(req.params.secret || "", secret)) {
       logger.warn?.("[triage-admission] rejected request with bad/missing secret");
       return res.status(404).end(); // don't confirm the path exists

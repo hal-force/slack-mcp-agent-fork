@@ -74,14 +74,18 @@ function registerTableauWebhook(receiver, deps = {}) {
     deps.runFromRefresh || ((payload) => require("./vhaDailyBrief").runFromRefresh(payload));
 
   const express = require("express");
+  const { rateLimiter } = require("../install-kit/httpSecurity");
   const router = receiver.router;
 
   // Scoped JSON parser for THIS route only (does not touch Slack's raw body).
   // Tableau payloads are tiny; cap the body to reject junk.
   const jsonParser = express.json({ limit: "16kb" });
+  // Per-IP throttle so a leaked/guessed path secret can't be brute-forced or
+  // used to hammer the DM fan-out. Real callers (Tableau) fire a few times/day.
+  const limit = rateLimiter();
 
   // Secret lives in the PATH segment (Tableau sends no custom auth header).
-  router.post("/webhooks/tableau/refresh/:secret", jsonParser, async (req, res) => {
+  router.post("/webhooks/tableau/refresh/:secret", limit, jsonParser, async (req, res) => {
     if (!safeEqual(req.params.secret || "", secret)) {
       // Same response as a truly unknown route — don't confirm the path exists.
       logger.warn?.("[tableau-webhook] rejected request with bad/missing secret");

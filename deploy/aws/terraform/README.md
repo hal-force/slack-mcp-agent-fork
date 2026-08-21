@@ -13,7 +13,8 @@ EventBridge-driven trigger for the VHA brief job.
 
 ## Prerequisites
 
-- Terraform >= 1.6
+- Terraform >= 1.6, or OpenTofu >= 1.6 (the remote-state example uses native
+  S3 lockfiles, which need Terraform/OpenTofu >= 1.10 — see *Production hardening*).
 - AWS CLI, authenticated to the target account
 - Docker, for building the two images
 - `terraform.tfvars` filled in from `terraform.tfvars.example` (never commit
@@ -38,12 +39,20 @@ terraform apply \
 aws ecr get-login-password --region <aws_region> \
   | docker login --username AWS --password-stdin <account_id>.dkr.ecr.<aws_region>.amazonaws.com
 
-docker build -t <tableau_mcp_repo_url>:latest ../../tableau-mcp
+docker build --platform linux/amd64 --provenance=false --sbom=false \
+  -t <tableau_mcp_repo_url>:latest ../../tableau-mcp
 docker push <tableau_mcp_repo_url>:latest
 
-docker build -t <slack_agent_repo_url>:latest ../../..   # repo root (Dockerfile)
+docker build --platform linux/amd64 --provenance=false --sbom=false \
+  -t <slack_agent_repo_url>:latest ../../..   # repo root (Dockerfile)
 docker push <slack_agent_repo_url>:latest
 ```
+
+> **All three build flags matter on every machine.** `--platform linux/amd64` is the
+> only architecture App Runner runs; `--provenance=false --sbom=false` stop BuildKit
+> from pushing an **OCI image index** (multi-manifest list) that App Runner cannot pull
+> — the deploy then fails with an opaque "image not found / manifest" error. Verify with
+> `docker manifest inspect <repo_url>:latest` (want `manifest.v2+json`, not `index.v1+json`).
 
 ### Phase 2 — full apply
 
@@ -143,17 +152,21 @@ Set `enable_daily_schedule = false` to skip creating any of this permanently.
 | File | Purpose |
 |---|---|
 | `versions.tf` | Terraform + provider version constraints. |
-| `variables.tf` | All input variables. |
+| `variables.tf` | All input variables (incl. the opt-in production-hardening knobs). |
 | `locals.tf` | Shared naming/tag locals. |
 | `network.tf` | VPC (optional) + security groups. |
 | `ecr.tf` | Two ECR repos + lifecycle policies (keep last 10 images). |
-| `secrets.tf` | Secrets Manager secrets + versions, built from a filtered map so empty optional LLM secrets are skipped. |
-| `rds.tf` | Aurora Serverless v2 PostgreSQL cluster + master password + DATABASE_URL construction. |
-| `iam.tf` | Access roles (ECR pull) + instance roles (runtime AWS API calls) for both services. |
-| `apprunner.tf` | Both `aws_apprunner_service` resources, the VPC connector (egress), the VPC interface endpoint + VPC ingress connection (ingress). |
+| `secrets.tf` | Secrets Manager secrets + versions, built from a filtered map so empty optional LLM secrets are skipped. `kms_key_id` is the CMK when `create_secrets_kms_key = true`, else the AWS-managed key. |
+| `rds.tf` | Aurora Serverless v2 PostgreSQL cluster + master password + DATABASE_URL construction. Wires the durability knobs (deletion protection, final snapshot, backup retention). |
+| `iam.tf` | Access roles (ECR pull) + instance roles (runtime AWS API calls) for both services; each instance role gets a `kms:Decrypt` statement only when the CMK exists. |
+| `kms.tf` | Optional customer-managed KMS key (rotation + alias), gated on `create_secrets_kms_key`. |
+| `apprunner.tf` | Both `aws_apprunner_service` resources, the VPC connector (egress), the VPC interface endpoint + VPC ingress connection (ingress). Uses `repo@sha256:…` when an image digest is pinned, else `repo:tag`. |
+| `monitoring.tf` | Optional SNS topic + CloudWatch alarms (App Runner 5xx, Aurora CPU/connections), gated on `create_alarms`. |
 | `scheduler.tf` | Daily VHA brief trigger via EventBridge rule + API destination (see note above). |
 | `outputs.tf` | Service URLs, ECR URLs, RDS endpoint, and a next-steps reminder. |
-| `terraform.tfvars.example` | Fully commented example vars file. |
+| `terraform.tfvars.example` | Fully commented example vars file (demo defaults). |
+| `terraform.tfvars.prod.example` | Same, with every production-hardening knob turned on. |
+| `backend.tf.prod-example` / `backend-prod.hcl.example` | Remote S3 state scaffolding (inert until copied to `backend.tf` / `backend-prod.hcl`, which are gitignored). |
 
 ## TLS to Aurora
 
@@ -163,10 +176,30 @@ chain strictly. `DATABASE_URL` is intentionally a plain host-based
 connection string with no `sslmode` query parameter — certificate
 verification is driven by `PGSSLROOTCERT`, not the URL.
 
-## Attribute confidence notes
+## Production hardening (opt-in knobs)
 
-See the parent task's final report for the short list of AWS attributes that
-were cross-checked against the provider docs during authoring but are worth
-a `terraform validate` / `plan` pass to double-confirm in your provider
-version, since Terraform is not installed on the authoring machine and no
-`validate`/`plan`/`apply` was run.
+The defaults above stand up a **throwaway demo** stack. Every production knob
+defaults to that demo behavior, so turning it on is purely additive — a demo
+`plan` that omits them is unchanged. For a real deployment, stand up a
+**separate** stack (own `name_prefix`, own remote state) rather than mutating a
+live demo; copy `terraform.tfvars.prod.example` as your starting point. See
+[`../SKILL.md`](../SKILL.md) → *Production deployment* for the full runbook.
+
+| Knob | Default (demo) | Production |
+|---|---|---|
+| `db_deletion_protection` | `false` | `true` — blocks accidental cluster deletion |
+| `db_skip_final_snapshot` | `true` | `false` — keeps a recoverable snapshot on destroy |
+| `db_backup_retention_period` | `1` | `7`–`35` days |
+| `create_secrets_kms_key` | `false` (AWS-managed key) | `true` — customer-managed CMK with rotation + per-principal `kms:Decrypt` auditing |
+| `agent_image_digest` / `mcp_image_digest` | `""` (mutable tag) | `sha256:…` — pins the exact image so a re-apply can't silently pull a different build |
+| `create_alarms` (+ `alarm_email`) | `false` | `true` — SNS topic + CloudWatch alarms |
+| Remote state (`backend.tf`) | local state | S3 backend via `backend-prod.hcl` |
+
+**Never change these on a live stack** — `name_prefix`, `vpc_cidr`, `create_vpc`,
+`db_name`, `db_username`, or a major `aurora_engine_version` jump all force
+resource **replacement** (they rebuild the VPC and/or destroy the database). The
+durability/KMS/monitoring/digest knobs above are all safe in-place changes.
+
+> Enabling `create_secrets_kms_key` on an **already-deployed** stack only re-keys
+> *future* secret versions; existing values stay under the AWS-managed key until
+> each secret is next rewritten. Prefer enabling it on a fresh stack.

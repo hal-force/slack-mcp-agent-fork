@@ -123,3 +123,67 @@ test("Fix 1: a malformed key throws on every call and NEVER stores plaintext", (
   assert.throws(() => decrypt("enc:v1:whatever"), /32 bytes/);
   assert.throws(() => encryptionEnabled(), /32 bytes/);
 });
+
+// ---- Fix (security review): fail-closed encryption via REQUIRE_TOKEN_ENC ----
+// In production a missing TOKEN_ENC_KEY should be a LOUD, blocking error rather
+// than a silent downgrade to storing live OAuth tokens in cleartext. Opt-in so
+// the local/dev no-key path is unchanged by default.
+
+/** Load the module with TOKEN_ENC_KEY and REQUIRE_TOKEN_ENC both controlled. */
+function loadCryptoRequire(key, requireVal) {
+  if (requireVal == null) delete process.env.REQUIRE_TOKEN_ENC;
+  else process.env.REQUIRE_TOKEN_ENC = requireVal;
+  return loadCrypto(key);
+}
+
+test("requireEncryption() reads REQUIRE_TOKEN_ENC (1/true/yes on; else off)", () => {
+  try {
+    for (const on of ["1", "true", "TRUE", "yes", "Yes"]) {
+      const { requireEncryption } = loadCryptoRequire(null, on);
+      assert.equal(requireEncryption(), true, `${on} → on`);
+    }
+    for (const off of ["0", "false", "no", "", "maybe"]) {
+      const { requireEncryption } = loadCryptoRequire(null, off);
+      assert.equal(requireEncryption(), false, `${JSON.stringify(off)} → off`);
+    }
+    const { requireEncryption } = loadCryptoRequire(null, null); // unset
+    assert.equal(requireEncryption(), false, "unset → off");
+  } finally {
+    delete process.env.REQUIRE_TOKEN_ENC;
+  }
+});
+
+test("REQUIRE_TOKEN_ENC=1 with no key: encrypt throws instead of storing plaintext", () => {
+  try {
+    const { encrypt } = loadCryptoRequire(null, "1");
+    const token = "xoxb-must-fail-closed";
+    assert.throws(
+      () => encrypt(token),
+      /REQUIRE_TOKEN_ENC=1 but TOKEN_ENC_KEY is not set/,
+      "fail closed: no silent plaintext persist",
+    );
+    // Nullish/empty still pass through — nothing sensitive to protect.
+    assert.equal(encrypt(""), "");
+    assert.equal(encrypt(null), null);
+  } finally {
+    delete process.env.REQUIRE_TOKEN_ENC;
+  }
+});
+
+test("REQUIRE_TOKEN_ENC=1 WITH a valid key still round-trips (enforcement is a no-op)", () => {
+  try {
+    const { encrypt, decrypt, isEncrypted } = loadCryptoRequire(TEST_KEY, "1");
+    const token = "xoxb-encrypted-under-enforcement";
+    const enc = encrypt(token);
+    assert.ok(isEncrypted(enc));
+    assert.equal(decrypt(enc), token);
+  } finally {
+    delete process.env.REQUIRE_TOKEN_ENC;
+  }
+});
+
+test("default (REQUIRE_TOKEN_ENC unset) with no key preserves the plaintext no-op path", () => {
+  const { encrypt } = loadCryptoRequire(null, null);
+  const token = "xoxb-dev-no-key";
+  assert.equal(encrypt(token), token, "unchanged legacy dev behavior");
+});

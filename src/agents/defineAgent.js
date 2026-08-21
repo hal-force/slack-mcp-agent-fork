@@ -47,6 +47,23 @@ function extractStructured(text) {
       last = { body, index: match.index, full: match[0] };
     }
   }
+
+  // Recovery for a TRUNCATED response: the model is prompted to put the JSON
+  // block last, so a max_tokens cutoff often severs the closing ``` (and leaves
+  // a complete-enough body). The closed-fence regex above misses that entirely,
+  // silently dropping structured output. If no closed block matched, look for a
+  // trailing UNTERMINATED fence and try its body — strictly additive, since any
+  // properly-closed block was already captured.
+  if (!last) {
+    const openRe = /```(?:json)?\s*([\s\S]*)$/i;
+    const open = openRe.exec(raw);
+    if (open) {
+      const body = (open[1] || "").trim();
+      if (body.startsWith("{") || body.startsWith("[")) {
+        last = { body, index: open.index, full: open[0] };
+      }
+    }
+  }
   if (!last) return { structured: null, cleanedText: raw };
 
   let structured = null;

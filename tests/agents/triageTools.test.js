@@ -194,6 +194,39 @@ test("FIXTURE: effect 2 (skill match -> outcome) recoverable and survives acuity
   assert.ok(sevHigh.rate_adverse_outcome < sevLow.rate_adverse_outcome, "Severe: high match < low match adverse");
 });
 
+test("triage_query min/max aggregations return the extremes", async () => {
+  const tables = miniTables();
+  // experience_years across the 3 nurses: 10, 2, 5.
+  const res = await dispatchTriageTool(
+    "triage_query",
+    { table: "nurses", measures: [{ agg: "min", field: "experience_years" }, { agg: "max", field: "experience_years" }] },
+    { tables },
+  );
+  assert.equal(res.rows[0].min_experience_years, 2);
+  assert.equal(res.rows[0].max_experience_years, 10);
+});
+
+// Regression: min/max use reduce, not Math.min(...values) — spreading up to
+// DEFAULT_ROW_LIMIT (100k) values as call args can blow the arg-count/stack
+// limit. This synthesizes a large table and asserts the query still returns.
+test("triage_query min/max handle a large table without a spread/stack blowup", async () => {
+  const N = 150_000;
+  const nurses = new Array(N);
+  for (let i = 0; i < N; i++) {
+    // values 0..N-1 in a scrambled order so min/max aren't at the ends
+    const v = (i * 7 + 3) % N;
+    nurses[i] = { nurse_id: `RN${i}`, home_unit: "ICU-A", experience_years: String(v) };
+  }
+  const tables = { ...miniTables(), nurses };
+  const res = await dispatchTriageTool(
+    "triage_query",
+    { table: "nurses", measures: [{ agg: "min", field: "experience_years" }, { agg: "max", field: "experience_years" }] },
+    { tables },
+  );
+  assert.equal(res.rows[0].min_experience_years, 0);
+  assert.equal(res.rows[0].max_experience_years, N - 1);
+});
+
 test("TRIAGE_TOOL_SPECS are Bedrock-shaped (name/description/inputSchema)", () => {
   assert.equal(TRIAGE_TOOL_SPECS.length, 3);
   for (const spec of TRIAGE_TOOL_SPECS) {

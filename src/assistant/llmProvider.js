@@ -88,7 +88,10 @@ function getGeminiClient() {
   const project = process.env.GOOGLE_CLOUD_PROJECT;
   const location = process.env.VERTEX_LOCATION || process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
   if (!project) throw new Error("Missing GOOGLE_CLOUD_PROJECT. Set it in .env for Vertex/Gemini.");
-  _genAiClient = new GoogleGenAI({ vertexai: true, project, location });
+  // Bound each Gemini call so a stalled upstream can't hang a Slack turn forever.
+  // Generous default (won't fire on healthy calls); override with LLM_REQUEST_TIMEOUT_MS.
+  const timeout = Number(process.env.LLM_REQUEST_TIMEOUT_MS) || 60000;
+  _genAiClient = new GoogleGenAI({ vertexai: true, project, location, httpOptions: { timeout } });
   return _genAiClient;
 }
 
@@ -257,6 +260,9 @@ async function generateWithBedrock({
   // Send a Converse request; if the model complains that `temperature` is
   // deprecated/unsupported, strip it and retry once. The retry result is cached
   // in a flag so subsequent loop iterations skip temperature entirely.
+  // Per-call deadline so a stalled Bedrock response can't hang a Slack turn.
+  // Generous default (won't fire on healthy calls); override with LLM_REQUEST_TIMEOUT_MS.
+  const converseTimeoutMs = Number(process.env.LLM_REQUEST_TIMEOUT_MS) || 60000;
   let temperatureUnsupported = false;
   async function sendConverse(params) {
     const stripTemp = (p) => {
@@ -265,13 +271,14 @@ async function generateWithBedrock({
       return { ...p, inferenceConfig: ic };
     };
     if (temperatureUnsupported) params = stripTemp(params);
+    const opts = { abortSignal: AbortSignal.timeout(converseTimeoutMs) };
     try {
-      return await client.send(new ConverseCommand(params));
+      return await client.send(new ConverseCommand(params), opts);
     } catch (err) {
       const msg = (err && (err.message || String(err))) || "";
       if (!temperatureUnsupported && /temperature/i.test(msg) && /deprecat|unsupport|not support|invalid|remove/i.test(msg)) {
         temperatureUnsupported = true;
-        return await client.send(new ConverseCommand(stripTemp(params)));
+        return await client.send(new ConverseCommand(stripTemp(params)), { abortSignal: AbortSignal.timeout(converseTimeoutMs) });
       }
       throw err;
     }
@@ -368,6 +375,9 @@ async function generateWithGateway({ systemInstruction, contents, maxOutputToken
       max_tokens: maxOutputTokens,
       temperature,
     }),
+    // Don't follow a 3xx: the bearer API key would be replayed to the redirect
+    // target. The gateway must answer directly (mirrors the MCP-fetch hardening).
+    redirect: "error",
     signal: AbortSignal.timeout(timeoutMs),
   });
 

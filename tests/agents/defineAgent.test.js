@@ -39,6 +39,30 @@ test("no json block → structured null, cleanedText == input", () => {
   assert.equal(cleanedText, text);
 });
 
+test("recovers structured output from a truncated response missing its closing fence", () => {
+  // Simulates a max_tokens cutoff: the model emitted the whole JSON body but the
+  // run ended before the closing ```. The complete body must still parse.
+  const text = "Here is the plan.\n\n```json\n{\"mode\":\"plan\",\"steps\":[1,2,3]}";
+  const { structured, cleanedText } = extractStructured(text);
+  assert.deepEqual(structured, { mode: "plan", steps: [1, 2, 3] });
+  assert.equal(cleanedText, "Here is the plan.");
+});
+
+test("a truly truncated JSON body (severed mid-object) still yields null, not a throw", () => {
+  const text = "prose\n```json\n{\"a\":1,\"b\":";
+  const { structured, cleanedText } = extractStructured(text);
+  assert.equal(structured, null);
+  assert.equal(cleanedText, text);
+});
+
+test("a closed fence is still preferred over any trailing open fence", () => {
+  const text = "```json\n{\"a\":1}\n```\ntail ```json\n{\"b\":2}";
+  const { structured } = extractStructured(text);
+  // The closed block wins (matched by the primary regex); the open one is only a
+  // fallback when NO closed block exists.
+  assert.deepEqual(structured, { a: 1 });
+});
+
 test("a ```json block containing a non-object (string) is ignored", () => {
   const text = "x\n```json\n\"hello\"\n```";
   const { structured } = extractStructured(text);

@@ -135,11 +135,25 @@ Ask the agent to verify, or check yourself (this mirrors the scripted doc's chec
 
 ---
 
+## Going to production
+
+The stack this skill deploys uses **throwaway demo defaults**. When you're ready for a
+real deployment, don't mutate the demo stack — stand up a **separate** one (its own
+`name_prefix` and remote state) with the opt-in hardening knobs turned on: Aurora
+deletion protection + final snapshots + longer backup retention, a customer-managed KMS
+key for secrets, pinned image digests, and CloudWatch alarms. All of them default to the
+demo behavior, so they're purely additive. See [`SKILL.md`](SKILL.md) → *Production
+deployment* and [`terraform/README.md`](terraform/README.md) → *Production hardening*
+(start from `terraform.tfvars.prod.example`).
+
 ## Teardown
 
 Ask the agent to tear down, or run `terraform destroy` yourself. It removes everything;
-Secrets Manager entries keep a recovery window (default 30 days) unless force-deleted,
-and the Aurora cluster is created with `skip_final_snapshot = true` (no leftover snapshot).
+Secrets Manager entries keep a recovery window (default 30 days) unless force-deleted.
+On the **demo** stack the Aurora cluster uses `skip_final_snapshot = true` (no leftover
+snapshot). A **production** stack with `db_deletion_protection = true` /
+`db_skip_final_snapshot = false` will refuse to destroy until protection is removed and
+will leave a final snapshot behind — intended, so double-check before tearing down.
 
 ---
 

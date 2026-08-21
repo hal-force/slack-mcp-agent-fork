@@ -13,10 +13,18 @@
  *     multicast / reserved ranges (IPv4 and IPv6, incl. IPv4-mapped IPv6)
  *   - internal-only hostnames: localhost, *.localhost, *.internal, *.local
  *
- * Limitation: this validates the *literal* host, not the DNS resolution, so it
- * does not by itself stop DNS-rebinding (a public name that resolves to a
- * private IP). Combined with `redirect: "error"` on the fetch and re-validation
- * on every request, it closes the practical attacker-controlled vectors here.
+ * Limitation: this validates the *literal* host STRING, not its DNS resolution.
+ * A public name whose A/AAAA record points at a private IP (DNS rebinding) is
+ * classified safe and the fetch connects to the private address. Re-validation
+ * "on every request" re-checks the string, not DNS, so it does NOT close this;
+ * `redirect: "error"` on the fetch only blocks the 3xx-to-internal variant and
+ * the http-only IMDS path (user input is forced to https). Residual risk is a
+ * blind POST to an internal service that speaks HTTPS. To fully close it, resolve
+ * the host and validate the resolved address(es), pinning the connection to a
+ * checked IP so DNS can't rebind between check and connect. Deferred because the
+ * only user-settable target here (the per-user Tableau MCP URL) is low-value and
+ * the production MCP is network-isolated; revisit if this guard fronts anything
+ * higher-value.
  */
 
 const net = require("net");

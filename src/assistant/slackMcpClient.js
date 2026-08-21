@@ -12,6 +12,15 @@ const SESSION_TTL_MS = 25 * 60 * 1000;
 /** @type {Map<string, { id: string, createdAt: number }>} */
 const sessions = new Map();
 
+/**
+ * In-flight initialize() promises, keyed by user token. Concurrent turns for the
+ * same token share one handshake instead of each POSTing initialize — which would
+ * open duplicate Slack MCP sessions and race the cache write (later writer wins,
+ * the rest orphan until TTL). Cleared as soon as the init settles.
+ * @type {Map<string, Promise<string>>}
+ */
+const _initInFlight = new Map();
+
 let slackMcpNotEnabledWarned = false;
 
 /**
@@ -37,6 +46,7 @@ function slackMcpDebug() {
 
 function clearSession(userToken) {
   sessions.delete(userToken);
+  _initInFlight.delete(userToken);
 }
 
 function getSession(userToken) {
@@ -49,10 +59,8 @@ function getSession(userToken) {
   return e;
 }
 
-async function ensureSession(userToken) {
-  const existing = getSession(userToken);
-  if (existing) return existing.id;
-
+/** Perform the MCP initialize handshake for a token and cache the session id. */
+async function initSession(userToken) {
   const initId = 1;
   const { ok, status, text, headers } = await streamableMcpPost(
     SLACK_MCP_URL,
@@ -98,6 +106,22 @@ async function ensureSession(userToken) {
 
   sessions.set(userToken, { id: sid, createdAt: Date.now() });
   return sid;
+}
+
+async function ensureSession(userToken) {
+  const existing = getSession(userToken);
+  if (existing) return existing.id;
+
+  // Coalesce concurrent initializes for the same token: first caller runs the
+  // handshake, everyone else awaits the same promise. Cleared on settle.
+  let inFlight = _initInFlight.get(userToken);
+  if (!inFlight) {
+    inFlight = initSession(userToken).finally(() => {
+      if (_initInFlight.get(userToken) === inFlight) _initInFlight.delete(userToken);
+    });
+    _initInFlight.set(userToken, inFlight);
+  }
+  return inFlight;
 }
 
 /**

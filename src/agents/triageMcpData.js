@@ -61,6 +61,23 @@ const TABLE_COLUMNS = {
 
 const TABLE_NAMES = Object.keys(TABLE_COLUMNS);
 
+// The column(s) that uniquely identify a row in each table. A dimension-only VDS
+// query returns one row per DISTINCT combination of requested fields; as long as a
+// true unique key is among the requested fields, distinct-combinations == real rows.
+// If the key column ever fails to resolve (renamed caption, filtered publish), rows
+// collapse on the remaining columns and counts come back silently undercounted. We
+// use these keys only for a best-effort sanity WARNING — never to alter results.
+const TABLE_UNIQUE_KEYS = {
+  patients: ["patient_id"],
+  nurses: ["nurse_id"],
+  nurse_skills: ["nurse_id", "skill_id"],
+  patient_required_skills: ["patient_id", "skill_id"],
+  assignments: ["assignment_id"],
+  unit_snapshots: ["snapshot_datetime", "unit"],
+  clinical_notes: ["note_id"],
+  skills_reference: ["skill_id"],
+};
+
 // Generous per-table row cap. The largest table (clinical_notes) is ~3.7k rows; this
 // leaves headroom without being unbounded.
 const DEFAULT_ROW_LIMIT = 100000;
@@ -200,8 +217,21 @@ async function fetchTable({ table, luid, callTool, limit = DEFAULT_ROW_LIMIT }) 
   const resolver = buildCaptionResolver(canonicalColumns, captions);
   if (resolver.size === 0) return [];
 
+  // Guard the distinct-combination assumption: a dimension-only VDS query returns
+  // one row per DISTINCT field combination, so it only equals the true row set when
+  // the table's unique key is among the resolved fields. If the key column didn't
+  // resolve (renamed/filtered), warn — rows would otherwise collapse and undercount
+  // with no error. Best-effort only; we never drop the fetch.
+  const uniqueKey = TABLE_UNIQUE_KEYS[table] || [];
+  const missingKeyCols = uniqueKey.filter((col) => !resolver.has(col));
+  if (uniqueKey.length && missingKeyCols.length) {
+    console.warn(
+      `[triageMcpData] ${table}: unique-key column(s) [${missingKeyCols.join(", ")}] did not resolve to a datasource field — a dimension-only query may de-duplicate rows and undercount. Check the published datasource's field captions.`,
+    );
+  }
+
   // 2. Query all resolved fields as dimensions (no aggregation → one row per distinct
-  //    combination; every table's full field set includes a unique key, so all rows return).
+  //    combination; the unique-key check above guards against silent row collapse).
   const fields = [...resolver.values()].map((caption) => ({ fieldCaption: caption }));
   const query = { fields };
   const res = await callTool("query-datasource", { datasourceLuid: luid, query, limit });
@@ -212,7 +242,7 @@ async function fetchTable({ table, luid, callTool, limit = DEFAULT_ROW_LIMIT }) 
   const captionToCanon = new Map();
   for (const [col, cap] of resolver.entries()) captionToCanon.set(canonKey(cap), col);
 
-  return rawRows.map((row) => {
+  const rows = rawRows.map((row) => {
     const clean = {};
     for (const [k, v] of Object.entries(row || {})) {
       const col = captionToCanon.get(canonKey(k));
@@ -222,6 +252,21 @@ async function fetchTable({ table, luid, callTool, limit = DEFAULT_ROW_LIMIT }) 
     }
     return clean;
   });
+
+  // Post-fetch sanity: when the unique key DID resolve, the count of distinct key
+  // tuples should equal the row count. If it doesn't, VDS de-duplicated on rendered
+  // values (or the key isn't actually unique in the published source) and downstream
+  // counts/rates are undercounted. Warn — never mutate the result.
+  if (uniqueKey.length && missingKeyCols.length === 0 && rows.length > 1) {
+    const distinctKeys = new Set(rows.map((r) => uniqueKey.map((c) => r[c]).join(" ")));
+    if (distinctKeys.size !== rows.length) {
+      console.warn(
+        `[triageMcpData] ${table}: ${rows.length} rows but only ${distinctKeys.size} distinct [${uniqueKey.join(", ")}] — the datasource may have collapsed rows; counts/rates could be undercounted.`,
+      );
+    }
+  }
+
+  return rows;
 }
 
 /**

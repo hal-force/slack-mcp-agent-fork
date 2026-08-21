@@ -37,7 +37,8 @@
   "devDependencies": {
     "nodemon": "^3.1.11"
   },
+  "//overrides": "SECURITY: 3 HIGH npm-audit vulns live entirely in the prisma CLI chain (prisma -> @prisma/config -> deepmerge-ts@<8), a build/release-time dependency that is NOT reachable from the runtime @prisma/client. The durable fix is an override pinning deepmerge-ts to ^8.0.0 (published 2026-08-16). Do NOT run `npm audit fix --force` — it downgrades to prisma@6.12.0 and breaks the @prisma/adapter-pg@^7 driver-adapter wiring. To apply: add  \"overrides\": { \"deepmerge-ts\": \"^8.0.0\" }  then `npm install`. NOTE: this repo's npm is configured with min-release-age=7, which gates 8.0.x until ~2026-08-23; the override installs immediately in any environment without that gate (CI/Heroku/App Runner).",
   "engines": {
-    "node": ">=20"
+    "node": "^20.19 || ^22.12 || >=24.0"
   }
 }

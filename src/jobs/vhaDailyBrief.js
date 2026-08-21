@@ -646,11 +646,21 @@ if (require.main === module) {
   const alertArgIdx = process.argv.indexOf("--alert");
   const refreshArgIdx = process.argv.indexOf("--refresh");
   const daily = process.argv.includes("--daily");
+  // Parse a JSON CLI arg with a clean error instead of an unhandled synchronous
+  // throw that escapes the .catch below (operator convenience).
+  const parseJsonArg = (raw, flag) => {
+    try {
+      return JSON.parse(raw || "{}");
+    } catch (err) {
+      console.error(`[vha-brief] ${flag} expects valid JSON: ${err.message}`);
+      process.exit(1);
+    }
+  };
   let invocation;
   if (alertArgIdx !== -1) {
-    invocation = runFromAlert(JSON.parse(process.argv[alertArgIdx + 1] || "{}"));
+    invocation = runFromAlert(parseJsonArg(process.argv[alertArgIdx + 1], "--alert"));
   } else if (refreshArgIdx !== -1) {
-    invocation = runFromRefresh(JSON.parse(process.argv[refreshArgIdx + 1] || "{}"));
+    invocation = runFromRefresh(parseJsonArg(process.argv[refreshArgIdx + 1], "--refresh"));
   } else if (daily) {
     // Heroku Scheduler runs this once/day at a fixed UTC time, so the scheduler
     // IS the send-time gate → skip the per-user local-hour gate. Dedupe ON so a

@@ -118,8 +118,11 @@ non-zero exit or `counts.fail > 0` in the JSON.)
   Set the config var.
 - **`TOKEN_ENC_KEY` = WARN** → tokens stored in plaintext. Set it:
   `heroku config:set TOKEN_ENC_KEY="$(openssl rand -base64 32)"`.
-  **`TOKEN_ENC_KEY` = FAIL** → it's set but malformed; fix or unset it (a broken
-  key must never be deployed — see the "Fix 1" regression in `tokenCrypto.test.js`).
+  **`TOKEN_ENC_KEY` = FAIL** → either it's set but malformed (fix or unset it — a
+  broken key must never be deployed, see the "Fix 1" regression in
+  `tokenCrypto.test.js`), **or** `REQUIRE_TOKEN_ENC=1` is set with no key, which
+  intentionally fails closed so installs are refused rather than storing tokens in
+  plaintext. Set a valid key, or unset `REQUIRE_TOKEN_ENC`.
 - **`TABLEAU_MCP_SERVER` = FAIL** → not https or not a public host (SSRF guard).
   Use a public https URL, or set `TABLEAU_MCP_ALLOW_PRIVATE=1` for a private
   self-host target (that downgrades it to a WARN).

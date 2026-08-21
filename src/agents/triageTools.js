@@ -163,9 +163,11 @@ function computeMeasure(rowsInGroup, m) {
       // mean of a 0/1 flag, expressed as a percentage (1 decimal).
       return round1((values.reduce((s, x) => s + x, 0) / values.length) * 100);
     case "min":
-      return Math.min(...values);
+      // reduce, not Math.min(...values): spreading up to DEFAULT_ROW_LIMIT
+      // (100k) values as call args can blow the argument-count/stack limit.
+      return values.reduce((a, x) => (x < a ? x : a), values[0]);
     case "max":
-      return Math.max(...values);
+      return values.reduce((a, x) => (x > a ? x : a), values[0]);
     default:
       return null;
   }

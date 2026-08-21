@@ -16,6 +16,16 @@ const SESSION_TTL_MS = 25 * 60 * 1000;
 /** @type {Map<string, { id: string, createdAt: number }>} */
 const _sessionsByBaseUrl = new Map();
 
+/**
+ * In-flight initialize() promises, keyed by base URL. Concurrent callers that
+ * arrive while a session is being established share the SAME promise instead of
+ * each firing their own initialize — which would open duplicate server sessions
+ * and race the cache write (last writer wins, the rest leak until TTL). Cleared
+ * as soon as the init settles.
+ * @type {Map<string, Promise<string>>}
+ */
+const _initInFlight = new Map();
+
 function normalizeTableauBaseUrl(raw) {
   return (raw || "").trim().replace(/\/$/, "");
 }
@@ -59,8 +69,13 @@ function sessionValid(entry) {
 /** Clear cached MCP session for one base URL, or all URLs if omitted. */
 function clearSession(baseUrl) {
   const key = normalizeTableauBaseUrl(baseUrl);
-  if (key) _sessionsByBaseUrl.delete(key);
-  else _sessionsByBaseUrl.clear();
+  if (key) {
+    _sessionsByBaseUrl.delete(key);
+    _initInFlight.delete(key);
+  } else {
+    _sessionsByBaseUrl.clear();
+    _initInFlight.clear();
+  }
 }
 
 async function postMcp(baseUrl, sessionId, bodyObj) {
@@ -74,13 +89,8 @@ async function postMcp(baseUrl, sessionId, bodyObj) {
   return streamableMcpPost(url, headers, bodyObj);
 }
 
-async function ensureSession(baseUrl) {
-  const key = normalizeTableauBaseUrl(baseUrl);
-  if (!key) throw new Error("TABLEAU_MCP_SERVER is not set");
-
-  const existing = _sessionsByBaseUrl.get(key);
-  if (sessionValid(existing)) return existing.id;
-
+/** Actually perform the MCP initialize handshake and cache the session id. */
+async function initSession(key) {
   const initId = 1;
   const { ok, status, text, headers } = await postMcp(key, null, {
     jsonrpc: "2.0",
@@ -114,30 +124,70 @@ async function ensureSession(baseUrl) {
   return sid;
 }
 
+async function ensureSession(baseUrl) {
+  const key = normalizeTableauBaseUrl(baseUrl);
+  if (!key) throw new Error("TABLEAU_MCP_SERVER is not set");
+
+  const existing = _sessionsByBaseUrl.get(key);
+  if (sessionValid(existing)) return existing.id;
+
+  // Coalesce concurrent initializes: the first caller starts the handshake and
+  // stashes its promise; everyone else awaits the same one. Cleared on settle so
+  // the next miss re-initializes.
+  let inFlight = _initInFlight.get(key);
+  if (!inFlight) {
+    inFlight = initSession(key).finally(() => {
+      // Only drop OUR entry (a later init may already have replaced it).
+      if (_initInFlight.get(key) === inFlight) _initInFlight.delete(key);
+    });
+    _initInFlight.set(key, inFlight);
+  }
+  return inFlight;
+}
+
 async function mcpRequest(baseUrl, sessionId, method, params = {}) {
   const key = normalizeTableauBaseUrl(baseUrl);
-  const id = Math.floor(Math.random() * 1e9);
-  const { ok, text, status } = await postMcp(key, sessionId, {
-    jsonrpc: "2.0",
-    id,
-    method,
-    params: params && typeof params === "object" ? params : {},
-  });
 
-  if (!ok && status === 401) {
+  const attempt = async (sid) => {
+    const id = Math.floor(Math.random() * 1e9);
+    const { ok, text, status } = await postMcp(key, sid, {
+      jsonrpc: "2.0",
+      id,
+      method,
+      params: params && typeof params === "object" ? params : {},
+    });
+    const msg = parseMcpResponse(text, id);
+    if (!msg) {
+      const err = new Error(`Tableau MCP: no JSON-RPC result for ${method} (HTTP ${status})`);
+      err.status = status;
+      throw err;
+    }
+    if (msg.error) {
+      const err = new Error(msg.error.message || JSON.stringify(msg.error));
+      err.code = msg.error.code;
+      throw err;
+    }
+    return msg.result;
+  };
+
+  try {
+    return await attempt(sessionId);
+  } catch (e) {
+    // Recover from an expired/invalidated session: the MCP server can drop a
+    // session before our local 25-min TTL (server restart, shorter PAT/session
+    // TTL). Clear it, re-initialize, and retry once — otherwise the current turn
+    // fails and (on the Vertex path, which swallows the throw) silently answers
+    // with no Tableau data. Mirrors the Slack MCP client's recovery.
+    const st = e.status;
+    const retry =
+      st === 401 ||
+      st === 404 ||
+      /session|invalid session|unauthorized|401|404/i.test(e.message || "");
+    if (!retry) throw e;
     clearSession(key);
+    const freshSid = await ensureSession(key);
+    return await attempt(freshSid);
   }
-
-  const msg = parseMcpResponse(text, id);
-  if (!msg) {
-    throw new Error(`Tableau MCP: no JSON-RPC result for ${method} (HTTP ${status})`);
-  }
-  if (msg.error) {
-    const err = new Error(msg.error.message || JSON.stringify(msg.error));
-    err.code = msg.error.code;
-    throw err;
-  }
-  return msg.result;
 }
 
 /**

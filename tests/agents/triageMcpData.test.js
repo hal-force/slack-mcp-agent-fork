@@ -9,6 +9,7 @@ const {
   resolveDatasourceMap,
   loadTablesFromMcp,
   makeMcpDispatchTool,
+  fetchTable,
 } = require("../../src/agents/triageMcpData");
 const { FORBIDDEN_COLUMNS } = require("../../src/agents/triageData");
 
@@ -185,6 +186,89 @@ test("loadTablesFromMcp fetches tables sequentially (single shared MCP session)"
   };
   await loadTablesFromMcp({ datasources: luids, callTool });
   assert.equal(maxInFlight, 1, "table fetches must not overlap on the shared MCP session");
+});
+
+// ── distinct-combination sanity guard (finding #5) ──────────────────────────────
+// A dimension-only VDS query returns one row per DISTINCT field combination, so it
+// only equals the real row set when the table's unique key resolves. These guard
+// the WARN paths — behavior is unchanged (rows are always returned), so we assert
+// on the emitted warning, not on dropped/added rows.
+function captureWarn(t) {
+  const warnings = [];
+  const orig = console.warn;
+  console.warn = (...a) => warnings.push(a.join(" "));
+  t.after(() => { console.warn = orig; });
+  return warnings;
+}
+
+test("fetchTable warns when a unique-key column fails to resolve", async (t) => {
+  const warnings = captureWarn(t);
+  // Metadata offers every column EXCEPT assignment_id, so the key can't resolve.
+  const callTool = async (name, input) => {
+    if (name === "get-datasource-metadata") {
+      return { text: JSON.stringify({ data: [
+        { fieldCaption: "Patient Id" }, { fieldCaption: "Nurse Id" },
+        { fieldCaption: "Skill Match Pct" }, { fieldCaption: "Assignment Method" },
+      ] }) };
+    }
+    // query returns rows keyed by the requested captions
+    const requested = (input.query.fields || []).map((f) => f.fieldCaption);
+    const src = [
+      { "Patient Id": "PT1", "Nurse Id": "RN1", "Skill Match Pct": "80", "Assignment Method": "AI-Recommended" },
+      { "Patient Id": "PT2", "Nurse Id": "RN2", "Skill Match Pct": "70", "Assignment Method": "Manual" },
+    ];
+    const data = src.map((r) => Object.fromEntries(requested.filter((c) => c in r).map((c) => [c, r[c]])));
+    return { text: JSON.stringify({ data }) };
+  };
+  const rows = await fetchTable({ table: "assignments", luid: "LU", callTool });
+  assert.equal(rows.length, 2, "rows are still returned — guard never drops data");
+  assert.ok(
+    warnings.some((w) => /assignment_id.*did not resolve/.test(w)),
+    "warns that the unique-key column did not resolve",
+  );
+});
+
+test("fetchTable warns when returned rows collapse below distinct-key count", async (t) => {
+  const warnings = captureWarn(t);
+  // Key (nurse_id) resolves, but the server returns two rows with the SAME key —
+  // i.e. VDS de-duplicated on rendered values / the key isn't unique in the source.
+  const callTool = async (name, input) => {
+    if (name === "get-datasource-metadata") {
+      return { text: JSON.stringify({ data: [{ fieldCaption: "Nurse Id" }, { fieldCaption: "Home Unit" }] }) };
+    }
+    const requested = (input.query.fields || []).map((f) => f.fieldCaption);
+    const src = [
+      { "Nurse Id": "RN1", "Home Unit": "ICU-A" },
+      { "Nurse Id": "RN1", "Home Unit": "ICU-B" }, // duplicate key
+    ];
+    const data = src.map((r) => Object.fromEntries(requested.filter((c) => c in r).map((c) => [c, r[c]])));
+    return { text: JSON.stringify({ data }) };
+  };
+  const rows = await fetchTable({ table: "nurses", luid: "LU", callTool });
+  assert.equal(rows.length, 2);
+  assert.ok(
+    warnings.some((w) => /distinct \[nurse_id\]/.test(w)),
+    "warns that distinct keys < row count",
+  );
+});
+
+test("fetchTable does NOT warn on the healthy path (key resolves, keys unique)", async (t) => {
+  const warnings = captureWarn(t);
+  const callTool = async (name, input) => {
+    if (name === "get-datasource-metadata") {
+      return { text: JSON.stringify({ data: [{ fieldCaption: "Nurse Id" }, { fieldCaption: "Home Unit" }] }) };
+    }
+    const requested = (input.query.fields || []).map((f) => f.fieldCaption);
+    const src = [
+      { "Nurse Id": "RN1", "Home Unit": "ICU-A" },
+      { "Nurse Id": "RN2", "Home Unit": "ICU-B" },
+    ];
+    const data = src.map((r) => Object.fromEntries(requested.filter((c) => c in r).map((c) => [c, r[c]])));
+    return { text: JSON.stringify({ data }) };
+  };
+  const rows = await fetchTable({ table: "nurses", luid: "LU", callTool });
+  assert.equal(rows.length, 2);
+  assert.equal(warnings.length, 0, "no sanity warning on the healthy path");
 });
 
 test("makeMcpDispatchTool fetches tables only once across multiple tool calls", async () => {

@@ -19,6 +19,11 @@
  *  - When no key is configured, encrypt() is a no-op (stores plaintext) and logs
  *    a one-time warning, so local/dev without a key still runs. Set the key in
  *    production (Heroku config var) to actually protect tokens.
+ *  - Set REQUIRE_TOKEN_ENC=1 to FAIL CLOSED instead: encrypt() throws rather than
+ *    persist a token in plaintext when no key is set. Recommended for production
+ *    so a missing key surfaces as a loud error (and a blocked install) instead of
+ *    silently writing live tokens in the clear. Defaults off to preserve the
+ *    local/dev no-key path.
  */
 
 const crypto = require("crypto");
@@ -72,6 +77,12 @@ function getKey() {
   return _key;
 }
 
+/** True when the operator has opted into fail-closed encryption enforcement. */
+function requireEncryption() {
+  const v = String(process.env.REQUIRE_TOKEN_ENC || "").trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes";
+}
+
 /** @param {unknown} v */
 function isEncrypted(v) {
   return typeof v === "string" && v.startsWith(PREFIX);
@@ -88,10 +99,18 @@ function encrypt(plaintext) {
   if (isEncrypted(plaintext)) return plaintext;
   const key = getKey();
   if (!key) {
+    // Fail closed when the operator has opted in: never silently persist a live
+    // token in plaintext. Surfaces as a blocked install + loud error, not a
+    // quiet data-at-rest exposure.
+    if (requireEncryption()) {
+      throw new Error(
+        "[tokenCrypto] REQUIRE_TOKEN_ENC=1 but TOKEN_ENC_KEY is not set — refusing to store an OAuth token in PLAINTEXT. Set TOKEN_ENC_KEY (openssl rand -base64 32).",
+      );
+    }
     if (!_warnedNoKey) {
       _warnedNoKey = true;
       console.warn(
-        "[tokenCrypto] TOKEN_ENC_KEY is not set — OAuth tokens are being stored in PLAINTEXT. Set TOKEN_ENC_KEY (openssl rand -base64 32) in production.",
+        "[tokenCrypto] TOKEN_ENC_KEY is not set — OAuth tokens are being stored in PLAINTEXT. Set TOKEN_ENC_KEY (openssl rand -base64 32) in production, or REQUIRE_TOKEN_ENC=1 to fail closed.",
       );
     }
     return plaintext;
@@ -143,4 +162,4 @@ function _resetKeyCache() {
   _warnedNoKey = false;
 }
 
-module.exports = { encrypt, decrypt, isEncrypted, encryptionEnabled, _resetKeyCache };
+module.exports = { encrypt, decrypt, isEncrypted, encryptionEnabled, requireEncryption, _resetKeyCache };
