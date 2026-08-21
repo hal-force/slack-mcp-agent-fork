@@ -68,7 +68,10 @@ resource "aws_secretsmanager_secret" "this" {
   for_each = local.secret_keys
 
   name = "${local.name}/${each.value}"
-  tags = local.tags
+  # null => AWS-managed aws/secretsmanager key (demo default); a CMK ARN when
+  # var.create_secrets_kms_key = true (see kms.tf).
+  kms_key_id = local.secrets_kms_key_arn
+  tags       = local.tags
 }
 
 resource "aws_secretsmanager_secret_version" "this" {

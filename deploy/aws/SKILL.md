@@ -219,8 +219,59 @@ users are alerting on — a subscription on the wrong site never fires.
 > question) as the deploy proof. For a demo stack, (b) is sufficient; don't chase
 > a laptop `smoke` pass — it can't succeed against a private MCP.
 
+## Production deployment (hardening beyond the demo)
+
+The demo defaults are deliberately throwaway. For a real deployment, **stand up a
+separate stack** (own `name_prefix`, own state) rather than mutating a live demo —
+then the demo stays a safe sandbox. Every production knob below defaults to the
+demo's current behavior, so turning them on is additive and opt-in.
+
+Copy `terraform.tfvars.prod.example` (not the plain one) as your starting point.
+
+1. **Remote state first (do this before the first prod apply).** Local state on
+   one laptop is the biggest operational risk — lose it and Terraform will try to
+   recreate live resources. Use the S3 backend:
+   - Create a versioned, private state bucket out-of-band.
+   - `cp backend.tf.prod-example backend.tf` and
+     `cp backend-prod.hcl.example backend-prod.hcl` (fill in real values).
+   - `tofu init -backend-config=backend-prod.hcl`.
+   - `backend.tf` and `backend-prod.hcl` are gitignored on purpose — activating a
+     backend is per-deployment and must never land in the shared repo (it would
+     force every demo `init` to a remote backend). Migrating an *existing* local
+     state up is also non-destructive (`init -migrate-state`) — but prefer a fresh
+     prod stack.
+2. **Database durability** (`terraform.tfvars`): `db_deletion_protection = true`,
+   `db_skip_final_snapshot = false`, `db_backup_retention_period = 14` (or 7-35).
+   These are in-place changes on the cluster — no replacement, no downtime.
+3. **Customer-managed KMS key**: `create_secrets_kms_key = true` creates a CMK with
+   rotation, encrypts every secret with it, and grants each instance role
+   `kms:Decrypt`. Gives you key-policy control and per-principal `kms:Decrypt`
+   auditing in CloudTrail (the default AWS-managed key gives neither).
+4. **Pin image digests**: after pushing, set `agent_image_digest` /
+   `mcp_image_digest` to the `sha256:...` digests (see the example for the
+   `aws ecr describe-images` command). A digest pin means a re-apply or auto-deploy
+   can never silently pull a different/broken build the way a mutable `:latest` can.
+5. **Monitoring**: `create_alarms = true` (+ `alarm_email`) creates an SNS topic and
+   CloudWatch alarms for agent 5xx and Aurora CPU/connection saturation.
+
+**Order matters; never change these on a live stack** — `name_prefix`, `vpc_cidr`,
+`create_vpc`, `db_name`, `db_username`, or a major `aurora_engine_version` jump all
+force resource **replacement** (they rebuild the VPC and/or destroy the database).
+Safe changes are the durability/KMS/monitoring/digest knobs above.
+
+> **Deferred: per-user Tableau OAuth.** The MCP currently authenticates to Tableau
+> with a shared PAT (`AUTH=pat`), and its HTTP endpoint is protected by network
+> isolation (private VPC ingress), not a bearer token. True per-user identity
+> (`AUTH=oauth`) requires a Tableau connected-app/EAS setup plus an agent-side
+> token flow, and an EAS-style config can affect an entire **shared** Tableau
+> server — so it belongs on a **dedicated** prod Tableau site, not a shared demo
+> server. Build it there as a scoped follow-up.
+
 ## Teardown
 
 `terraform destroy` removes everything. Secrets Manager secrets have a recovery
-window (default 30 days) unless force-deleted. The Aurora cluster is created with
-`skip_final_snapshot = true`, so destroy will not leave a snapshot behind.
+window (default 30 days) unless force-deleted. On the **demo** stack the Aurora
+cluster uses `skip_final_snapshot = true`, so destroy leaves no snapshot behind; a
+**production** stack with `db_skip_final_snapshot = false` (and/or
+`db_deletion_protection = true`) will instead retain a final snapshot / refuse to
+destroy until protection is removed — intended, so double-check before tearing down.

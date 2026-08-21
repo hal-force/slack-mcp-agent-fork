@@ -41,9 +41,9 @@ resource "aws_security_group" "apprunner_vpce" {
 }
 
 resource "aws_vpc_endpoint" "apprunner" {
-  vpc_id              = local.vpc_id
-  service_name        = "com.amazonaws.${var.aws_region}.apprunner.requests"
-  vpc_endpoint_type   = "Interface"
+  vpc_id             = local.vpc_id
+  service_name       = "com.amazonaws.${var.aws_region}.apprunner.requests"
+  vpc_endpoint_type  = "Interface"
   subnet_ids         = local.private_subnet_ids
   security_group_ids = [aws_security_group.apprunner_vpce.id]
   # The apprunner.requests interface endpoint does not publish a private DNS
@@ -71,6 +71,14 @@ resource "aws_apprunner_vpc_connector" "agent_egress" {
 # tableau-mcp service (private)
 ############################################
 
+locals {
+  # Prefer an immutable digest (repo@sha256:...) when provided, so a re-apply or
+  # auto-deploy can never silently pull a different build; otherwise fall back to
+  # the mutable tag (repo:tag). Digest wins for production; tag is the demo default.
+  agent_image_identifier = var.agent_image_digest != "" ? "${aws_ecr_repository.slack_agent.repository_url}@${var.agent_image_digest}" : "${aws_ecr_repository.slack_agent.repository_url}:${var.agent_image_tag}"
+  mcp_image_identifier   = var.mcp_image_digest != "" ? "${aws_ecr_repository.tableau_mcp.repository_url}@${var.mcp_image_digest}" : "${aws_ecr_repository.tableau_mcp.repository_url}:${var.mcp_image_tag}"
+}
+
 resource "aws_apprunner_service" "tableau_mcp" {
   service_name = "${local.name}-tableau-mcp"
 
@@ -80,7 +88,7 @@ resource "aws_apprunner_service" "tableau_mcp" {
     }
 
     image_repository {
-      image_identifier      = "${aws_ecr_repository.tableau_mcp.repository_url}:${var.mcp_image_tag}"
+      image_identifier      = local.mcp_image_identifier
       image_repository_type = "ECR"
 
       image_configuration {
@@ -198,7 +206,7 @@ resource "aws_apprunner_service" "slack_agent" {
     }
 
     image_repository {
-      image_identifier      = "${aws_ecr_repository.slack_agent.repository_url}:${var.agent_image_tag}"
+      image_identifier      = local.agent_image_identifier
       image_repository_type = "ECR"
 
       image_configuration {

@@ -62,7 +62,13 @@ resource "aws_rds_cluster" "this" {
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.db.id]
   storage_encrypted      = true
-  skip_final_snapshot    = true
+
+  # Durability knobs default to the demo's throwaway behavior (no protection,
+  # no final snapshot, 1-day backups) and flip on for production via tfvars.
+  deletion_protection       = var.db_deletion_protection
+  backup_retention_period   = var.db_backup_retention_period
+  skip_final_snapshot       = var.db_skip_final_snapshot
+  final_snapshot_identifier = var.db_skip_final_snapshot ? null : "${var.db_final_snapshot_prefix}-${local.name}-db"
 
   serverlessv2_scaling_configuration {
     min_capacity = 0.5

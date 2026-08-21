@@ -93,6 +93,18 @@ data "aws_iam_policy_document" "mcp_instance_secrets" {
     actions   = ["secretsmanager:GetSecretValue"]
     resources = local.mcp_secret_arns
   }
+
+  # Reading a CMK-encrypted secret also requires kms:Decrypt on that key. Added
+  # only when the CMK exists (var.create_secrets_kms_key); with the AWS-managed
+  # key, Secrets Manager handles decryption implicitly and no grant is needed.
+  dynamic "statement" {
+    for_each = local.secrets_kms_key_arn == null ? [] : [local.secrets_kms_key_arn]
+    content {
+      effect    = "Allow"
+      actions   = ["kms:Decrypt"]
+      resources = [statement.value]
+    }
+  }
 }
 
 resource "aws_iam_role_policy" "mcp_instance_secrets" {
@@ -144,6 +156,17 @@ data "aws_iam_policy_document" "agent_instance_secrets" {
         "bedrock:InvokeModelWithResponseStream",
       ]
       resources = ["*"]
+    }
+  }
+
+  # kms:Decrypt for the secrets CMK, mirroring mcp_instance_secrets above.
+  # Only present when var.create_secrets_kms_key = true.
+  dynamic "statement" {
+    for_each = local.secrets_kms_key_arn == null ? [] : [local.secrets_kms_key_arn]
+    content {
+      effect    = "Allow"
+      actions   = ["kms:Decrypt"]
+      resources = [statement.value]
     }
   }
 }

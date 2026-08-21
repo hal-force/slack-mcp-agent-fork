@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────────────────
+# REMOTE STATE — production only. NOT active by default.
+#
+# Terraform only loads files ending in .tf, so this .tf.prod-example file is
+# IGNORED as-is. The demo stack keeps its local terraform.tfstate untouched.
+#
+# To use remote state for a PROD stack (do this ONCE, before the first prod
+# apply, from a clean/empty state):
+#
+#   1. Create the state bucket out-of-band (versioned; block public access):
+#        aws s3api create-bucket --bucket <your-tfstate-bucket> \
+#          --region <region> --create-bucket-configuration LocationConstraint=<region>
+#        aws s3api put-bucket-versioning --bucket <your-tfstate-bucket> \
+#          --versioning-configuration Status=Enabled
+#   2. cp backend.tf.prod-example backend.tf
+#   3. cp backend-prod.hcl.example backend-prod.hcl  and fill in real values
+#   4. tofu init -backend-config=backend-prod.hcl
+#
+# Native S3 state locking (use_lockfile) needs Terraform >= 1.10 / OpenTofu
+# >= 1.10 — no DynamoDB table required. On older versions, add a
+# `dynamodb_table` here and drop use_lockfile.
+#
+# MIGRATING AN EXISTING LOCAL STATE to this backend is also non-destructive —
+# `tofu init -migrate-state -backend-config=backend-prod.hcl` copies the state
+# file up and touches NO AWS resources — but do NOT do this to the shared demo
+# stack; stand prod up as its own stack instead.
+# ─────────────────────────────────────────────────────────────────────────
+
+terraform {
+  backend "s3" {
+    # All values supplied via -backend-config=backend-prod.hcl so this stays
+    # environment-agnostic and no bucket name is committed.
+    #   bucket       = "..."
+    #   key          = "..."
+    #   region       = "..."
+    #   encrypt      = true
+    #   use_lockfile = true
+  }
+}

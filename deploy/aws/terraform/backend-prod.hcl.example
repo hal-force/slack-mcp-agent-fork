@@ -1,0 +1,12 @@
+# Backend config for a PRODUCTION stack's remote state (S3 + native lockfile).
+# Copy to backend-prod.hcl, fill in real values, then:
+#   tofu init -backend-config=backend-prod.hcl
+#
+# backend-prod.hcl is gitignored (it names your bucket); this .example is safe
+# to commit.
+
+bucket       = "REPLACE_ME-tfstate-bucket"
+key          = "tableau-slack-agent/prod/terraform.tfstate"
+region       = "REPLACE_ME-region"        # e.g. us-west-2
+encrypt      = true
+use_lockfile = true                        # S3-native locking; needs TF/OpenTofu >= 1.10

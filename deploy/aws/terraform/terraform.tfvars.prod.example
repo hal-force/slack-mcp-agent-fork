@@ -1,0 +1,116 @@
+########################################################################
+# PRODUCTION tfvars example. Copy to terraform.tfvars and fill REPLACE_ME.
+# NEVER commit terraform.tfvars — it contains live secrets.
+#
+# This differs from terraform.tfvars.example only in the PRODUCTION-HARDENING
+# blocks at the bottom (durability, KMS, image pinning, monitoring). All of
+# those knobs default to the demo's throwaway behavior in variables.tf, so a
+# demo stack that omits them is unchanged; a prod stack sets them ON here.
+#
+# Pair this with remote state — see backend.tf.prod-example. Stand prod up as
+# its OWN stack (own name_prefix + own state); do not mutate the shared demo.
+########################################################################
+
+########################################
+# AWS / networking
+########################################
+
+aws_region  = "REPLACE_ME"          # e.g. us-west-2
+name_prefix = "tableau-slack-prod"   # DISTINCT from any demo stack
+
+create_vpc = true
+vpc_cidr   = "10.40.0.0/16"          # non-overlapping with other stacks
+
+########################################
+# Tableau — use a DEDICATED prod PAT (do not reuse a demo/shared PAT: one PAT
+# cannot hold two concurrent sessions). Ideally a dedicated prod Tableau site.
+########################################
+
+tableau_server_url = "https://REPLACE_ME.online.tableau.com"
+tableau_site_name  = "REPLACE_ME"
+tableau_pat_name   = "slack-agent-prod"
+tableau_pat_value  = "REPLACE_ME"
+
+########################################
+# Slack — a dedicated PROD Slack app (separate app id from any demo app).
+########################################
+
+slack_signing_secret = "REPLACE_ME"
+slack_client_id      = "REPLACE_ME"
+slack_client_secret  = "REPLACE_ME"
+slack_state_secret   = "REPLACE_ME"
+slack_team_id        = "REPLACE_ME"
+
+########################################
+# App secrets
+########################################
+
+token_enc_key          = "REPLACE_ME"
+tableau_webhook_secret = "REPLACE_ME"
+vha_daily_job_secret   = "REPLACE_ME"
+
+########################################
+# LLM provider — Bedrock via the instance role (no static key to rotate).
+########################################
+
+ai_provider              = "bedrock"
+bedrock_model_id         = "us.anthropic.claude-sonnet-4-6"
+aws_bearer_token_bedrock = ""
+
+########################################
+# Database
+########################################
+
+db_name     = "slackagent"
+db_username = "slackagent"
+# aurora_engine_version = "16.8"   # see describe-db-engine-versions note
+
+# --- Production durability (these DEFAULT to demo/off in variables.tf) ---
+db_deletion_protection     = true   # block accidental cluster deletion
+db_skip_final_snapshot     = false  # keep a recoverable snapshot on destroy
+db_backup_retention_period = 14     # days of automated backups
+db_final_snapshot_prefix   = "final"
+
+########################################
+# Agent runtime
+########################################
+
+public_base_url  = ""   # set after first apply, then re-apply
+brief_hour_local = "7"
+extra_env        = {}
+
+########################################
+# VHA daily brief schedule
+########################################
+
+enable_daily_schedule = true
+daily_schedule_cron   = "cron(0 14 * * ? *)"
+
+########################################
+# Container images — PIN immutable digests in prod so a re-apply/auto-deploy
+# can never silently pull a different build. Get the digest after pushing:
+#   aws ecr describe-images --repository-name <name-prefix>-slack-agent \
+#     --image-ids imageTag=latest --query 'imageDetails[0].imageDigest' --output text
+########################################
+
+agent_image_tag    = "latest"
+mcp_image_tag      = "latest"
+agent_image_digest = "sha256:REPLACE_ME"   # takes precedence over agent_image_tag
+mcp_image_digest   = "sha256:REPLACE_ME"   # takes precedence over mcp_image_tag
+
+########################################
+# Secrets encryption — customer-managed KMS key (rotation + auditable Decrypt).
+# NOTE: enabling this on a FRESH stack (the recommended flow) encrypts every
+# secret under the CMK from creation. Flipping it true on an ALREADY-DEPLOYED
+# stack only re-keys FUTURE secret versions — existing values stay under the
+# AWS-managed key until each secret is next rewritten. Prefer a fresh stack.
+########################################
+
+create_secrets_kms_key = true
+
+########################################
+# Observability — CloudWatch alarms wired to SNS.
+########################################
+
+create_alarms = true
+alarm_email   = "REPLACE_ME@example.gov"

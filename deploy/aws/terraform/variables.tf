@@ -206,6 +206,32 @@ variable "aurora_engine_version" {
   default     = "16.6"
 }
 
+# ---- Production durability (defaults preserve the demo's throwaway behavior) ----
+
+variable "db_deletion_protection" {
+  description = "Enable Aurora deletion protection so a stray `destroy`/console delete cannot wipe the cluster. Leave false for a throwaway demo; set true for production."
+  type        = bool
+  default     = false
+}
+
+variable "db_skip_final_snapshot" {
+  description = "If true, no final snapshot is taken when the cluster is destroyed (demo default — nothing to recover). Set false in production so a destroy leaves a recoverable snapshot named db_final_snapshot_prefix-<cluster>."
+  type        = bool
+  default     = true
+}
+
+variable "db_backup_retention_period" {
+  description = "Days of automated Aurora backups to retain. 1 = the AWS/demo default; production typically wants 7-35."
+  type        = number
+  default     = 1
+}
+
+variable "db_final_snapshot_prefix" {
+  description = "Prefix for the final snapshot identifier when db_skip_final_snapshot = false. The cluster id is appended."
+  type        = string
+  default     = "final"
+}
+
 ############################################
 # Agent runtime
 ############################################
@@ -258,4 +284,52 @@ variable "mcp_image_tag" {
   description = "Image tag to deploy for the tableau-mcp ECR repository."
   type        = string
   default     = "latest"
+}
+
+variable "agent_image_digest" {
+  description = "Optional immutable image digest (sha256:...) for the slack-agent. When set it takes precedence over agent_image_tag, pinning the exact image so a re-apply or auto-deploy can never silently pull a different build. Leave empty to use the mutable tag (demo default)."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.agent_image_digest == "" || can(regex("^sha256:[0-9a-f]{64}$", var.agent_image_digest))
+    error_message = "agent_image_digest must be empty or a full digest of the form sha256:<64 hex chars>."
+  }
+}
+
+variable "mcp_image_digest" {
+  description = "Optional immutable image digest (sha256:...) for the tableau-mcp service. Takes precedence over mcp_image_tag when set. Leave empty to use the mutable tag (demo default)."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.mcp_image_digest == "" || can(regex("^sha256:[0-9a-f]{64}$", var.mcp_image_digest))
+    error_message = "mcp_image_digest must be empty or a full digest of the form sha256:<64 hex chars>."
+  }
+}
+
+############################################
+# Secrets encryption (KMS)
+############################################
+
+variable "create_secrets_kms_key" {
+  description = "If true, create a customer-managed KMS key (CMK) with rotation and encrypt every Secrets Manager secret with it, granting each instance role kms:Decrypt. If false (demo default), secrets use the AWS-managed aws/secretsmanager key."
+  type        = bool
+  default     = false
+}
+
+############################################
+# Observability
+############################################
+
+variable "create_alarms" {
+  description = "If true, create CloudWatch alarms (App Runner 5xx, Aurora CPU/connections) wired to an SNS topic. Default off for the demo."
+  type        = bool
+  default     = false
+}
+
+variable "alarm_email" {
+  description = "Optional email address subscribed to the alarm SNS topic when create_alarms = true. Leave empty to create the topic without a subscription (wire it up manually or via another channel)."
+  type        = string
+  default     = ""
 }

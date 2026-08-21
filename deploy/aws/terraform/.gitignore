@@ -15,5 +15,11 @@ crash.*.log
 # Keep the lock file checked in for reproducible provider versions
 !.terraform.lock.hcl
 
+# Remote-state activation is per-deployment and must NOT land in the shared repo
+# (an active backend.tf would force every demo `init` to a remote backend). The
+# committed source of truth is backend.tf.prod-example / backend-prod.hcl.example.
+backend.tf
+backend-prod.hcl
+
 # Terraform plan output, if saved locally
 *.tfplan
