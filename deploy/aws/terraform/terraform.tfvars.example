@@ -79,10 +79,13 @@ gcp_service_account_json = ""
 db_name     = "slackagent"
 db_username = "slackagent"
 
-# If `terraform apply` reports an invalid Aurora engine version (AWS retires
-# specific point releases for new clusters over time), set one currently
-# offered in your region — see the variable description in variables.tf.
-# aurora_engine_version = "16.6"
+# AWS retires specific Aurora point releases for NEW clusters over time, so a
+# version that worked last quarter may be rejected today (e.g. 16.6 is no longer
+# offered for new clusters in us-west-2). List what your region currently offers:
+#   aws rds describe-db-engine-versions --engine aurora-postgresql \
+#     --query 'DBEngineVersions[].EngineVersion' --region <region> --output text
+# then set the lowest 16.x still listed. See the variable description in variables.tf.
+# aurora_engine_version = "16.8"
 
 ########################################
 # Agent runtime

@@ -19,6 +19,14 @@ const BEDROCK_KEYS = [
   "AWS_DEFAULT_REGION",
   "AWS_ACCESS_KEY_ID",
   "AWS_BEARER_TOKEN_BEDROCK",
+  // Role-based credential sources bedrockConfig() also honors. Listed here so
+  // the suite clears any host value (CI on ECS/App Runner sets the container
+  // creds URI) and restores it after — otherwise the "unconfigured" cases
+  // would spuriously detect creds.
+  "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI",
+  "AWS_CONTAINER_CREDENTIALS_FULL_URI",
+  "AWS_WEB_IDENTITY_TOKEN_FILE",
+  "AWS_ROLE_ARN",
 ];
 // Snapshot AWS_* so we can restore anything the host environment had set.
 const AWS_SNAPSHOT = Object.fromEntries(BEDROCK_KEYS.map((k) => [k, process.env[k]]));
@@ -117,6 +125,20 @@ test("bedrockConfig accepts a bearer token as credentials (no access key)", () =
   process.env.BEDROCK_REGION = "us-west-2";
   delete process.env.AWS_ACCESS_KEY_ID; // long-term API key path, no SigV4 keys
   process.env.AWS_BEARER_TOKEN_BEDROCK = "ABSK-test-token";
+  assert.equal(selectedProvider(), "bedrock");
+  assert.equal(bedrockConfig().region, "us-west-2");
+});
+
+test("bedrockConfig accepts an App Runner / ECS instance role (no static keys)", () => {
+  // The recommended AWS deploy sets NO key env vars — creds come from the
+  // container credentials endpoint. Regression guard for the deploy gate that
+  // previously failed here and fell back to vertex.
+  process.env.AI_PROVIDER = "bedrock";
+  process.env.BEDROCK_MODEL_ID = "us.anthropic.claude-sonnet-5";
+  process.env.BEDROCK_REGION = "us-west-2";
+  delete process.env.AWS_ACCESS_KEY_ID;
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK;
+  process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI = "/v2/credentials/abc123";
   assert.equal(selectedProvider(), "bedrock");
   assert.equal(bedrockConfig().region, "us-west-2");
 });

@@ -100,16 +100,24 @@ aws ecr get-login-password --region $AWS_REGION \
   | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com
 
 # Slack agent (root Dockerfile)
-docker build -t <slack_agent_repo_url>:latest .
+docker build --platform linux/amd64 --provenance=false --sbom=false \
+  -t <slack_agent_repo_url>:latest .
 docker push <slack_agent_repo_url>:latest
 
-# Tableau MCP (pinned upstream build)
-docker build --build-arg TABLEAU_MCP_REF=v4.5.1 -t <tableau_mcp_repo_url>:latest deploy/tableau-mcp
+# Tableau MCP (pinned upstream build; the Dockerfile defaults to v4.5.1)
+docker build --platform linux/amd64 --provenance=false --sbom=false \
+  --build-arg TABLEAU_MCP_REF=v4.5.1 -t <tableau_mcp_repo_url>:latest deploy/tableau-mcp
 docker push <tableau_mcp_repo_url>:latest
 ```
 
-> App Runner images must be **linux/amd64**. On an Apple-silicon machine add
-> `--platform linux/amd64` to both `docker build` commands (or use `docker buildx`).
+> **All three flags matter, on every machine — not just Apple silicon:**
+> - `--platform linux/amd64` — the only architecture App Runner runs.
+> - `--provenance=false --sbom=false` — without these, modern Docker/BuildKit
+>   pushes an **OCI image index** (a multi-manifest list) instead of a plain
+>   image manifest. App Runner **cannot pull an image index** and the service
+>   fails to deploy with an opaque "image not found / manifest" error. Verify a
+>   good push with `docker manifest inspect <repo_url>:latest` — you want a
+>   single `mediaType: …manifest.v2+json`, not `…index.v1+json`.
 
 ## Phase 3 — First full apply, then the public-URL re-apply
 
@@ -130,6 +138,18 @@ Confirm both services reach **Running** in the App Runner console. The agent run
 the same deploy gate as Heroku on start (`prisma migrate deploy` +
 `health:configcheck`); if it crash-loops, read its App Runner logs — a failed
 config gate prints exactly which var is wrong.
+
+> **If the first apply fails on the Aurora cluster** with an invalid
+> engine-version error, AWS has retired that point release for new clusters. Pick
+> a currently-offered one (`aws rds describe-db-engine-versions --engine
+> aurora-postgresql --region <region> --query 'DBEngineVersions[].EngineVersion'`)
+> and set `aurora_engine_version` in `terraform.tfvars`, then re-apply.
+>
+> **If `slack-agent` reaches CREATE_FAILED on the TCP health check** while its
+> logs show `LLM provider FAIL … AI_PROVIDER=bedrock but config incomplete`, the
+> instance role isn't being detected as Bedrock credentials — confirm the running
+> image includes the role-aware `bedrockConfig()` (App Runner sets no static AWS
+> keys; creds come from the container-credentials endpoint).
 
 ## Phase 4 — Point the Slack app at the deployment
 
@@ -179,6 +199,25 @@ users are alerting on — a subscription on the wrong site never fires.
   MCP and answer.
 - Daily trigger: in EventBridge, the `*-vha-daily` rule is **Enabled**; its next
   run posts to `/jobs/vha-daily/<secret>`.
+
+> **Coverage boundary — the health harness's live suites cannot verify this
+> deploy from your laptop.** `npm run health:configcheck` is network-free and
+> runs automatically as the in-container startup gate (the `11 pass` above), so
+> it *is* validated against the real deployment. But `health:smoke`,
+> `health:drift`, and `health:contextrot` run **in-process** against whatever
+> environment the runner sees, and two facts make a laptop run misleading:
+> 1. They'd use your **local** LLM creds/config, not the App Runner instance
+>    role and Secrets Manager values — so they test your laptop, not the stack.
+> 2. `smoke`/`drift` ping the Tableau MCP at `TABLEAU_MCP_SERVER`, which is a
+>    **VPC-private** domain that only resolves *inside* the VPC. From outside it
+>    always fails — a false negative, not a real problem.
+>
+> So the live suites are only meaningful **inside the running container**. App
+> Runner offers no `exec`, so to get a live-reachability signal either (a) add a
+> gated `GET /health/smoke` route to the agent and hit it once, or (b) accept the
+> startup `configcheck` gate plus a real Slack round-trip (mention + data
+> question) as the deploy proof. For a demo stack, (b) is sufficient; don't chase
+> a laptop `smoke` pass — it can't succeed against a private MCP.
 
 ## Teardown
 

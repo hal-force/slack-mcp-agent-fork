@@ -22,3 +22,4 @@ demo-data/vha/.prep-run/
 demo-data/vha/prep-flow/
 demo-data/vha/**/*.hyper
 demo-data/vha/*.log
+.secrets-scratch/

@@ -22,7 +22,7 @@ resource "aws_security_group" "apprunner_vpce" {
   vpc_id      = local.vpc_id
 
   ingress {
-    description     = "Agent -> App Runner PrivateLink endpoint"
+    description     = "Agent to App Runner PrivateLink endpoint"
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
@@ -44,9 +44,15 @@ resource "aws_vpc_endpoint" "apprunner" {
   vpc_id              = local.vpc_id
   service_name        = "com.amazonaws.${var.aws_region}.apprunner.requests"
   vpc_endpoint_type   = "Interface"
-  subnet_ids          = local.private_subnet_ids
-  security_group_ids  = [aws_security_group.apprunner_vpce.id]
-  private_dns_enabled = true
+  subnet_ids         = local.private_subnet_ids
+  security_group_ids = [aws_security_group.apprunner_vpce.id]
+  # The apprunner.requests interface endpoint does not publish a private DNS
+  # name (AWS rejects private_dns_enabled=true for this service), and it isn't
+  # needed: the App Runner VPC INGRESS CONNECTION assigns its own private
+  # domain (aws_apprunner_vpc_ingress_connection.mcp.domain_name), which is
+  # what the agent's TABLEAU_MCP_SERVER points at — resolution is handled by
+  # the ingress connection bound to this endpoint by ID, not by endpoint DNS.
+  private_dns_enabled = false
 
   tags = merge(local.tags, { Name = "${local.name}-apprunner-vpce" })
 }

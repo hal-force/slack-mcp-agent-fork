@@ -33,3 +33,4 @@ Dockerfile
 
 # NOTE: certs/rds-global-bundle.pem is intentionally NOT ignored — it is the public
 # Amazon RDS CA bundle the app needs at runtime for strict DB TLS verification.
+.secrets-scratch/

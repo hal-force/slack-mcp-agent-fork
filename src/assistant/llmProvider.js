@@ -48,21 +48,35 @@ function gatewayConfig() {
  * Returns null if the required pieces are missing so selectedProvider() falls
  * back to vertex rather than silently breaking replies.
  *
- * Credentials may take either form:
+ * Credentials may take any of these forms (the SDK's default provider chain
+ * resolves them at call time; here we just detect that *a* source is present):
  *  - A long-term Bedrock API key in AWS_BEARER_TOKEN_BEDROCK. The SDK detects
  *    this env var, switches its auth scheme to httpBearerAuth automatically
  *    (see @aws-sdk/core httpAuthSchemes), and never needs a session token — so
  *    it doesn't expire the way STS (ASIA…) creds do.
  *  - Classic SigV4 access-key creds in AWS_ACCESS_KEY_ID (+ secret / session).
+ *  - A container/instance role: App Runner and ECS inject the container
+ *    credentials endpoint via AWS_CONTAINER_CREDENTIALS_RELATIVE_URI /
+ *    AWS_CONTAINER_CREDENTIALS_FULL_URI; the SDK's remote provider reads it.
+ *    This is the RECOMMENDED path for the AWS deploy (see deploy/aws — the
+ *    instance role grants bedrock:InvokeModel, so no static key is set).
+ *  - EKS/IRSA web identity: AWS_WEB_IDENTITY_TOKEN_FILE + AWS_ROLE_ARN.
+ * Without this broader detection, a role-based deploy (no key env vars) would
+ * wrongly look "unconfigured" and silently fall back to vertex.
  */
 function bedrockConfig() {
   const model = String(process.env.BEDROCK_MODEL_ID || "").trim();
   const region = String(
     process.env.BEDROCK_REGION || process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "",
   ).trim();
-  const hasBearerToken = Boolean(String(process.env.AWS_BEARER_TOKEN_BEDROCK || "").trim());
-  const hasAccessKey = Boolean(String(process.env.AWS_ACCESS_KEY_ID || "").trim());
-  if (!model || !region || !(hasBearerToken || hasAccessKey)) return null;
+  const present = (k) => Boolean(String(process.env[k] || "").trim());
+  const hasCreds =
+    present("AWS_BEARER_TOKEN_BEDROCK") || // long-term Bedrock API key
+    present("AWS_ACCESS_KEY_ID") || // static SigV4 creds
+    present("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") || // ECS/App Runner role
+    present("AWS_CONTAINER_CREDENTIALS_FULL_URI") || // App Runner role
+    (present("AWS_WEB_IDENTITY_TOKEN_FILE") && present("AWS_ROLE_ARN")); // EKS IRSA
+  if (!model || !region || !hasCreds) return null;
   return { model, region };
 }
 

@@ -28,7 +28,7 @@ resource "aws_security_group" "db" {
   vpc_id      = local.vpc_id
 
   ingress {
-    description     = "Agent -> Postgres"
+    description     = "Agent to Postgres"
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
