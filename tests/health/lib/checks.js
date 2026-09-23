@@ -13,6 +13,7 @@ const {
   selectedProvider,
   gatewayConfig,
   bedrockConfig,
+  cohereConfig,
 } = require("../../../src/assistant/llmProvider");
 const { validateUserMcpUrl, classifyHost } = require("../../../src/assistant/urlSafety");
 const {
@@ -56,11 +57,16 @@ function resolveLlmProviderStatus(env = process.env) {
   const requested = String(env.AI_PROVIDER || "").trim().toLowerCase();
   const effective = selectedProvider();
 
-  // AI_PROVIDER asked for gateway/bedrock but that backend isn't fully
+  // AI_PROVIDER asked for gateway/bedrock/cohere but that backend isn't fully
   // configured → selectedProvider() silently falls back to vertex. That is a
   // real misconfiguration to surface loudly at deploy time.
-  if ((requested === "gateway" || requested === "bedrock") && effective === "vertex") {
-    const which = requested === "gateway" ? "LLM_GATEWAY_*" : "Bedrock (BEDROCK_MODEL_ID/region/creds)";
+  if ((requested === "gateway" || requested === "bedrock" || requested === "cohere") && effective === "vertex") {
+    const which =
+      requested === "gateway"
+        ? "LLM_GATEWAY_*"
+        : requested === "bedrock"
+          ? "Bedrock (BEDROCK_MODEL_ID/region/creds)"
+          : "Cohere (COHERE_API_KEY/COHERE_MODEL_ID)";
     return result(
       "LLM provider",
       "fail",
@@ -78,6 +84,11 @@ function resolveLlmProviderStatus(env = process.env) {
     return bedrockConfig()
       ? result("LLM provider", "pass", "bedrock configured (model + region + creds).", { provider: effective })
       : result("LLM provider", "fail", "bedrock selected but bedrockConfig() is null.", { provider: effective });
+  }
+  if (effective === "cohere") {
+    return cohereConfig()
+      ? result("LLM provider", "pass", "cohere configured (API key + model).", { provider: effective })
+      : result("LLM provider", "fail", "cohere selected but cohereConfig() is null.", { provider: effective });
   }
   // vertex — needs a project (either env var or a mounted service-account JSON).
   const vertexReady = has(env, "GOOGLE_CLOUD_PROJECT") || has(env, "GCP_SERVICE_ACCOUNT_JSON");
@@ -235,6 +246,7 @@ const INFRA_FALLBACK_FRAGMENTS = [
   "isn't configured for AI yet",
   "AI gateway is unavailable",
   "AI service (AWS Bedrock) is unavailable",
+  "AI service (Cohere) rejected its API key",
   "AI service hit an error",
   "AI service access isn't set up",
   "Something went wrong on my side",

@@ -3,13 +3,17 @@
  *
  * Three backends behind one `generateReply()` call:
  *  - "vertex"  (default): Vertex AI / Gemini via @google/genai.
- *  - "gateway": OpenAI-compatible /v1/chat/completions endpoint (used by the
- *               internal LLM gateway that serves Claude models).
+ *  - "gateway": OpenAI-compatible /v1/chat/completions endpoint. Serves the
+ *               internal LLM gateway (Claude) AND Azure OpenAI / AI Foundry —
+ *               the auth scheme is selected by LLM_GATEWAY_AUTH (bearer default,
+ *               azure-api-key, or azure-ad via Managed Identity).
  *  - "bedrock": AWS Bedrock Converse API, serving Claude natively.
+ *  - "cohere":  Cohere v2 Chat API, serving Command models (e.g. Command A Plus)
+ *               natively, with an agentic tool-use loop for the Tableau tools.
  *
- * Select with AI_PROVIDER = "vertex" | "gateway" | "bedrock". A gateway or
- * bedrock config that is present but incomplete falls back to vertex so a
- * misconfiguration never silently breaks replies.
+ * Select with AI_PROVIDER = "vertex" | "gateway" | "bedrock" | "cohere". A
+ * gateway, bedrock, or cohere config that is present but incomplete falls back
+ * to vertex so a misconfiguration never silently breaks replies.
  *
  * Normalized request shape (provider-agnostic):
  *   {
@@ -30,15 +34,115 @@ function selectedProvider() {
   const p = String(process.env.AI_PROVIDER || "").trim().toLowerCase();
   if (p === "gateway" && gatewayConfig()) return "gateway";
   if (p === "bedrock" && bedrockConfig()) return "bedrock";
+  if (p === "cohere" && cohereConfig()) return "cohere";
   return "vertex";
+}
+
+/**
+ * Auth scheme for the OpenAI-compatible gateway, from LLM_GATEWAY_AUTH:
+ *   - "bearer" (default): Authorization: Bearer <LLM_GATEWAY_API_KEY>. Today's
+ *     behavior — the internal Claude gateway. Unchanged when the var is unset.
+ *   - "azure-api-key": api-key: <LLM_GATEWAY_API_KEY>. Azure OpenAI addressed
+ *     with a resource key.
+ *   - "azure-ad": Authorization: Bearer <Entra token>. Azure OpenAI via a
+ *     Managed Identity (DefaultAzureCredential) — NO static key to store or
+ *     rotate. The token is fetched and cached at call time.
+ */
+function gatewayAuthMode() {
+  const m = String(process.env.LLM_GATEWAY_AUTH || "").trim().toLowerCase();
+  if (m === "azure-api-key" || m === "azure_api_key" || m === "apikey" || m === "api-key") return "azure-api-key";
+  if (m === "azure-ad" || m === "azure_ad" || m === "aad" || m === "entra") return "azure-ad";
+  return "bearer";
 }
 
 function gatewayConfig() {
   const url = String(process.env.LLM_GATEWAY_URL || "").trim();
   const apiKey = String(process.env.LLM_GATEWAY_API_KEY || "").trim();
   const model = String(process.env.LLM_GATEWAY_MODEL || "").trim();
-  if (!url || !apiKey || !model) return null;
-  return { url, apiKey, model };
+  const authMode = gatewayAuthMode();
+  // url + model are always required. A static API key is required for the
+  // key-based modes (bearer, azure-api-key) but NOT for azure-ad, where a
+  // Managed Identity supplies a short-lived bearer token at call time.
+  if (!url || !model) return null;
+  if (authMode !== "azure-ad" && !apiKey) return null;
+  return { url, apiKey, model, authMode };
+}
+
+// ----- Azure Entra token (Managed Identity) for the azure-ad gateway mode -----
+
+// Azure OpenAI's OAuth resource scope. The MI must hold the
+// "Cognitive Services OpenAI User" role on the target Azure OpenAI resource.
+const AZURE_OPENAI_SCOPE = "https://cognitiveservices.azure.com/.default";
+
+let _azureCredential = null;
+let _azureTokenCache = null; // { token: string, expiresOnMs: number }
+
+function getAzureCredential() {
+  if (_azureCredential) return _azureCredential;
+  let DefaultAzureCredential;
+  try {
+    ({ DefaultAzureCredential } = require("@azure/identity"));
+  } catch (_) {
+    throw new Error(
+      "LLM_GATEWAY_AUTH=azure-ad requires the '@azure/identity' package. " +
+        "Add it to the image (npm i @azure/identity) or use LLM_GATEWAY_AUTH=azure-api-key.",
+    );
+  }
+  _azureCredential = new DefaultAzureCredential();
+  return _azureCredential;
+}
+
+/**
+ * Fetch (and cache) an Entra access token for Azure OpenAI, refreshing ~2 min
+ * before expiry so a long-lived process never sends an expired token.
+ * @param {object} [opts]
+ * @param {(scope:string)=>Promise<{token:string, expiresOnTimestamp?:number}>} [opts.__getToken]
+ *   Test seam: inject a token factory so tests exercise this path without
+ *   '@azure/identity' or a real Managed Identity (mirrors the bedrock __client seam).
+ */
+async function getAzureAccessToken(opts = {}) {
+  const now = Date.now();
+  const SKEW_MS = 120000; // refresh 2 minutes early
+  if (_azureTokenCache && _azureTokenCache.expiresOnMs - SKEW_MS > now) {
+    return _azureTokenCache.token;
+  }
+  const getToken = opts.__getToken || ((scope) => getAzureCredential().getToken(scope));
+  const res = await getToken(AZURE_OPENAI_SCOPE);
+  if (!res || !res.token) {
+    throw new Error("Azure AD token acquisition returned no token (check Managed Identity / DefaultAzureCredential).");
+  }
+  _azureTokenCache = {
+    token: res.token,
+    // getToken returns expiresOnTimestamp in ms since epoch; default to +1h.
+    expiresOnMs: typeof res.expiresOnTimestamp === "number" ? res.expiresOnTimestamp : now + 3600000,
+  };
+  return _azureTokenCache.token;
+}
+
+/** Test/ops helper: drop the cached Azure token + credential. */
+function _resetAzureTokenCache() {
+  _azureTokenCache = null;
+  _azureCredential = null;
+}
+
+/**
+ * Build the request headers for the gateway call, per the configured auth mode.
+ * Kept separate so the header shape is unit-testable without a live fetch.
+ */
+async function gatewayAuthHeaders(cfg, opts = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (cfg.authMode === "azure-api-key") {
+    // Azure OpenAI with a resource key: the key rides in `api-key`, NOT in
+    // Authorization (sending Bearer here would be rejected).
+    headers["api-key"] = cfg.apiKey;
+  } else if (cfg.authMode === "azure-ad") {
+    const token = await getAzureAccessToken(opts);
+    headers.Authorization = `Bearer ${token}`;
+  } else {
+    // Default bearer scheme — unchanged from the original gateway behavior.
+    headers.Authorization = `Bearer ${cfg.apiKey}`;
+  }
+  return headers;
 }
 
 /**
@@ -78,6 +182,24 @@ function bedrockConfig() {
     (present("AWS_WEB_IDENTITY_TOKEN_FILE") && present("AWS_ROLE_ARN")); // EKS IRSA
   if (!model || !region || !hasCreds) return null;
   return { model, region };
+}
+
+/**
+ * Cohere config. Requires an API key and a model id, both from env. The v2 Chat
+ * API is a plain HTTPS + bearer endpoint (no SDK), so there are no extra
+ * credential forms to detect. Returns null when either piece is missing so
+ * selectedProvider() falls back to vertex rather than silently breaking replies.
+ */
+function cohereConfig() {
+  const apiKey = String(process.env.COHERE_API_KEY || "").trim();
+  const model = String(process.env.COHERE_MODEL_ID || "").trim();
+  if (!apiKey || !model) return null;
+  // Allow an override for Cohere-compatible / private endpoints; default to the
+  // public v2 Chat API. A trailing slash is tolerated.
+  const baseUrl = String(process.env.COHERE_BASE_URL || "https://api.cohere.com")
+    .trim()
+    .replace(/\/+$/, "");
+  return { apiKey, model, baseUrl };
 }
 
 // ----- Vertex / Gemini -----
@@ -356,19 +478,20 @@ async function generateWithBedrock({
   };
 }
 
-async function generateWithGateway({ systemInstruction, contents, maxOutputTokens, temperature }) {
+async function generateWithGateway({ systemInstruction, contents, maxOutputTokens, temperature, __getToken }) {
   const cfg = gatewayConfig();
-  if (!cfg) throw new Error("LLM gateway is not configured (LLM_GATEWAY_URL / _API_KEY / _MODEL).");
+  if (!cfg) throw new Error("LLM gateway is not configured (LLM_GATEWAY_URL / _MODEL and, unless azure-ad, _API_KEY).");
 
   const messages = contentsToOpenAiMessages(systemInstruction, contents);
   const timeoutMs = Number(process.env.LLM_GATEWAY_TIMEOUT_MS) || 60000;
 
+  // Header shape varies by LLM_GATEWAY_AUTH: bearer (default), azure-api-key, or
+  // azure-ad (Managed Identity token). __getToken is a test seam for azure-ad.
+  const headers = await gatewayAuthHeaders(cfg, { __getToken });
+
   const res = await fetch(cfg.url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cfg.apiKey}`,
-    },
+    headers,
     body: JSON.stringify({
       model: cfg.model,
       messages,
@@ -404,6 +527,151 @@ async function generateWithGateway({ systemInstruction, contents, maxOutputToken
   };
 }
 
+// ----- Cohere (v2 Chat API, serving Command models natively) -----
+
+const COHERE_MAX_TOOL_ROUNDS = Number(process.env.COHERE_MAX_TOOL_ROUNDS || 10);
+
+/**
+ * Convert provider-neutral tool specs to Cohere v2 tools. The inputSchema is
+ * already JSON Schema — exactly what Cohere's `function.parameters` wants — so
+ * this is a 1:1 wrap.
+ * @param {Array<{name:string, description?:string, inputSchema:object}>} tools
+ */
+function toolSpecsToCohereTools(tools) {
+  if (!Array.isArray(tools) || tools.length === 0) return undefined;
+  return tools.map((t) => ({
+    type: "function",
+    function: {
+      name: t.name,
+      ...(t.description ? { description: t.description } : {}),
+      parameters: t.inputSchema || { type: "object", properties: {} },
+    },
+  }));
+}
+
+/**
+ * Generate a reply with Cohere's v2 Chat API, running the same agentic tool-use
+ * loop as the Bedrock path: keep servicing `finish_reason: "TOOL_CALL"` stops
+ * (dispatch each requested tool, feed a `tool` message back) until the model
+ * produces a final text answer or we hit the round cap. Without tools this runs
+ * exactly once, so the non-tool path is a single call.
+ *
+ * Cohere v2 messages are OpenAI-shaped (system/user/assistant/tool with string
+ * content), so we reuse contentsToOpenAiMessages for the base history and only
+ * the tool-call / tool-result turns are Cohere-specific.
+ *
+ * @param {object} req
+ * @param {Array<{name:string, description?:string, inputSchema:object}>} [req.tools]
+ * @param {(name:string, input:object) => Promise<object>} [req.dispatchTool]
+ */
+async function generateWithCohere({ systemInstruction, contents, maxOutputTokens, temperature, tools, dispatchTool }) {
+  const cfg = cohereConfig();
+  if (!cfg) throw new Error("Cohere is not configured (COHERE_API_KEY / COHERE_MODEL_ID).");
+
+  const messages = contentsToOpenAiMessages(systemInstruction, contents);
+  const cohereTools = toolSpecsToCohereTools(tools);
+  const canDispatch = cohereTools && typeof dispatchTool === "function";
+  const timeoutMs = Number(process.env.LLM_REQUEST_TIMEOUT_MS) || 60000;
+
+  async function send() {
+    const res = await fetch(`${cfg.baseUrl}/v2/chat`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cfg.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages,
+        ...(cohereTools ? { tools: cohereTools } : {}),
+        max_tokens: maxOutputTokens,
+        ...(Number.isFinite(temperature) ? { temperature } : {}),
+      }),
+      // Don't follow a 3xx: the bearer API key would be replayed to the redirect
+      // target (mirrors the gateway / MCP-fetch hardening).
+      redirect: "error",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    const raw = await res.text();
+    if (!res.ok) throw new Error(`Cohere HTTP ${res.status}: ${raw.slice(0, 300)}`);
+    try {
+      return JSON.parse(raw);
+    } catch (_) {
+      throw new Error(`Cohere returned non-JSON: ${raw.slice(0, 200)}`);
+    }
+  }
+
+  // Agentic loop: without tools it runs exactly once.
+  let out;
+  let rounds = 0;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    out = await send();
+    const msg = out.message || {};
+    const toolCalls = Array.isArray(msg.tool_calls) ? msg.tool_calls : [];
+
+    if (out.finish_reason !== "TOOL_CALL" || !canDispatch || toolCalls.length === 0) break;
+
+    // Record the assistant's tool-call turn (keep tool_plan so the reasoning
+    // chain is preserved for the model), then answer every requested tool.
+    messages.push({
+      role: "assistant",
+      ...(msg.tool_plan ? { tool_plan: msg.tool_plan } : {}),
+      tool_calls: toolCalls,
+    });
+
+    for (const tc of toolCalls) {
+      let input = {};
+      try {
+        input = tc.function && tc.function.arguments ? JSON.parse(tc.function.arguments) : {};
+      } catch (_) {
+        input = {}; // malformed args → let the tool report the miss
+      }
+      let result;
+      try {
+        result = await dispatchTool(tc.function?.name, input);
+      } catch (err) {
+        result = { ok: false, error: err?.message || String(err) };
+      }
+      // Cohere requires a `tool` message per tool_call_id. A JSON-string body is
+      // accepted (the alternative is an array of content blocks).
+      messages.push({
+        role: "tool",
+        tool_call_id: tc.id,
+        content: JSON.stringify(result == null ? { ok: false } : result),
+      });
+    }
+
+    rounds += 1;
+    if (rounds >= COHERE_MAX_TOOL_ROUNDS) {
+      // Safety valve: nudge for a final answer so a tool that keeps erroring
+      // can't loop forever (mirrors the Bedrock round cap).
+      messages.push({ role: "user", content: "Provide your final answer now in plain text. Do not call any more tools." });
+      out = await send();
+      break;
+    }
+  }
+
+  const finishReason = out.finish_reason || null;
+  // ERROR/TIMEOUT are model-side failures — surface them so the caller's
+  // catch-all reports an error rather than returning a silent empty reply.
+  if (finishReason === "ERROR" || finishReason === "TIMEOUT") {
+    throw new Error(`Cohere finish_reason=${finishReason}`);
+  }
+
+  const text = (out.message?.content || [])
+    .filter((b) => b && b.type === "text" && typeof b.text === "string") // drop 'thinking' blocks
+    .map((b) => b.text)
+    .join("")
+    .trim();
+  return {
+    text,
+    finishReason,
+    truncated: finishReason === "MAX_TOKENS",
+    safety: false, // Cohere has no content-filter finish_reason
+  };
+}
+
 /**
  * Generate a reply with whichever backend is configured.
  * @param {object} req - normalized request (see file header)
@@ -420,6 +688,10 @@ async function generateReply(req, opts = {}) {
     const out = await generateWithBedrock(req);
     return { ...out, provider };
   }
+  if (provider === "cohere") {
+    const out = await generateWithCohere(req);
+    return { ...out, provider };
+  }
   const out = await generateWithGemini({ ...req, modelId: opts.modelId });
   return { ...out, provider };
 }
@@ -428,10 +700,18 @@ module.exports = {
   generateReply,
   selectedProvider,
   gatewayConfig,
+  gatewayAuthMode,
   bedrockConfig,
+  cohereConfig,
   // exported for tests
   contentsToOpenAiMessages,
   contentsToBedrockMessages,
   toolSpecsToConverseToolConfig,
+  toolSpecsToCohereTools,
   generateWithBedrock,
+  generateWithCohere,
+  generateWithGateway,
+  gatewayAuthHeaders,
+  getAzureAccessToken,
+  _resetAzureTokenCache,
 };

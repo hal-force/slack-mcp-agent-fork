@@ -267,16 +267,17 @@ async function getAiResponse({
   const maxOutputTokens = Number(process.env.LLM_MAX_OUTPUT_TOKENS) ||
     Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 4096;
 
-  // Live Tableau MCP tool calling. When the app runs on Bedrock and a Tableau
-  // MCP server is configured, expose the query/metadata/list/view tools so the
-  // model can actually pull and analyze data in-turn (list-datasources →
-  // get-datasource-metadata → query-datasource, or list-views → get-view-image)
-  // rather than only seeing the pre-fetched context block. View images the tools
-  // render are queued here and returned as Slack uploads.
+  // Live Tableau MCP tool calling. When the app runs on a tool-loop provider
+  // (Bedrock or Cohere) and a Tableau MCP server is configured, expose the
+  // query/metadata/list/view tools so the model can actually pull and analyze
+  // data in-turn (list-datasources → get-datasource-metadata → query-datasource,
+  // or list-views → get-view-image) rather than only seeing the pre-fetched
+  // context block. View images the tools render are queued here and returned as
+  // Slack uploads.
   const toolUploads = [];
   let tools;
   let dispatchTool;
-  if (provider === "bedrock" && tableauQueryToolsEnabled({ tableauMcpBaseUrl })) {
+  if ((provider === "bedrock" || provider === "cohere") && tableauQueryToolsEnabled({ tableauMcpBaseUrl })) {
     tools = TABLEAU_TOOL_SPECS;
     const toolOpts = {
       tableauMcpBaseUrl,
@@ -378,6 +379,21 @@ async function getAiResponse({
     if (provider === "bedrock" || msg.includes("Bedrock")) {
       // Non-credential Bedrock failure — surface a generic message but log the
       // real error above so it's diagnosable from the logs.
+      return aiReply(
+        "The AI service hit an error on that request. Please try again in a moment.",
+        uploads,
+      );
+    }
+    if (provider === "cohere" || msg.includes("Cohere")) {
+      // A 401 / invalid-key from Cohere is the one actionable case (bad or
+      // expired COHERE_API_KEY); everything else gets a generic message while
+      // the real error is logged above.
+      if (msg.includes("401") || /invalid api|unauthor|invalid token/i.test(msg)) {
+        return aiReply(
+          "The AI service (Cohere) rejected its API key — it may be invalid or expired. Please try again once it's fixed.",
+          uploads,
+        );
+      }
       return aiReply(
         "The AI service hit an error on that request. Please try again in a moment.",
         uploads,
