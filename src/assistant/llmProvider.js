@@ -652,18 +652,52 @@ async function generateWithCohere({ systemInstruction, contents, maxOutputTokens
     }
   }
 
-  const finishReason = out.finish_reason || null;
+  // Pull the visible answer out of a response, dropping Cohere 'thinking' blocks.
+  const extractText = (o) =>
+    (o.message?.content || [])
+      .filter((b) => b && b.type === "text" && typeof b.text === "string")
+      .map((b) => b.text)
+      .join("")
+      .trim();
+  const contentTypesOf = (o) => (o.message?.content || []).map((b) => b && b.type).filter(Boolean);
+
+  let finishReason = out.finish_reason || null;
   // ERROR/TIMEOUT are model-side failures — surface them so the caller's
   // catch-all reports an error rather than returning a silent empty reply.
   if (finishReason === "ERROR" || finishReason === "TIMEOUT") {
     throw new Error(`Cohere finish_reason=${finishReason}`);
   }
 
-  const text = (out.message?.content || [])
-    .filter((b) => b && b.type === "text" && typeof b.text === "string") // drop 'thinking' blocks
-    .map((b) => b.text)
-    .join("")
-    .trim();
+  let text = extractText(out);
+
+  // Command A Plus sometimes ends a turn with only a 'thinking' block and no
+  // visible 'text' (it stopped to reason, or truncated mid-thought). That would
+  // otherwise reach the user as the empty "I didn't get a clear response"
+  // fallback with no trace. Log the response shape, and — unless we already
+  // asked at the round cap — make one explicit plain-text request before giving
+  // up. This is the same nudge the round-cap valve uses.
+  if (!text) {
+    const nudge = "Provide your final answer now in plain text. Do not call any more tools.";
+    const lastMsg = messages[messages.length - 1];
+    const alreadyNudged = lastMsg && lastMsg.role === "user" && String(lastMsg.content || "").includes(nudge);
+    console.warn(
+      `[cohere] empty answer text (finish_reason=${finishReason}, rounds=${rounds}, content=[${contentTypesOf(out).join(",")}])` +
+        (alreadyNudged ? " — already nudged, giving up." : " — retrying once for a plain-text answer."),
+    );
+    if (!alreadyNudged) {
+      messages.push({ role: "user", content: nudge });
+      out = await send();
+      finishReason = out.finish_reason || null;
+      if (finishReason === "ERROR" || finishReason === "TIMEOUT") {
+        throw new Error(`Cohere finish_reason=${finishReason}`);
+      }
+      text = extractText(out);
+      if (!text) {
+        console.warn(`[cohere] still empty after nudge (finish_reason=${finishReason}, content=[${contentTypesOf(out).join(",")}]).`);
+      }
+    }
+  }
+
   return {
     text,
     finishReason,

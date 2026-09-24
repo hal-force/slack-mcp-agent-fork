@@ -772,6 +772,41 @@ test("generateWithCohere safety valve nudges for a final answer at the round cap
   assert.equal(result.finishReason, "TOOL_CALL"); // broke out at the cap
 });
 
+test("generateWithCohere retries once for a plain-text answer when the final turn has no text", async (t) => {
+  configureCohere();
+  const sent = [];
+  let n = 0;
+  const realFetch = global.fetch;
+  global.fetch = async (url, init) => {
+    sent.push(JSON.parse(init.body));
+    n += 1;
+    return {
+      ok: true,
+      status: 200,
+      async text() {
+        // 1st turn: only a 'thinking' block (no visible text) → triggers the nudge.
+        // 2nd turn: a real plain-text answer.
+        return n === 1
+          ? JSON.stringify({ finish_reason: "COMPLETE", message: { role: "assistant", content: [{ type: "thinking", thinking: "reasoning…" }] } })
+          : JSON.stringify({ finish_reason: "COMPLETE", message: { role: "assistant", content: [{ type: "text", text: "recovered answer" }] } });
+      },
+    };
+  };
+  t.after(() => { global.fetch = realFetch; });
+
+  const result = await generateWithCohere({
+    systemInstruction: "sys",
+    contents: [{ role: "user", parts: [{ text: "hi" }] }],
+    maxOutputTokens: 128,
+    temperature: 0,
+  });
+
+  assert.equal(sent.length, 2, "made a second call to nudge for a plain-text answer");
+  const lastUserTurn = [...sent[1].messages].reverse().find((m) => m.role === "user");
+  assert.match(lastUserTurn.content, /final answer now in plain text/i);
+  assert.equal(result.text, "recovered answer");
+});
+
 // ----- Gateway auth modes (Azure OpenAI) -----
 // The gateway path serves both the internal Claude gateway (bearer, default)
 // and Azure OpenAI (azure-api-key or azure-ad via Managed Identity). These lock
