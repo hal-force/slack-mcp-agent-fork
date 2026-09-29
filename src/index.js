@@ -24,6 +24,7 @@ const { App, Assistant } = require("@slack/bolt");
 const { receiver } = require("./slack/receiver");
 const { registerTableauWebhook } = require("./jobs/tableauWebhook");
 const { registerDailyBriefTrigger } = require("./jobs/dailyBriefTrigger");
+const { registerScrmBriefRoutes } = require("./jobs/scrmBriefRoutes");
 const { registerTriageAdmissionTrigger } = require("./jobs/triageAdmissionTrigger");
 const { getAiResponse } = require("./assistant/respond");
 const { runSupervised } = require("./agents/supervisor");
@@ -81,6 +82,12 @@ registerDailyBriefTrigger(receiver);
 // AGENTS_ENABLED=1. Resolves the workspace bot token itself (OAuth install store),
 // so it doesn't need the Bolt app. See src/jobs/triageAdmissionTrigger.js.
 registerTriageAdmissionTrigger(receiver);
+
+// SCRM localized risk brief → parallel, non-destructive to the VHA routes.
+// Mounts POST /webhooks/tableau/scrm-refresh/<secret> (reuses TABLEAU_WEBHOOK_SECRET)
+// and POST /jobs/scrm-daily/<secret> (SCRM_DAILY_JOB_SECRET || VHA_DAILY_JOB_SECRET).
+// Each arms only when its secret is set. See src/jobs/scrmBriefRoutes.js.
+registerScrmBriefRoutes(receiver);
 
 // function_executed: Bolt skips the immediate Events API ack and relies on app.function's autoAcknowledge,
 // which runs after other global middleware. That can exceed Slack's HTTP ack window while Vertex runs.

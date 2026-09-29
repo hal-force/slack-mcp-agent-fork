@@ -1,0 +1,68 @@
+{
+  "dataset_version": "1.0.0",
+  "data_classification": "SYNTHETIC",
+  "domain": "public-sector-scrm",
+  "seed": 20260924,
+  "months": 18,
+  "latest_month": "2026-08-31",
+  "row_counts": {
+    "scrm_risk_snapshots.csv": 5040,
+    "scrm_suppliers.csv": 40,
+    "scrm_risk_registry.csv": 7,
+    "scrm_components.csv": 116,
+    "scrm_contracts.csv": 93,
+    "scrm_findings.csv": 100,
+    "scrm_redteam_injection.csv": 1
+  },
+  "planted_effects_config": {
+    "BASELINE": { "FOCI": 15, "PROHIBITED_SRC": 10, "CYBER": 26, "FINANCIAL": 28, "DELIVERY": 24, "CONCENTRATION": 26, "AUTHENTICITY": 20 },
+    "ARCH_BASE_OFFSET": { "elevated": 20, "deteriorating": 2, "improving": 6, "stable_low": -8, "mixed": "rng(-6,12)" },
+    "FOCI_SELF_BUMP": 48,
+    "FOCI_CYBER_BUMP": 30,
+    "FOCI_PROHIBITED_BUMP": 42,
+    "DELIVERY_SSCONC_MC_BUMP": 34,
+    "DELIVERY_SSCONC_OTHER_BUMP": 0,
+    "FINANCIAL_TO_DELIVERY": "0.35 per point of FINANCIAL center above 45",
+    "threshold_and_yellow_band": "per KRI in scrm_risk_registry.csv; RAG = Green<=threshold, Yellow<=threshold+band, else Red"
+  },
+  "measured_effects": {
+    "latest_month": "2026-08-31",
+    "n_suppliers": 40,
+    "effect1_foci_cyber_prohibited": {
+      "n_foci": 12,
+      "n_non_foci": 28,
+      "cyber_foci": 70.1,
+      "cyber_non_foci": 30.8,
+      "prohibited_foci": 66.4,
+      "prohibited_non_foci": 15.8,
+      "sectors_with_both": 9,
+      "sectors_foci_cyber_higher": 9
+    },
+    "effect2_ssconc_delivery_interaction": {
+      "delivery_mc_ssconc": 67.6,
+      "n_mc_ssconc": 8,
+      "delivery_mc_not": 31.7,
+      "n_mc_not": 2,
+      "delivery_nonmc_ssconc": 38.9,
+      "n_nonmc_ssconc": 6,
+      "delivery_nonmc_not": 29.7,
+      "n_nonmc_not": 24
+    },
+    "effect3_financial_delivery": {
+      "r_financial_delivery": 0.76
+    },
+    "traps_should_be_null": {
+      "composite_small_business": 38.3,
+      "composite_not_small_business": 34.5,
+      "r_established_year_composite": -0.01,
+      "r_contract_count_composite": 0.15
+    }
+  },
+  "latest_month_alert_summary": {
+    "total_alerts": 31,
+    "fresh_red_breaches": 5,
+    "fresh_warnings": 4,
+    "sustained_red_worsening": 22,
+    "fresh_breaches_all_delivery": ["Summit Logistics Partners", "Halcyon Components", "Granite Fabrication", "Dovetail Defense", "Cobalt Devices"]
+  }
+}

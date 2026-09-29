@@ -24,6 +24,64 @@
 const { generateReply } = require("../assistant/llmProvider");
 
 /**
+ * Scan forward from `start` (an index pointing at a `{`) and return the index of
+ * its balanced closing `}`, respecting JSON string literals and escapes, or -1 if
+ * it never balances. Used to find an unfenced trailing JSON object.
+ * @param {string} s
+ * @param {number} start
+ * @returns {number}
+ */
+function matchBalancedBrace(s, start) {
+  let depth = 0;
+  let inStr = false;
+  let esc = false;
+  for (let i = start; i < s.length; i++) {
+    const c = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "{") depth++;
+    else if (c === "}") {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Find a trailing bare (unfenced) JSON object in `raw`: the outermost `{` whose
+ * brace-matched close lands at end-of-text (ignoring trailing whitespace). Scans
+ * candidate `{` positions from the last toward the first — nested objects close
+ * early and are rejected by the end-of-text guard, so only the outermost trailing
+ * object survives. Returns the same { body, index, full } shape the fenced paths
+ * use, or null.
+ * @param {string} raw
+ * @returns {{ body:string, index:number, full:string }|null}
+ */
+function trailingJsonObject(raw) {
+  const trimmedEnd = raw.replace(/\s+$/, "").length; // index just past last non-ws char
+  for (let start = raw.lastIndexOf("{"); start !== -1; start = raw.lastIndexOf("{", start - 1)) {
+    const end = matchBalancedBrace(raw, start);
+    if (end === -1 || end + 1 < trimmedEnd) continue; // not balanced, or trailing content after it
+    const body = raw.slice(start, end + 1);
+    try {
+      const obj = JSON.parse(body);
+      if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+        return { body, index: start, full: raw.slice(start) };
+      }
+    } catch (_) {
+      // keep scanning outward
+    }
+  }
+  return null;
+}
+
+/**
  * Extract a trailing (or embedded) fenced ```json code block and parse it.
  * Returns { structured, cleanedText } — cleanedText has the block removed so the
  * Slack-facing prose isn't cluttered with raw JSON. Never throws.
@@ -63,6 +121,17 @@ function extractStructured(text) {
         last = { body, index: open.index, full: open[0] };
       }
     }
+  }
+
+  // Recovery for an UNFENCED block: some models (observed with Cohere Command A
+  // Plus) satisfy "emit a JSON object last" by writing a bare `{ … }` with no
+  // ``` fence at all. Find the trailing balanced object — the outermost `{` whose
+  // brace-matched close lands at end-of-text — and use it. Strictly additive: it
+  // only runs when no fenced block (closed or open) was found, so it can never
+  // override a properly fenced block.
+  if (!last) {
+    const bare = trailingJsonObject(raw);
+    if (bare) last = bare;
   }
   if (!last) return { structured: null, cleanedText: raw };
 

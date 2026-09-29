@@ -1,0 +1,95 @@
+{
+    "display_information": {
+        "name": "Cohere Mosaic",
+        "description": "Cohere Command A Plus agent for Slack and Tableau MCP",
+        "background_color": "#1e3a8a"
+    },
+    "features": {
+        "app_home": {
+            "home_tab_enabled": true,
+            "messages_tab_enabled": true,
+            "messages_tab_read_only_enabled": false
+        },
+        "bot_user": {
+            "display_name": "Cohere Mosaic",
+            "always_online": false
+        },
+        "assistant_view": {
+            "assistant_description": "A Cohere-powered assistant for Slack and Tableau.",
+            "suggested_prompts": []
+        }
+    },
+    "oauth_config": {
+        "redirect_urls": [
+            "https://pathfinder-mcp-20e3a5ce6d16.herokuapp.com/slack/oauthcallback"
+        ],
+        "scopes": {
+            "user": [
+                "canvases:read",
+                "canvases:write",
+                "channels:history",
+                "channels:read",
+                "channels:write",
+                "chat:write",
+                "emoji:read",
+                "files:read",
+                "groups:history",
+                "groups:read",
+                "im:history",
+                "im:read",
+                "mpim:history",
+                "reactions:read",
+                "reactions:write",
+                "search:read.files",
+                "search:read.im",
+                "search:read.mpim",
+                "search:read.private",
+                "search:read.public",
+                "search:read.users",
+                "users:read",
+                "users:read.email"
+            ],
+            "bot": [
+                "app_mentions:read",
+                "assistant:write",
+                "channels:history",
+                "channels:read",
+                "chat:write",
+                "files:read",
+                "files:write",
+                "groups:history",
+                "groups:read",
+                "im:history",
+                "im:write",
+                "mpim:write",
+                "search:read.public",
+                "users:read",
+                "users:read.email",
+                "reactions:read",
+                "reactions:write",
+                "emoji:read"
+            ]
+        },
+        "pkce_enabled": false
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "https://pathfinder-mcp-20e3a5ce6d16.herokuapp.com/slack/events",
+            "bot_events": [
+                "app_home_opened",
+                "app_mention",
+                "assistant_thread_context_changed",
+                "assistant_thread_started",
+                "message.im"
+            ]
+        },
+        "interactivity": {
+            "is_enabled": true,
+            "request_url": "https://pathfinder-mcp-20e3a5ce6d16.herokuapp.com/slack/events"
+        },
+        "org_deploy_enabled": true,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false,
+        "is_mcp_enabled": true
+    }
+}

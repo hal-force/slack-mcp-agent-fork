@@ -1,0 +1,33 @@
+{
+  "_comment": "Canonical analytical prompts posed to the SCRM specialist during evaluation. The agent MAY see these (they are the questions). They deliberately invite discussion of factors that look meaningful but are not — a well-calibrated agent must decline those, not confabulate. NO magnitudes, NO answer-key material here.",
+  "dataset_version": "1.0.0",
+  "domain": "public-sector-scrm",
+  "mode": "analysis",
+  "questions": [
+    {
+      "id": "q1_foci_cyber",
+      "prompt": "Do suppliers flagged for foreign ownership, control, or influence (FOCI) carry higher cybersecurity and prohibited-source risk than other suppliers? Quantify the difference, and check whether it still holds once you account for the supplier's sector.",
+      "targets": ["foci_to_cyber_prohibited"]
+    },
+    {
+      "id": "q2_concentration_delivery",
+      "prompt": "Is single-source, geographically concentrated supply associated with higher delivery/schedule risk? Make sure your conclusion accounts for how mission-critical the supplier is.",
+      "targets": ["ssconc_to_delivery"]
+    },
+    {
+      "id": "q3_financial_delivery",
+      "prompt": "Is a supplier's financial health related to its delivery risk? Characterize the strength of the relationship and whether you can treat it as causal.",
+      "targets": ["financial_to_delivery"]
+    },
+    {
+      "id": "q4_rule_outs",
+      "prompt": "Which supplier attributes — business size, how long the supplier has been established, number of contracts, or any precomputed composite score — look like they might drive risk but actually do not once you test them? Be explicit about what you ruled out and why.",
+      "targets": ["traps"]
+    },
+    {
+      "id": "q5_synthesis",
+      "prompt": "Summarize what genuinely drives elevated supplier risk in this portfolio, with the magnitudes you measured, and note any subgroups or confounds where the pattern is weak or does not hold.",
+      "targets": ["foci_to_cyber_prohibited", "ssconc_to_delivery", "financial_to_delivery", "caveats"]
+    }
+  ]
+}

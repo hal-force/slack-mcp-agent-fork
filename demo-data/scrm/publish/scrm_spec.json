@@ -1,0 +1,133 @@
+{
+  "request": "Publish the synthetic public-sector Supply-Chain Risk Management (SCRM) fixture to Tableau as 6 independent passthrough published data sources (one per table: risk_snapshots, suppliers, risk_registry, components, contracts, findings). NO joins and NO transforms: the downstream SCRM risk-brief and triage agents query each table on its own LUID via the Tableau MCP and must never fan the bridges/history out, so each table stays a separate 1:1 source and keeps its grain. The suppliers source is the FILTERED csv with composite_risk_pct removed (a circular validation roll-up that would let the agent read a planted effect off a precomputed column). The scrm_redteam_injection.csv fixture is NOT published. All data is SYNTHETIC. Target the usfederaldemos Prep Agent demo collection.",
+  "sources": [
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/scrm/scrm_risk_snapshots.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "SCRM Risk Snapshots",
+      "description": "SYNTHETIC public-sector SCRM fixture: one row per supplier x KRI x month (40 x 7 x 18). The Pulse/alert source. Carries risk_score (0-100, higher=worse), RAG band, threshold, month-over-month delta, and the materialized alert layer (alert_flag / alert_reason firing on change: breach / warning / escalation / sustained-worsening). Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/scrm/publish/suppliers_filtered.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "SCRM Suppliers",
+      "description": "SYNTHETIC public-sector SCRM fixture: supplier dimension (sector, acquisition portfolio + portfolio_owner_user, country_of_ownership, ownership_type, foci_flag, criticality, small_business, established_year, contract_count, performance_archetype). composite_risk_pct is intentionally EXCLUDED (a circular validation roll-up). Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/scrm/scrm_risk_registry.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "SCRM Risk Registry",
+      "description": "SYNTHETIC public-sector SCRM fixture: the 7 KRI definitions (NIST SP 800-161 / FASCSA aligned) with threshold, direction, yellow band, composite weight, and the owning Slack channel + analyst function that route a role-scoped alert. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/scrm/scrm_components.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "SCRM Components",
+      "description": "SYNTHETIC public-sector SCRM fixture: parts & provenance (one row per component). country_of_origin, section_889_category, single_source_flag, has_sbom, criticality. Kept as its own source so the analysis agent never fans it into snapshots. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/scrm/scrm_contracts.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "SCRM Contracts",
+      "description": "SYNTHETIC public-sector SCRM fixture: program/contract exposure (one row per contract). program, agency, contract_type, naics, value/obligated, period of performance, status. Answers which programs are exposed if a supplier is compromised. Advisory demo data only."
+    },
+    {
+      "type": "local_csv",
+      "path": "/Users/jgillmore/claude-projects/heroku-slack/slack-mcp-agent/demo-data/scrm/scrm_findings.csv",
+      "url": "",
+      "format": "csv",
+      "auth": "none",
+      "extra": { "_skip_auto_casts": true },
+      "name": "SCRM Findings",
+      "description": "SYNTHETIC public-sector SCRM fixture: the qualitative so-what layer (one row per open risk finding), joins to snapshots on supplier_key + risk_category. root_cause, mitigation_goal, progress_note, source, owner_function, owning_channel, data_quality_flag. Free-text notes are SANITIZED (the raw prompt-injection fixture is held out and NOT published). Advisory demo data only."
+    }
+  ],
+  "transformations": [],
+  "outputs": [
+    {
+      "kind": "published_data_source",
+      "name": "SCRM Risk Snapshots",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. One row per supplier x KRI x month for the public-sector SCRM demo; the Pulse/alert source (risk_score 0-100, RAG, alert_flag / alert_reason).",
+      "source": "SCRM Risk Snapshots",
+      "project": "60 - Public Sector SCRM Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "SCRM Suppliers",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Supplier dimension for the public-sector SCRM demo. composite_risk_pct is deliberately excluded so downstream analysis can't read a planted effect off a circular roll-up column.",
+      "source": "SCRM Suppliers",
+      "project": "60 - Public Sector SCRM Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "SCRM Risk Registry",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. The 7 KRI definitions (threshold / direction / owning channel + function) that route role-scoped alerts in the public-sector SCRM demo.",
+      "source": "SCRM Risk Registry",
+      "project": "60 - Public Sector SCRM Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "SCRM Components",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Parts & provenance drill-down for the public-sector SCRM demo.",
+      "source": "SCRM Components",
+      "project": "60 - Public Sector SCRM Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "SCRM Contracts",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Program/contract exposure for the public-sector SCRM demo.",
+      "source": "SCRM Contracts",
+      "project": "60 - Public Sector SCRM Demo"
+    },
+    {
+      "kind": "published_data_source",
+      "name": "SCRM Findings",
+      "path": "",
+      "description": "SYNTHETIC / ADVISORY DEMO DATA. Qualitative risk-finding layer (sanitized notes) for the public-sector SCRM demo; joins to snapshots on supplier_key + risk_category.",
+      "source": "SCRM Findings",
+      "project": "60 - Public Sector SCRM Demo"
+    }
+  ],
+  "qa_tier": "none",
+  "eval_strategy": "self_consistency",
+  "deployment": "tableau_server",
+  "refresh_cadence": "daily",
+  "parameterize_query": false,
+  "server_publish": {
+    "project": "60 - Public Sector SCRM Demo",
+    "parent_project": "Prep Agent",
+    "flow_name": "Public Sector SCRM Fixture",
+    "overwrite": true,
+    "cadence": "daily",
+    "hour_utc": 8,
+    "minute_utc": 0,
+    "schedule_name_hint": "Public Sector SCRM Daily Refresh"
+  },
+  "confidence": 1.0,
+  "open_questions": []
+}

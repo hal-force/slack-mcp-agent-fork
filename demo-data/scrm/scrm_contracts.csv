@@ -1,0 +1,94 @@
+contract_id,supplier_key,supplier_name,program_key,program_name,agency,contract_type,naics,contract_value_usd,obligated_usd,pop_start,pop_end,status
+CT-0001,SUP-001,Meridian Microelectronics,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,FFP,541519,20891161,11993935,2024-05-31,2026-08-31,Option Pending
+CT-0002,SUP-001,Meridian Microelectronics,PRG-NGEW,Next-Gen Electronic Warfare,Department of the Navy,CPFF,541519,3438203,3141256,2024-11-30,2027-04-30,Active
+CT-0003,SUP-001,Meridian Microelectronics,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,CPFF,541519,51558902,22292566,2024-07-31,2026-11-30,Active
+CT-0004,SUP-001,Meridian Microelectronics,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,T&M,334220,10432366,6984312,2024-03-31,2028-01-31,Active
+CT-0005,SUP-002,Cascade Systems Group,PRG-NGEW,Next-Gen Electronic Warfare,Department of the Navy,FFP,517410,33872874,17473871,2026-01-31,2028-01-31,Active
+CT-0006,SUP-002,Cascade Systems Group,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,CPFF,541330,66062978,34540085,2025-01-31,2027-03-31,Active
+CT-0007,SUP-003,Pacific Rim Networks,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,334220,45483677,28694559,2025-07-31,2027-01-31,Active
+CT-0008,SUP-003,Pacific Rim Networks,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,FFP,334220,77224008,43945744,2025-05-31,2028-07-31,Active
+CT-0009,SUP-003,Pacific Rim Networks,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,CPFF,517410,19477804,10256429,2025-02-28,2028-01-31,Active
+CT-0010,SUP-004,Summit Logistics Partners,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,FFP,541330,14253678,7479944,2025-06-30,2027-03-31,Active
+CT-0011,SUP-004,Summit Logistics Partners,PRG-SATCOM,Resilient SATCOM,United States Space Force,CPFF,541512,81800974,67331396,2025-05-31,2028-06-30,Active
+CT-0012,SUP-005,Aurora Cloud Services,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,CPFF,334111,46899519,36625289,2026-01-31,2027-09-30,Active
+CT-0013,SUP-005,Aurora Cloud Services,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,IDIQ,334111,48877789,41409781,2025-01-31,2027-09-30,Active
+CT-0014,SUP-006,Nordic Optics AB,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,334220,20451900,14076907,2024-03-31,2027-05-31,Option Pending
+CT-0015,SUP-006,Nordic Optics AB,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,541512,80919253,64288714,2025-09-30,2029-03-31,Active
+CT-0016,SUP-006,Nordic Optics AB,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,IDIQ,541519,30915439,28606492,2026-02-28,2028-03-31,Active
+CT-0017,SUP-007,Beacon Industries,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,FFP,541330,46689361,18168593,2024-10-31,2026-07-31,Option Pending
+CT-0018,SUP-008,Pioneer Solutions,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,FFP,334220,21433947,8899119,2025-05-31,2027-09-30,Option Pending
+CT-0019,SUP-008,Pioneer Solutions,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,FFP,541330,34090637,25699451,2025-04-30,2027-01-31,Active
+CT-0020,SUP-008,Pioneer Solutions,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,FFP,517410,5190137,3779771,2024-10-31,2026-12-31,Active
+CT-0021,SUP-009,Cobalt Systems,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,FFP,541512,64501130,28659520,2026-02-28,2030-01-31,Active
+CT-0022,SUP-009,Cobalt Systems,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,T&M,517410,8020027,4320141,2025-02-28,2027-04-30,Active
+CT-0023,SUP-009,Cobalt Systems,PRG-TACNET,Tactical Network Refresh,Department of the Army,T&M,541330,60680651,55157409,2025-07-31,2027-03-31,Active
+CT-0024,SUP-010,Sentinel Dynamics,PRG-SATCOM,Resilient SATCOM,United States Space Force,CPFF,334220,24272245,21266036,2025-03-31,2027-08-31,Active
+CT-0025,SUP-010,Sentinel Dynamics,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,541512,45086504,26167901,2025-03-31,2027-05-31,Active
+CT-0026,SUP-011,Silverpeak Fabrication,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,CPFF,541519,40582605,23652116,2025-06-30,2028-07-31,Active
+CT-0027,SUP-012,Aegis Systems,PRG-TACNET,Tactical Network Refresh,Department of the Army,FFP,541519,25691887,19465795,2024-10-31,2028-09-30,Option Pending
+CT-0028,SUP-012,Aegis Systems,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,IDIQ,541512,27821463,21277251,2025-12-31,2029-09-30,Active
+CT-0029,SUP-012,Aegis Systems,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,FFP,336414,69766260,58858134,2025-06-30,2028-07-31,Active
+CT-0030,SUP-013,Dovetail Solutions,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,IDIQ,541330,1261346,994702,2025-06-30,2027-07-31,Active
+CT-0031,SUP-014,Halcyon Components,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,334220,37478198,30666721,2026-01-31,2028-11-30,Active
+CT-0032,SUP-014,Halcyon Components,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,FFP,336414,11946277,5418265,2025-09-30,2027-05-31,Active
+CT-0033,SUP-014,Halcyon Components,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,FFP,541330,56445524,52476499,2025-05-31,2027-03-31,Option Pending
+CT-0034,SUP-014,Halcyon Components,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,IDIQ,541519,68283777,48921171,2025-09-30,2029-08-31,Option Pending
+CT-0035,SUP-015,Lumen Industries,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,T&M,336414,16778931,15656485,2024-09-30,2028-03-31,Active
+CT-0036,SUP-015,Lumen Industries,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,IDIQ,541519,3264109,1571049,2025-08-31,2029-06-30,Active
+CT-0037,SUP-015,Lumen Industries,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,CPFF,517410,32516832,18207062,2025-01-31,2028-08-31,Active
+CT-0038,SUP-016,Redwood Fabrication,PRG-NGEW,Next-Gen Electronic Warfare,Department of the Navy,CPFF,541330,32574836,18384041,2025-11-30,2029-02-28,Active
+CT-0039,SUP-016,Redwood Fabrication,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,FFP,541519,49337773,40676170,2025-09-30,2029-06-30,Active
+CT-0040,SUP-017,Redwood Materials,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,CPFF,541512,44216835,39600145,2025-09-30,2029-07-31,Active
+CT-0041,SUP-017,Redwood Materials,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,FFP,336414,18531356,12785304,2024-04-30,2028-02-29,Active
+CT-0042,SUP-018,Keystone Solutions,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,517410,21175834,18594648,2025-12-31,2028-03-31,Active
+CT-0043,SUP-018,Keystone Solutions,PRG-NGEW,Next-Gen Electronic Warfare,Department of the Navy,T&M,517410,58886648,51057661,2025-09-30,2029-06-30,Active
+CT-0044,SUP-018,Keystone Solutions,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,T&M,334413,80930605,29793189,2026-01-31,2028-07-31,Active
+CT-0045,SUP-019,Dovetail Industries,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,IDIQ,541519,7947670,5584562,2025-01-31,2026-10-31,Active
+CT-0046,SUP-019,Dovetail Industries,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,CPFF,541519,28674109,20220420,2025-05-31,2028-09-30,Active
+CT-0047,SUP-019,Dovetail Industries,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,CPFF,517410,83284715,41615754,2024-08-31,2026-08-31,Active
+CT-0048,SUP-019,Dovetail Industries,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,CPFF,334111,54655501,19137185,2025-02-28,2027-04-30,Option Pending
+CT-0049,SUP-020,Vantage Robotics,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,T&M,334111,11165431,10400308,2024-06-30,2026-05-31,Active
+CT-0050,SUP-021,Garnet Instruments,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,FFP,541512,19194427,12223630,2024-10-31,2026-11-30,Active
+CT-0051,SUP-021,Garnet Instruments,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,FFP,517410,28542458,15679032,2025-12-31,2028-03-31,Active
+CT-0052,SUP-022,Lakeside Fabrication,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,FFP,541512,83489974,62343090,2026-02-28,2028-07-31,Active
+CT-0053,SUP-022,Lakeside Fabrication,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,CPFF,336414,51915970,19973061,2025-01-31,2028-02-29,Active
+CT-0054,SUP-022,Lakeside Fabrication,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,T&M,334413,18140219,14109588,2025-07-31,2027-04-30,Active
+CT-0055,SUP-023,Granite Fabrication,PRG-NGEW,Next-Gen Electronic Warfare,Department of the Navy,T&M,517410,2882492,2423198,2025-04-30,2026-12-31,Active
+CT-0056,SUP-024,Garnet Electronics,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,336414,32515910,16422507,2026-02-28,2029-02-28,Active
+CT-0057,SUP-025,Lakeside Devices,PRG-SATCOM,Resilient SATCOM,United States Space Force,IDIQ,336414,32993574,21523023,2025-11-30,2028-03-31,Active
+CT-0058,SUP-025,Lakeside Devices,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,FFP,334220,75684741,51285463,2025-06-30,2028-10-31,Active
+CT-0059,SUP-026,Garnet Systems,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,FFP,336414,73814902,26694037,2024-10-31,2026-04-30,Active
+CT-0060,SUP-026,Garnet Systems,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,CPFF,541512,15154122,13549846,2025-01-31,2028-05-31,Option Pending
+CT-0061,SUP-027,Dovetail Defense,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,FFP,334111,29994256,17456614,2025-11-30,2027-09-30,Active
+CT-0062,SUP-027,Dovetail Defense,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,FFP,334413,52452577,22887283,2024-06-30,2028-04-30,Active
+CT-0063,SUP-027,Dovetail Defense,PRG-TACNET,Tactical Network Refresh,Department of the Army,CPFF,517410,32737851,27066399,2025-10-31,2028-06-30,Active
+CT-0064,SUP-027,Dovetail Defense,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,CPFF,336414,84146452,37835371,2025-11-30,2028-08-31,Option Pending
+CT-0065,SUP-028,Cobalt Devices,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,T&M,334111,22758770,9620699,2024-11-30,2026-07-31,Option Pending
+CT-0066,SUP-029,Trident Materials,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,IDIQ,334413,31305495,13287515,2024-12-31,2027-08-31,Active
+CT-0067,SUP-029,Trident Materials,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,IDIQ,541519,33845270,26175327,2024-06-30,2028-03-31,Active
+CT-0068,SUP-029,Trident Materials,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,IDIQ,336414,22384540,18616078,2025-08-31,2027-02-28,Active
+CT-0069,SUP-030,Beacon Components,PRG-IDMGMT,Identity & Access Management,Cybersecurity & Infrastructure Security Agency,FFP,334220,20908110,15451128,2025-07-31,2029-02-28,Active
+CT-0070,SUP-030,Beacon Components,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,IDIQ,541519,82944769,41287227,2026-02-28,2028-03-31,Active
+CT-0071,SUP-030,Beacon Components,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,FFP,541330,74188314,40213235,2024-10-31,2028-06-30,Active
+CT-0072,SUP-031,Pioneer Electronics,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,T&M,541330,37120289,19798014,2024-08-31,2027-06-30,Active
+CT-0073,SUP-031,Pioneer Electronics,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,FFP,334111,69527824,38835701,2025-01-31,2028-06-30,Option Pending
+CT-0074,SUP-032,Titan Devices,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,CPFF,541330,61502553,58406441,2024-08-31,2027-01-31,Active
+CT-0075,SUP-032,Titan Devices,PRG-NGEW,Next-Gen Electronic Warfare,Department of the Navy,FFP,334220,79378498,30951477,2025-08-31,2027-02-28,Active
+CT-0076,SUP-032,Titan Devices,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,IDIQ,541519,14363873,9291578,2024-07-31,2028-06-30,Active
+CT-0077,SUP-033,Halcyon Instruments,PRG-TACNET,Tactical Network Refresh,Department of the Army,FFP,334220,74788582,48878318,2025-01-31,2026-11-30,Option Pending
+CT-0078,SUP-033,Halcyon Instruments,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,CPFF,334413,80688731,41337906,2024-08-31,2027-10-31,Active
+CT-0079,SUP-034,Halcyon Electronics,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,FFP,541330,55894090,31810573,2025-11-30,2028-05-31,Option Pending
+CT-0080,SUP-034,Halcyon Electronics,PRG-SATCOM,Resilient SATCOM,United States Space Force,FFP,334413,49882572,46747830,2025-07-31,2029-06-30,Active
+CT-0081,SUP-035,Vertex Dynamics,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,FFP,334111,78661371,29036212,2025-12-31,2029-09-30,Active
+CT-0082,SUP-035,Vertex Dynamics,PRG-GRIDHARD,Grid Hardening Initiative,Department of Energy,FFP,541512,58386437,48204348,2025-02-28,2027-05-31,Active
+CT-0083,SUP-035,Vertex Dynamics,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,IDIQ,336414,53886672,32014316,2026-02-28,2030-01-31,Active
+CT-0084,SUP-036,Silverpeak Robotics,PRG-NGEW,Next-Gen Electronic Warfare,Department of the Navy,CPFF,336414,65502662,42235530,2025-05-31,2027-08-31,Option Pending
+CT-0085,SUP-037,Everest Dynamics,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,CPFF,517410,1816051,978481,2025-09-30,2029-05-31,Active
+CT-0086,SUP-037,Everest Dynamics,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,CPFF,334413,63219199,56631295,2025-09-30,2027-08-31,Active
+CT-0087,SUP-038,Ironwood Instruments,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,T&M,541519,52135822,34050366,2024-09-30,2026-12-31,Option Pending
+CT-0088,SUP-039,Aegis Electronics,PRG-BORDERSENS,Border Sensing Grid,Department of Homeland Security,CPFF,334111,78004445,68746739,2025-06-30,2028-06-30,Active
+CT-0089,SUP-039,Aegis Electronics,PRG-SUSTAIN,Depot Sustainment Logistics,Defense Logistics Agency,FFP,334413,83033797,48120270,2024-03-31,2027-11-30,Active
+CT-0090,SUP-039,Aegis Electronics,PRG-TACNET,Tactical Network Refresh,Department of the Army,FFP,334413,9694981,4895976,2024-10-31,2026-06-30,Active
+CT-0091,SUP-039,Aegis Electronics,PRG-SATCOM,Resilient SATCOM,United States Space Force,IDIQ,541519,54979075,19830601,2026-02-28,2029-06-30,Active
+CT-0092,SUP-040,Copperline Electronics,PRG-SATCOM,Resilient SATCOM,United States Space Force,T&M,541330,65202007,23095404,2024-05-31,2026-07-31,Active
+CT-0093,SUP-040,Copperline Electronics,PRG-SECCLOUD,Secure Cloud Modernization,General Services Administration,CPFF,334111,84832129,77621174,2025-01-31,2026-10-31,Active

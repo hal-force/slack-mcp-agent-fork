@@ -1,0 +1,117 @@
+component_key,component_name,component_category,part_number,supplier_key,supplier_name,country_of_origin,section_889_category,single_source_flag,has_sbom,criticality
+CMP-0001,Thermal Firmware,Hardware,01DVQ-4817,SUP-001,Meridian Microelectronics,Taiwan,None,TRUE,FALSE,Mission-Critical
+CMP-0002,Sensor Controller,Service,01DVQ-7668,SUP-001,Meridian Microelectronics,China,None,TRUE,TRUE,Mission-Critical
+CMP-0003,Power Processor,Hardware,00FV8-4522,SUP-002,Cascade Systems Group,Taiwan,None,TRUE,TRUE,Mission-Critical
+CMP-0004,Thermal Module,Software,00FV8-8198,SUP-002,Cascade Systems Group,China,None,TRUE,TRUE,Mission-Critical
+CMP-0005,Storage Subsystem,Software,00FV8-4981,SUP-002,Cascade Systems Group,Malaysia,Covered-Video-Surveillance,FALSE,FALSE,Mission-Critical
+CMP-0006,Interface Processor,Service,00FV8-1232,SUP-002,Cascade Systems Group,China,Covered-Video-Surveillance,TRUE,FALSE,Mission-Critical
+CMP-0007,Sensor Amplifier,Firmware,00FV8-2116,SUP-002,Cascade Systems Group,China,None,FALSE,TRUE,Mission-Critical
+CMP-0008,Baseband Amplifier,Hardware,01P5Z-3271,SUP-003,Pacific Rim Networks,China,None,TRUE,TRUE,High
+CMP-0009,Storage Amplifier,Software,01P5Z-5551,SUP-003,Pacific Rim Networks,China,None,TRUE,TRUE,High
+CMP-0010,Network Subsystem,Hardware,01P5Z-1633,SUP-003,Pacific Rim Networks,Taiwan,Covered-Video-Surveillance,TRUE,FALSE,High
+CMP-0011,Power Processor,Service,01P5Z-3188,SUP-003,Pacific Rim Networks,Germany,Covered-Telecom,TRUE,TRUE,High
+CMP-0012,Storage Assembly,Hardware,017UZ-5157,SUP-004,Summit Logistics Partners,United States,None,FALSE,FALSE,High
+CMP-0013,Thermal Board,Hardware,017UZ-8162,SUP-004,Summit Logistics Partners,Vietnam,Covered-Telecom,FALSE,FALSE,High
+CMP-0014,Network Assembly,Hardware,017UZ-8763,SUP-004,Summit Logistics Partners,Germany,Covered-Telecom,TRUE,TRUE,High
+CMP-0015,Timing Module,Firmware,017UZ-6704,SUP-004,Summit Logistics Partners,Germany,None,FALSE,TRUE,High
+CMP-0016,Optical Subsystem,Software,017UZ-5611,SUP-004,Summit Logistics Partners,Mexico,None,FALSE,FALSE,High
+CMP-0017,Crypto Processor,Service,00M2G-4209,SUP-005,Aurora Cloud Services,Germany,None,FALSE,TRUE,High
+CMP-0018,Network Controller,Hardware,00M2G-7537,SUP-005,Aurora Cloud Services,Taiwan,None,TRUE,TRUE,High
+CMP-0019,RF Subsystem,Firmware,013QH-7687,SUP-006,Nordic Optics AB,United States,None,TRUE,TRUE,Moderate
+CMP-0020,Network Chipset,Hardware,013QH-1160,SUP-006,Nordic Optics AB,United States,Covered-Video-Surveillance,TRUE,FALSE,Moderate
+CMP-0021,Crypto Controller,Software,013QH-7498,SUP-006,Nordic Optics AB,United States,Covered-Telecom,FALSE,FALSE,Moderate
+CMP-0022,Sensor Gateway,Firmware,013QH-6574,SUP-006,Nordic Optics AB,United States,None,TRUE,FALSE,Moderate
+CMP-0023,Crypto Subsystem,Hardware,013QH-8301,SUP-006,Nordic Optics AB,United States,None,TRUE,FALSE,Moderate
+CMP-0024,Optical Amplifier,Software,0143N-7219,SUP-007,Beacon Industries,Taiwan,None,TRUE,FALSE,Mission-Critical
+CMP-0025,Crypto Assembly,Service,0143N-5264,SUP-007,Beacon Industries,Taiwan,None,TRUE,FALSE,Mission-Critical
+CMP-0026,Interface Relay,Firmware,0143N-4957,SUP-007,Beacon Industries,United States,None,TRUE,FALSE,Mission-Critical
+CMP-0027,Thermal Assembly,Hardware,016CB-6098,SUP-008,Pioneer Solutions,South Korea,Covered-Video-Surveillance,FALSE,TRUE,High
+CMP-0028,Crypto Controller,Hardware,016CB-6456,SUP-008,Pioneer Solutions,China,None,FALSE,TRUE,High
+CMP-0029,RF Board,Service,016CB-5241,SUP-008,Pioneer Solutions,United States,Covered-Video-Surveillance,FALSE,TRUE,High
+CMP-0030,Optical Amplifier,Software,016CB-9543,SUP-008,Pioneer Solutions,United States,Covered-Video-Surveillance,FALSE,FALSE,High
+CMP-0031,Network Gateway,Service,018QG-8438,SUP-009,Cobalt Systems,Mexico,Covered-Video-Surveillance,FALSE,FALSE,Low
+CMP-0032,Network Controller,Hardware,018QG-2031,SUP-009,Cobalt Systems,United States,None,TRUE,TRUE,Low
+CMP-0033,Control Assembly,Firmware,018QG-9200,SUP-009,Cobalt Systems,Malaysia,None,FALSE,TRUE,Low
+CMP-0034,Baseband Controller,Software,01N1C-9390,SUP-010,Sentinel Dynamics,Malaysia,None,FALSE,FALSE,Moderate
+CMP-0035,Power Gateway,Firmware,01N1C-4619,SUP-010,Sentinel Dynamics,Mexico,Covered-Video-Surveillance,FALSE,FALSE,Moderate
+CMP-0036,Interface Transceiver,Service,01OJX-4302,SUP-011,Silverpeak Fabrication,United States,Covered-Telecom,FALSE,FALSE,Moderate
+CMP-0037,RF Controller,Hardware,01OJX-2683,SUP-011,Silverpeak Fabrication,Japan,None,FALSE,FALSE,Moderate
+CMP-0038,RF Transceiver,Hardware,01OJX-1916,SUP-011,Silverpeak Fabrication,United States,None,TRUE,TRUE,Moderate
+CMP-0039,Sensor Relay,Software,01OJX-5406,SUP-011,Silverpeak Fabrication,Vietnam,None,FALSE,FALSE,Moderate
+CMP-0040,Control Chipset,Hardware,00T53-6206,SUP-012,Aegis Systems,Taiwan,Covered-Video-Surveillance,TRUE,FALSE,Moderate
+CMP-0041,Network Firmware,Hardware,00T53-7707,SUP-012,Aegis Systems,China,None,TRUE,TRUE,Moderate
+CMP-0042,Power Transceiver,Firmware,00T53-7601,SUP-012,Aegis Systems,Vietnam,None,FALSE,TRUE,Moderate
+CMP-0043,Optical Transceiver,Service,01CWJ-2152,SUP-013,Dovetail Solutions,South Korea,None,TRUE,TRUE,Moderate
+CMP-0044,Storage Chipset,Software,01NGS-1628,SUP-014,Halcyon Components,United States,Covered-Video-Surveillance,TRUE,FALSE,High
+CMP-0045,RF Amplifier,Firmware,01NGS-7989,SUP-014,Halcyon Components,Malaysia,Covered-Telecom,FALSE,TRUE,High
+CMP-0046,Crypto Firmware,Service,01NGS-1454,SUP-014,Halcyon Components,Germany,Covered-Video-Surveillance,FALSE,FALSE,High
+CMP-0047,Network Transceiver,Firmware,01ELC-5516,SUP-015,Lumen Industries,Taiwan,None,TRUE,FALSE,Moderate
+CMP-0048,RF Firmware,Hardware,01ELC-9120,SUP-015,Lumen Industries,Taiwan,None,TRUE,FALSE,Moderate
+CMP-0049,Power Module,Software,01QMH-4465,SUP-016,Redwood Fabrication,China,None,TRUE,TRUE,Mission-Critical
+CMP-0050,Optical Subsystem,Firmware,01QMH-2887,SUP-016,Redwood Fabrication,China,None,TRUE,TRUE,Mission-Critical
+CMP-0051,Baseband Firmware,Firmware,01QMH-9664,SUP-016,Redwood Fabrication,United States,None,FALSE,TRUE,Mission-Critical
+CMP-0052,RF Assembly,Service,012MG-6816,SUP-017,Redwood Materials,Taiwan,Covered-Telecom,FALSE,TRUE,Moderate
+CMP-0053,Baseband Firmware,Software,012MG-1838,SUP-017,Redwood Materials,China,Covered-Telecom,FALSE,TRUE,Moderate
+CMP-0054,Network Gateway,Firmware,0157B-4934,SUP-018,Keystone Solutions,United States,None,FALSE,TRUE,Moderate
+CMP-0055,Storage Module,Software,0157B-2267,SUP-018,Keystone Solutions,Malaysia,None,FALSE,FALSE,Moderate
+CMP-0056,Optical Processor,Software,0157B-7589,SUP-018,Keystone Solutions,Germany,None,TRUE,TRUE,Moderate
+CMP-0057,Baseband Subsystem,Service,0157B-2619,SUP-018,Keystone Solutions,United States,None,TRUE,TRUE,Moderate
+CMP-0058,Control Subsystem,Hardware,0157B-9199,SUP-018,Keystone Solutions,Japan,Covered-Video-Surveillance,FALSE,FALSE,Moderate
+CMP-0059,Crypto Transceiver,Hardware,020LR-7264,SUP-019,Dovetail Industries,South Korea,None,FALSE,TRUE,Mission-Critical
+CMP-0060,Control Transceiver,Hardware,00BKB-1283,SUP-020,Vantage Robotics,Vietnam,Covered-Video-Surveillance,FALSE,FALSE,High
+CMP-0061,Storage Module,Service,00BKB-7546,SUP-020,Vantage Robotics,United States,None,TRUE,TRUE,High
+CMP-0062,Thermal Chipset,Hardware,00BKB-8313,SUP-020,Vantage Robotics,Taiwan,Covered-Video-Surveillance,FALSE,FALSE,High
+CMP-0063,Sensor Subsystem,Firmware,00BKB-5468,SUP-020,Vantage Robotics,China,None,FALSE,TRUE,High
+CMP-0064,Sensor Transceiver,Firmware,01N3M-7826,SUP-021,Garnet Instruments,Taiwan,Covered-Video-Surveillance,TRUE,TRUE,Moderate
+CMP-0065,Timing Processor,Service,01N3M-8305,SUP-021,Garnet Instruments,Taiwan,None,TRUE,TRUE,Moderate
+CMP-0066,Control Assembly,Software,01N3M-4316,SUP-021,Garnet Instruments,South Korea,None,FALSE,TRUE,Moderate
+CMP-0067,Optical Firmware,Software,010WE-9874,SUP-022,Lakeside Fabrication,China,None,FALSE,FALSE,Moderate
+CMP-0068,Power Module,Firmware,01QHD-5337,SUP-023,Granite Fabrication,Vietnam,Covered-Video-Surveillance,FALSE,FALSE,High
+CMP-0069,Crypto Relay,Firmware,00K77-8551,SUP-024,Garnet Electronics,Taiwan,Covered-Telecom,FALSE,FALSE,Moderate
+CMP-0070,RF Assembly,Software,00K77-7481,SUP-024,Garnet Electronics,United States,None,FALSE,TRUE,Moderate
+CMP-0071,Storage Relay,Software,016DM-5614,SUP-025,Lakeside Devices,China,Covered-Video-Surveillance,TRUE,FALSE,Moderate
+CMP-0072,Network Subsystem,Service,016DM-4497,SUP-025,Lakeside Devices,Taiwan,Covered-Telecom,TRUE,FALSE,Moderate
+CMP-0073,Sensor Chipset,Service,016DM-5042,SUP-025,Lakeside Devices,United States,None,TRUE,TRUE,Moderate
+CMP-0074,Storage Firmware,Hardware,016DM-2731,SUP-025,Lakeside Devices,United States,Covered-Telecom,FALSE,TRUE,Moderate
+CMP-0075,Control Firmware,Software,016DM-9893,SUP-025,Lakeside Devices,Japan,None,FALSE,TRUE,Moderate
+CMP-0076,Network Relay,Firmware,01ZPQ-9526,SUP-026,Garnet Systems,China,Covered-Telecom,FALSE,FALSE,Moderate
+CMP-0077,Interface Firmware,Service,01ZPQ-4620,SUP-026,Garnet Systems,Malaysia,Covered-Video-Surveillance,FALSE,TRUE,Moderate
+CMP-0078,RF Assembly,Hardware,0144O-6709,SUP-027,Dovetail Defense,China,None,TRUE,FALSE,High
+CMP-0079,Network Board,Firmware,0144O-6445,SUP-027,Dovetail Defense,China,Covered-Telecom,TRUE,TRUE,High
+CMP-0080,Control Module,Service,0213O-9565,SUP-028,Cobalt Devices,Japan,None,TRUE,FALSE,Moderate
+CMP-0081,Interface Assembly,Hardware,0213O-2544,SUP-028,Cobalt Devices,Malaysia,Covered-Video-Surveillance,TRUE,FALSE,Moderate
+CMP-0082,Storage Processor,Hardware,0213O-1437,SUP-028,Cobalt Devices,Mexico,None,FALSE,FALSE,Moderate
+CMP-0083,Crypto Gateway,Software,0213O-8469,SUP-028,Cobalt Devices,Japan,None,TRUE,TRUE,Moderate
+CMP-0084,Crypto Firmware,Firmware,01MEY-2956,SUP-029,Trident Materials,Malaysia,None,FALSE,TRUE,High
+CMP-0085,Network Board,Service,01OLQ-1871,SUP-030,Beacon Components,South Korea,None,FALSE,FALSE,Moderate
+CMP-0086,RF Amplifier,Service,01OLQ-8743,SUP-030,Beacon Components,United States,None,TRUE,FALSE,Moderate
+CMP-0087,Control Chipset,Service,01OLQ-9924,SUP-030,Beacon Components,Japan,None,FALSE,TRUE,Moderate
+CMP-0088,Network Assembly,Service,01R2H-7889,SUP-031,Pioneer Electronics,Taiwan,Covered-Telecom,TRUE,TRUE,Mission-Critical
+CMP-0089,Control Chipset,Service,01R2H-1630,SUP-031,Pioneer Electronics,Taiwan,Covered-Telecom,TRUE,TRUE,Mission-Critical
+CMP-0090,Power Transceiver,Software,01R2H-9009,SUP-031,Pioneer Electronics,Japan,None,FALSE,TRUE,Mission-Critical
+CMP-0091,Network Gateway,Software,01R2H-2804,SUP-031,Pioneer Electronics,Mexico,None,FALSE,TRUE,Mission-Critical
+CMP-0092,Power Module,Software,01R2H-2409,SUP-031,Pioneer Electronics,China,None,TRUE,TRUE,Mission-Critical
+CMP-0093,Storage Processor,Hardware,01KQB-7578,SUP-032,Titan Devices,United States,None,TRUE,TRUE,Mission-Critical
+CMP-0094,Interface Module,Firmware,01KKV-8414,SUP-033,Halcyon Instruments,Taiwan,None,TRUE,TRUE,Mission-Critical
+CMP-0095,Interface Chipset,Firmware,01KKV-5768,SUP-033,Halcyon Instruments,Taiwan,None,TRUE,TRUE,Mission-Critical
+CMP-0096,Crypto Chipset,Hardware,01KKV-5238,SUP-033,Halcyon Instruments,South Korea,None,TRUE,TRUE,Mission-Critical
+CMP-0097,Optical Processor,Service,01KKV-2957,SUP-033,Halcyon Instruments,South Korea,Covered-Video-Surveillance,FALSE,FALSE,Mission-Critical
+CMP-0098,Crypto Relay,Hardware,01OUE-4629,SUP-034,Halcyon Electronics,China,Covered-Video-Surveillance,TRUE,TRUE,Mission-Critical
+CMP-0099,Optical Amplifier,Software,01OUE-7177,SUP-034,Halcyon Electronics,China,Covered-Video-Surveillance,TRUE,TRUE,Mission-Critical
+CMP-0100,Sensor Subsystem,Hardware,01OUE-1223,SUP-034,Halcyon Electronics,Mexico,None,FALSE,TRUE,Mission-Critical
+CMP-0101,Network Gateway,Software,01OUE-3030,SUP-034,Halcyon Electronics,United States,None,FALSE,FALSE,Mission-Critical
+CMP-0102,Baseband Gateway,Software,01XX5-2518,SUP-035,Vertex Dynamics,Taiwan,None,TRUE,TRUE,Mission-Critical
+CMP-0103,Thermal Board,Software,01XX5-3975,SUP-035,Vertex Dynamics,China,Covered-Video-Surveillance,TRUE,TRUE,Mission-Critical
+CMP-0104,Interface Transceiver,Hardware,01XX5-4639,SUP-035,Vertex Dynamics,Mexico,Covered-Video-Surveillance,FALSE,FALSE,Mission-Critical
+CMP-0105,Optical Firmware,Hardware,01XX5-3358,SUP-035,Vertex Dynamics,China,Covered-Video-Surveillance,TRUE,TRUE,Mission-Critical
+CMP-0106,Network Module,Firmware,01896-2868,SUP-036,Silverpeak Robotics,Taiwan,None,TRUE,TRUE,High
+CMP-0107,Timing Relay,Hardware,0244F-9363,SUP-037,Everest Dynamics,South Korea,None,TRUE,TRUE,Low
+CMP-0108,Interface Firmware,Software,0244F-2198,SUP-037,Everest Dynamics,Malaysia,None,FALSE,TRUE,Low
+CMP-0109,Optical Controller,Software,0244F-1875,SUP-037,Everest Dynamics,Mexico,None,FALSE,TRUE,Low
+CMP-0110,Control Firmware,Hardware,01PN7-3393,SUP-038,Ironwood Instruments,Vietnam,None,FALSE,FALSE,Low
+CMP-0111,Storage Chipset,Hardware,01PN7-6476,SUP-038,Ironwood Instruments,Malaysia,None,FALSE,TRUE,Low
+CMP-0112,Power Chipset,Service,00T72-5242,SUP-039,Aegis Electronics,Mexico,Covered-Telecom,FALSE,TRUE,Low
+CMP-0113,RF Module,Hardware,022JV-3243,SUP-040,Copperline Electronics,Japan,None,FALSE,TRUE,Moderate
+CMP-0114,Crypto Relay,Software,022JV-6436,SUP-040,Copperline Electronics,United States,Covered-Video-Surveillance,TRUE,FALSE,Moderate
+CMP-0115,RF Board,Service,022JV-9546,SUP-040,Copperline Electronics,South Korea,Covered-Video-Surveillance,TRUE,FALSE,Moderate
+CMP-0116,Interface Processor,Software,022JV-9707,SUP-040,Copperline Electronics,Vietnam,Covered-Video-Surveillance,TRUE,FALSE,Moderate

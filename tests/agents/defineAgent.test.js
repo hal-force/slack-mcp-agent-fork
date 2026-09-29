@@ -75,6 +75,54 @@ test("empty / non-string input is safe", () => {
   assert.deepEqual(extractStructured(null), { structured: null, cleanedText: "" });
 });
 
+// ---- unfenced trailing JSON object (Cohere Command A Plus omits the ``` fence) ----
+
+test("recovers a bare trailing JSON object with no code fence", () => {
+  // The exact shape Command A Plus emitted for q1: prose, blank line, then a raw
+  // `{ … }` object with nested objects, no ```json fence anywhere.
+  const text =
+    "FOCI suppliers score far higher on cyber risk.\n\n" +
+    '{"mode":"analysis","findings":[{"effect":"foci_to_cyber","magnitude":{"foci":70.1,"non_foci":30.8}}]}';
+  const { structured, cleanedText } = extractStructured(text);
+  assert.deepEqual(structured, {
+    mode: "analysis",
+    findings: [{ effect: "foci_to_cyber", magnitude: { foci: 70.1, non_foci: 30.8 } }],
+  });
+  assert.equal(cleanedText, "FOCI suppliers score far higher on cyber risk.");
+});
+
+test("a fenced block is still preferred over a bare trailing object", () => {
+  const text = '```json\n{"from":"fence"}\n```\n\n{"from":"bare"}';
+  const { structured } = extractStructured(text);
+  assert.deepEqual(structured, { from: "fence" }); // bare recovery only runs when no fence exists
+});
+
+test("bare recovery picks the OUTERMOST trailing object, not a nested one", () => {
+  const text = 'x\n{"a":{"b":{"c":1}},"d":2}';
+  const { structured } = extractStructured(text);
+  assert.deepEqual(structured, { a: { b: { c: 1 } }, d: 2 });
+});
+
+test("bare recovery tolerates braces inside string values", () => {
+  const text = 'note\n{"claim":"scores like {x} and }} are noisy","n":3}';
+  const { structured } = extractStructured(text);
+  assert.deepEqual(structured, { claim: "scores like {x} and }} are noisy", n: 3 });
+});
+
+test("a bare object followed by trailing prose is NOT grabbed (contract: json is last)", () => {
+  const text = 'lead\n{"mode":"analysis"}\nthanks for reading';
+  const { structured, cleanedText } = extractStructured(text);
+  assert.equal(structured, null);
+  assert.equal(cleanedText, text);
+});
+
+test("a severed bare object (no closing brace) yields null, never throws", () => {
+  const text = 'prose\n{"a":1,"b":';
+  const { structured, cleanedText } = extractStructured(text);
+  assert.equal(structured, null);
+  assert.equal(cleanedText, text);
+});
+
 // ---- Bedrock per-agent model pin (bedrockModelId) ----
 // Uses the __client test seam. Confirms the override reaches the ConverseCommand
 // and that the baseline (no override) still uses the configured model.

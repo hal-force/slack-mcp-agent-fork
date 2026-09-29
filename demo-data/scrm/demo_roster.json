@@ -1,0 +1,56 @@
+{
+  "_comment": "Synthetic Slack-user roster for the SCRM localized-brief demo (the analog of demo-data/vha/demo_roster.json). Each entry is the SUBSET of a real users.info payload the resolvers read (id, tz, locale, profile.title, profile.fields). It lets scrmRiskBrief.js exercise the (ROLE x PORTFOLIO) parameterization in dry-run WITHOUT live Slack users. In production these come straight from users.info; this file is never used when a bot token is present unless SCRM_BRIEF_USE_ROSTER=1. Chosen so the SAME flagged alerts produce DIFFERENT briefs by role and portfolio: a program director sees everything, a portfolio owner sees all KRIs in one lane, an analyst sees one KRI. Josh is the program-office director (persona: military SCRM director based in Phoenix) and gets the full program-wide brief.",
+  "users": [
+    {
+      "id": "U_DIR_SCRM",
+      "tz": "America/Phoenix",
+      "locale": "en-US",
+      "profile": {
+        "title": "SCRM Director",
+        "real_name": "Josh Gillmore",
+        "fields": {
+          "Xf01": { "label": "SCRM Portfolio", "value": "ALL" },
+          "Xf02": { "label": "SCRM Role", "value": "director" }
+        }
+      },
+      "_persona": "Program-office SCRM director for a military supply-chain risk program, based in Phoenix, AZ.",
+      "_expect": "ALL portfolios x ALL KRIs -> program-wide brief (top flagged supplier x KRI risks across all 5 portfolios)"
+    },
+    {
+      "id": "U_PORT_HW",
+      "tz": "America/New_York",
+      "locale": "en-US",
+      "profile": {
+        "title": "Director, ICT Hardware Portfolio",
+        "real_name": "Dana Whitfield"
+      },
+      "_expect": "ICT Hardware (owner id) x ALL KRIs -> that lane's flagged risks (incl. the FOCI/cyber cluster: Meridian Microelectronics, etc.)"
+    },
+    {
+      "id": "U_CYBER",
+      "tz": "America/New_York",
+      "locale": "en-US",
+      "profile": {
+        "title": "Cyber SCRM Analyst",
+        "real_name": "Ravi Chandra",
+        "fields": {
+          "Xf01": { "label": "SCRM Portfolio", "value": "ALL" }
+        }
+      },
+      "_expect": "ALL portfolios x CYBER only -> cyber-posture alerts program-wide (role filtering)"
+    },
+    {
+      "id": "U_LOG",
+      "tz": "America/Chicago",
+      "locale": "en-US",
+      "profile": {
+        "title": "Logistics Analyst",
+        "real_name": "Tam Okafor",
+        "fields": {
+          "Xf01": { "label": "SCRM Portfolio", "value": "Logistics & Sustainment" }
+        }
+      },
+      "_expect": "Logistics & Sustainment x DELIVERY only -> the fresh Yellow->Red delivery breaches in that lane (role x portfolio intersection)"
+    }
+  ]
+}

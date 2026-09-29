@@ -1,0 +1,33 @@
+{
+  "_comment": "Published-datasource LUID map for the Public-Sector SCRM demo (Tableau Cloud site 'usfederaldemos', pod prod-useast-a, project '60 - Public Sector SCRM Demo', project LUID 9866ccdd-5a7b-45e9-a3d5-bd9ac2abba2c). Captured at M2 publish 2026-09-24. LUIDs are routing ids, not secrets. Set SCRM_MCP_DATASOURCES on pathfinder-mcp to the `env_value` object below (keys are the logical table names the SCRM tools reference). The Suppliers source is the FILTERED datasource — composite_risk_pct is intentionally absent.",
+  "site": "usfederaldemos",
+  "server": "https://prod-useast-a.online.tableau.com",
+  "project": "60 - Public Sector SCRM Demo",
+  "project_luid": "9866ccdd-5a7b-45e9-a3d5-bd9ac2abba2c",
+  "flow_id": "689bc822-4927-46dd-b403-d3ffeb25c737",
+  "captured_at": "2026-09-24",
+  "env_value": {
+    "risk_snapshots": "3e865117-aff6-4068-8a7d-65eea9ae3747",
+    "suppliers": "3bec8dc7-da95-491a-b044-5ce53d714b40",
+    "risk_registry": "fde232b4-51c7-49f3-a91c-352a78fa2a37",
+    "components": "67dab4f2-dd88-4e65-9d29-1219843e1fc4",
+    "contracts": "6945bc47-1901-4617-86ee-b2de27d93f7a",
+    "findings": "0f9ca404-e89f-44cc-8218-7ab533f947a1"
+  },
+  "datasources": [
+    { "table": "risk_snapshots", "display_name": "SCRM Risk Snapshots", "luid": "3e865117-aff6-4068-8a7d-65eea9ae3747", "rows": 5040, "note": "Pulse/alert source. risk_score 0-100 (higher=worse), RAG, alert_flag/alert_reason. foci_flag & alert_flag are REAL booleans — VDS SET filters need JSON true, not \"true\"." },
+    { "table": "suppliers", "display_name": "SCRM Suppliers", "luid": "3bec8dc7-da95-491a-b044-5ce53d714b40", "rows": 40, "note": "FILTERED — composite_risk_pct excluded (verified absent from published fields)." },
+    { "table": "risk_registry", "display_name": "SCRM Risk Registry", "luid": "fde232b4-51c7-49f3-a91c-352a78fa2a37", "rows": 7, "note": "7 KRI defs: threshold, direction, owning_channel, owning_function." },
+    { "table": "components", "display_name": "SCRM Components", "luid": "67dab4f2-dd88-4e65-9d29-1219843e1fc4", "rows": 116, "note": "single_source_flag is a REAL boolean. ss-concentration = >=2 single-source parts from China/Taiwan." },
+    { "table": "contracts", "display_name": "SCRM Contracts", "luid": "6945bc47-1901-4617-86ee-b2de27d93f7a", "rows": 93, "note": "program/contract exposure." },
+    { "table": "findings", "display_name": "SCRM Findings", "luid": "0f9ca404-e89f-44cc-8218-7ab533f947a1", "rows": 100, "note": "qualitative layer; joins to snapshots on supplier_key + risk_category; notes SANITIZED." }
+  ],
+  "live_verification_2026_09_24": {
+    "row_counts": "all 6 match generator (5040/40/7/116/93/100)",
+    "E1_foci_cyber": { "foci": 70.1, "non_foci": 30.8, "via": "JSON true SET filter on foci_flag" },
+    "E1_foci_prohibited": { "foci": 66.4, "non_foci": 15.8 },
+    "E2_delivery_interaction": { "mc_ssconc": 67.6, "mc_not": 31.7, "nonmc_ssconc": 38.9, "nonmc_not": 29.7 },
+    "latest_month_alerts": 31,
+    "guardrail_composite_risk_pct_present": false
+  }
+}
