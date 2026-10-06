@@ -32,6 +32,7 @@
 const { defineAgent } = require("./defineAgent");
 const { SCRM_TOOL_SPECS, dispatchScrmTool } = require("./scrmTools");
 const { buildContents } = require("../assistant/respond");
+const { defaultMaxOutputTokens } = require("../assistant/llmProvider");
 
 /**
  * Choose the tool backend. Default is the local-CSV dispatcher (deterministic, offline).
@@ -137,8 +138,7 @@ function createScrmSpecialist(opts = {}) {
     tools: SCRM_TOOL_SPECS,
     dispatchTool: resolveDispatchTool(opts),
     modelId: opts.modelId || scrmModelId(),
-    maxOutputTokens:
-      Number(opts.maxOutputTokens) || Number(process.env.LLM_MAX_OUTPUT_TOKENS) || 4096,
+    maxOutputTokens: Number(opts.maxOutputTokens) || defaultMaxOutputTokens(),
     parseStructured: true,
   });
 

@@ -25,6 +25,7 @@
 const { defineAgent } = require("./defineAgent");
 const { TRIAGE_TOOL_SPECS, dispatchTriageTool } = require("./triageTools");
 const { buildContents } = require("../assistant/respond");
+const { defaultMaxOutputTokens } = require("../assistant/llmProvider");
 
 /**
  * Choose the tool backend. Default is the local-CSV dispatcher (deterministic, offline —
@@ -126,10 +127,7 @@ function createTriageSpecialist(opts = {}) {
     tools: TRIAGE_TOOL_SPECS,
     dispatchTool: resolveDispatchTool(opts),
     modelId: opts.modelId || triageModelId(),
-    maxOutputTokens:
-      Number(opts.maxOutputTokens) ||
-      Number(process.env.LLM_MAX_OUTPUT_TOKENS) ||
-      4096,
+    maxOutputTokens: Number(opts.maxOutputTokens) || defaultMaxOutputTokens(),
     // Sonnet 5 rejects the temperature param; llmProvider strips it on demand, but
     // leaving it unset avoids the retry round-trip for the pinned model.
     parseStructured: true,

@@ -1,6 +1,6 @@
 const { dispatchCanvasTool } = require("../canvas/userCanvasActions");
 const { generateCanvasTitle, titledCanvasMarkdown } = require("../canvas/canvasTitle");
-const { generateReply, selectedProvider } = require("./llmProvider");
+const { generateReply, selectedProvider, defaultMaxOutputTokens } = require("./llmProvider");
 const {
   TABLEAU_TOOL_SPECS,
   dispatchTableauTool,
@@ -264,8 +264,7 @@ async function getAiResponse({
   const contents = buildContents(threadHistory || [], userMessage.trim(), skillContext || "");
   if (contents.length === 0) return aiReply("Send me a message and I'll respond.");
 
-  const maxOutputTokens = Number(process.env.LLM_MAX_OUTPUT_TOKENS) ||
-    Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 4096;
+  const maxOutputTokens = defaultMaxOutputTokens();
 
   // Live Tableau MCP tool calling. When the app runs on a tool-loop provider
   // (Bedrock or Cohere) and a Tableau MCP server is configured, expose the

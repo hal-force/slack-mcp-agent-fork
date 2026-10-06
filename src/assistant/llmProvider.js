@@ -39,6 +39,20 @@ function selectedProvider() {
 }
 
 /**
+ * Output-token budget for a caller that didn't pin one. LLM_MAX_OUTPUT_TOKENS (or
+ * the legacy GEMINI_MAX_OUTPUT_TOKENS) always wins. Otherwise 4096 — except on
+ * Cohere, where Command A Plus's thinking content counts against max_tokens, so a
+ * 4096 budget can end a multi-tool turn with only a thinking block (empty reply).
+ * 8192 is the budget verified to leave room for the answer.
+ */
+function defaultMaxOutputTokens() {
+  const fromEnv =
+    Number(process.env.LLM_MAX_OUTPUT_TOKENS) || Number(process.env.GEMINI_MAX_OUTPUT_TOKENS);
+  if (fromEnv) return fromEnv;
+  return selectedProvider() === "cohere" ? 8192 : 4096;
+}
+
+/**
  * Auth scheme for the OpenAI-compatible gateway, from LLM_GATEWAY_AUTH:
  *   - "bearer" (default): Authorization: Bearer <LLM_GATEWAY_API_KEY>. Today's
  *     behavior — the internal Claude gateway. Unchanged when the var is unset.
@@ -733,6 +747,7 @@ async function generateReply(req, opts = {}) {
 module.exports = {
   generateReply,
   selectedProvider,
+  defaultMaxOutputTokens,
   gatewayConfig,
   gatewayAuthMode,
   bedrockConfig,

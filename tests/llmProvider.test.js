@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 
 const {
   selectedProvider,
+  defaultMaxOutputTokens,
   gatewayConfig,
   gatewayAuthMode,
   bedrockConfig,
@@ -37,11 +38,13 @@ const BEDROCK_KEYS = [
   "AWS_ROLE_ARN",
 ];
 const COHERE_KEYS = ["COHERE_API_KEY", "COHERE_MODEL_ID", "COHERE_BASE_URL", "COHERE_MAX_TOOL_ROUNDS"];
+const TOKEN_KEYS = ["LLM_MAX_OUTPUT_TOKENS", "GEMINI_MAX_OUTPUT_TOKENS"];
 // Snapshot AWS_* so we can restore anything the host environment had set.
 const AWS_SNAPSHOT = Object.fromEntries(BEDROCK_KEYS.map((k) => [k, process.env[k]]));
 afterEach(() => {
   for (const k of GW_KEYS) delete process.env[k];
   for (const k of COHERE_KEYS) delete process.env[k];
+  for (const k of TOKEN_KEYS) delete process.env[k];
   for (const k of BEDROCK_KEYS) {
     if (AWS_SNAPSHOT[k] === undefined) delete process.env[k];
     else process.env[k] = AWS_SNAPSHOT[k];
@@ -64,6 +67,38 @@ function configureCohere() {
   process.env.COHERE_API_KEY = "co-test-key";
   process.env.COHERE_MODEL_ID = "command-a-plus-05-2026";
 }
+
+// ----- defaultMaxOutputTokens -----
+
+test("defaultMaxOutputTokens is 4096 on non-Cohere providers", () => {
+  for (const k of TOKEN_KEYS) delete process.env[k];
+  assert.equal(defaultMaxOutputTokens(), 4096); // vertex
+  process.env.AI_PROVIDER = "bedrock";
+  configureBedrock();
+  assert.equal(defaultMaxOutputTokens(), 4096);
+});
+
+test("defaultMaxOutputTokens is 8192 on Cohere so thinking can't starve the answer", () => {
+  for (const k of TOKEN_KEYS) delete process.env[k];
+  process.env.AI_PROVIDER = "cohere";
+  configureCohere();
+  assert.equal(defaultMaxOutputTokens(), 8192);
+});
+
+test("defaultMaxOutputTokens: Cohere requested but unconfigured falls back with vertex", () => {
+  for (const k of TOKEN_KEYS) delete process.env[k];
+  process.env.AI_PROVIDER = "cohere"; // no key/model → selectedProvider() is vertex
+  assert.equal(defaultMaxOutputTokens(), 4096);
+});
+
+test("defaultMaxOutputTokens: LLM_MAX_OUTPUT_TOKENS (then GEMINI_*) always wins", () => {
+  process.env.AI_PROVIDER = "cohere";
+  configureCohere();
+  process.env.GEMINI_MAX_OUTPUT_TOKENS = "2048";
+  assert.equal(defaultMaxOutputTokens(), 2048);
+  process.env.LLM_MAX_OUTPUT_TOKENS = "64000";
+  assert.equal(defaultMaxOutputTokens(), 64000);
+});
 
 test("defaults to vertex when AI_PROVIDER unset", () => {
   assert.equal(selectedProvider(), "vertex");

@@ -304,7 +304,7 @@ Add these in the dashboard (or via CLI). **Do not commit secrets to git.**
 | `REQUIRE_TOKEN_ENC` | Prod hardening | `1`/`true`/`yes` makes a missing `TOKEN_ENC_KEY` **fail closed**: installs are refused with a loud error instead of silently storing tokens in plaintext. Also flips the `TOKEN_ENC_KEY` configcheck from a warning to a hard fail. Default off preserves the local/dev no-key path. |
 | `PGSSLROOTCERT` | Prod DB | Path to the RDS CA bundle (`certs/rds-global-bundle.pem`) so DB TLS verification stays on against Aurora/RDS. See [Database TLS](#database-tls-rdsaurora). |
 | `DATABASE_SSL_NO_VERIFY` | Demo only | `1` skips DB TLS **issuer verification** (TLS stays encrypted). Escape hatch for a demo tier where shipping the CA bundle isn't warranted; do **not** use in production. |
-| `LLM_MAX_OUTPUT_TOKENS` | No | Max reply tokens (default `4096`). Applies to both backends; replies that still hit the cap are flagged as truncated rather than cut silently. |
+| `LLM_MAX_OUTPUT_TOKENS` | No | Max reply tokens (default `4096`; `8192` when `AI_PROVIDER=cohere`, since Command A Plus thinking counts against the cap). Applies to all backends; replies that still hit the cap are flagged as truncated rather than cut silently. |
 | `LLM_REQUEST_TIMEOUT_MS` | No | Per-request timeout for LLM calls across all backends — Bedrock Converse, Vertex/Gemini, and the gateway `fetch` (default `60000`). Bounds a hung upstream so a turn fails cleanly instead of hanging the dyno. |
 | `MCP_HTTP_MAX_ATTEMPTS` | No | MCP HTTP retry attempts on transient 5xx/429/network errors (default `3`) |
 | `MCP_HTTP_RETRY_BASE_MS` | No | Base backoff between MCP retries in ms (default `300`, linear) |
