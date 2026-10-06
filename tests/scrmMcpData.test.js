@@ -147,11 +147,49 @@ test("fetchTable strips composite_risk_pct even if the source leaks it", async (
   assert.equal(out[0].supplier_key, "SUP-001");
 });
 
-test("fetchTable returns [] when nothing resolves (all captions unknown)", async () => {
+test("fetchTable throws when nothing resolves (all captions unknown) instead of returning []", async () => {
   const callTool = async (name) =>
     name === "get-datasource-metadata" ? wrap({ fieldGroups: [{ fields: [{ fieldCaption: "Totally Unrelated" }] }] }) : wrap({ data: [] });
-  const out = await fetchTable({ table: "contracts", luid: "L", callTool });
-  assert.deepEqual(out, []);
+  await assert.rejects(fetchTable({ table: "contracts", luid: "L", callTool }), /none of the expected columns resolved/);
+});
+
+test("fetchTable surfaces an MCP isError result instead of reading it as zero rows", async () => {
+  const callTool = async (name) =>
+    name === "get-datasource-metadata"
+      ? wrap({ fieldGroups: [{ fields: [{ fieldCaption: "Contract Id" }] }] })
+      : { result: { isError: true }, text: "VizQL 400803: invalid filter" };
+  await assert.rejects(fetchTable({ table: "contracts", luid: "L", callTool }), /query-datasource failed: VizQL 400803/);
+});
+
+test("fetchTable warns about expected columns the datasource doesn't expose", async () => {
+  const cols = TABLE_COLUMNS.contracts;
+  const { callTool } = mockCallToolFor(cols, [{ contract_id: "C1", supplier_key: "S1" }], { dropCaptions: ["program_name"] });
+  const warnings = [];
+  const orig = console.warn;
+  console.warn = (m) => warnings.push(String(m));
+  try {
+    await fetchTable({ table: "contracts", luid: "L", callTool });
+  } finally {
+    console.warn = orig;
+  }
+  assert.ok(warnings.some((w) => /\[program_name\] not found/.test(w)), warnings.join("\n"));
+});
+
+test("makeMcpDispatchTool does not cache a failed load — the next call retries", async () => {
+  let metaCalls = 0;
+  const callTool = async (name) => {
+    if (name === "get-datasource-metadata") {
+      metaCalls += 1;
+      if (metaCalls === 1) return { text: "" }; // fall back to caption == column
+      return wrap({ fieldGroups: [{ fields: TABLE_COLUMNS.suppliers.map((c) => ({ fieldCaption: c })) }] });
+    }
+    if (metaCalls === 1) return { result: { isError: true }, text: "transient" };
+    return wrap({ data: [{ supplier_key: "SUP-001", supplier_name: "A" }] });
+  };
+  const dispatch = makeMcpDispatchTool({ datasources: { suppliers: "L-sup" }, callTool });
+  await assert.rejects(dispatch("scrm_query", { table: "suppliers" }), /transient/);
+  const res = await dispatch("scrm_query", { table: "suppliers" });
+  assert.equal(res.rows[0].count, 1);
 });
 
 test("loadTablesFromMcp fetches every mapped table and leaves unmapped ones empty", async () => {

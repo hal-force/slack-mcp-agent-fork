@@ -8,6 +8,7 @@ const {
   runSupplierProfile,
   ssConcentratedMap,
   latestSnapshotDate,
+  MAX_QUERY_LIMIT,
 } = require("../src/agents/scrmTools");
 
 // These tests run the SCRM tools against the REAL bundled fixture (demo-data/scrm) and
@@ -208,4 +209,60 @@ test("scrm_supplier_profile resolves by name and reports ss_concentrated", () =>
 test("runQuery rejects an unknown table", () => {
   const res = runQuery({ table: "nope" }, T);
   assert.ok(res.error && /unknown table/.test(res.error));
+});
+
+// ── input handling: parity across backends, no silent pass-throughs ──────────
+
+// A minimal table set in each backend's boolean rendering: the CSV fixture mixes
+// "TRUE"/"true", the Tableau backend stringifies VDS booleans as "true".
+const boolTables = (t, f) => ({
+  components: [
+    { component_key: "C1", supplier_key: "S1", single_source_flag: t },
+    { component_key: "C2", supplier_key: "S2", single_source_flag: f },
+    { component_key: "C3", supplier_key: "S3", single_source_flag: t },
+  ],
+});
+
+test("boolean filters and groups behave identically for CSV TRUE and VDS true", () => {
+  for (const [t, f] of [["TRUE", "FALSE"], ["true", "false"]]) {
+    for (const value of [true, "true", "TRUE"]) {
+      const res = runQuery(
+        { table: "components", filters: [{ field: "single_source_flag", op: "eq", value }] },
+        boolTables(t, f),
+      );
+      assert.equal(res.rows[0].count, 2, `backend ${t}, filter value ${JSON.stringify(value)}`);
+    }
+    const grouped = runQuery({ table: "components", group_by: ["single_source_flag"] }, boolTables(t, f));
+    assert.deepEqual(grouped.rows.map((r) => r.single_source_flag), ["false", "true"]);
+  }
+});
+
+test("runQuery rejects an unknown filter op instead of ignoring the filter", () => {
+  const res = runQuery(
+    { table: "components", filters: [{ field: "single_source_flag", op: "contains", value: "t" }] },
+    boolTables("true", "false"),
+  );
+  assert.match(res.error, /unsupported filter op "contains"/);
+});
+
+test("runQuery rejects columns the table doesn't have (typo or missing from the datasource)", () => {
+  const res = runQuery({ table: "components", group_by: ["single_sorce_flag"] }, boolTables("true", "false"));
+  assert.match(res.error, /unknown column\(s\) "single_sorce_flag" on components/);
+});
+
+test("rate over a true/false flag is a percentage, not null", () => {
+  const res = runQuery(
+    { table: "risk_snapshots", derive: ["is_latest_month"], filters: [{ field: "is_latest_month", op: "eq", value: "yes" }], measures: [{ agg: "rate", field: "alert_flag" }] },
+    T,
+  );
+  const rate = res.rows[0].rate_alert_flag;
+  assert.equal(typeof rate, "number");
+  assert.ok(rate > 0 && rate < 100, `rate=${rate}`);
+});
+
+test("scrm_query caps returned groups at MAX_QUERY_LIMIT and flags truncation", () => {
+  const res = runQuery({ table: "risk_snapshots", group_by: ["supplier_key", "risk_category", "period_month"], limit: 100000 }, T);
+  assert.equal(res.groups, 5040);
+  assert.equal(res.rows.length, MAX_QUERY_LIMIT);
+  assert.equal(res.truncated, true);
 });

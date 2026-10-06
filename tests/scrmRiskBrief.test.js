@@ -213,3 +213,59 @@ test("applyBindingToUser injects the profile fields the resolvers read, then res
   assert.equal(sel.portfolio.portfolios, "ALL");
   assert.equal(sel.rows.length, 3); // now sees the whole program despite the "Analyst" title
 });
+
+/* ── run(): one user's failure doesn't abort the scan ────────────────────── */
+test("run() keeps briefing the rest of the roster when one user's DM fails", async (t) => {
+  const { run } = require("../src/jobs/scrmRiskBrief");
+  const { loadTables } = require("../src/agents/scrmData");
+  const roster = require("../demo-data/scrm/demo_roster.json").users;
+  const prevUsers = process.env.SCRM_BRIEF_USERS;
+  process.env.SCRM_BRIEF_USERS = roster.map((u) => u.id).join(";");
+  t.after(() => {
+    if (prevUsers === undefined) delete process.env.SCRM_BRIEF_USERS; else process.env.SCRM_BRIEF_USERS = prevUsers;
+  });
+
+  const failId = roster[0].id;
+  const posted = [];
+  const ctx = {
+    teamId: "T_TEST",
+    narrate: null,
+    mrkdwnStringToBlocks: (body) => ({ text: body, blocks: [] }),
+    web: {
+      users: { info: async ({ user }) => ({ user: roster.find((u) => u.id === user) }) },
+      conversations: { open: async ({ users }) => ({ channel: { id: `D_${users}` } }) },
+      chat: {
+        postMessage: async ({ channel }) => {
+          if (channel === `D_${failId}`) throw new Error("channel_not_found");
+          posted.push(channel);
+          return { ts: "1.0" };
+        },
+      },
+    },
+  };
+  const origErr = console.error;
+  const origLog = console.log;
+  console.error = () => {};
+  console.log = () => {};
+  let res;
+  try {
+    res = await run({ ignoreHour: true, dedupe: false, reason: "test", deps: { ctx, tables: loadTables() } });
+  } finally {
+    console.error = origErr;
+    console.log = origLog;
+  }
+  assert.equal(res.failed, 1);
+  assert.ok(res.sent >= 1, `expected the remaining users to be briefed, got ${JSON.stringify(res)}`);
+  assert.ok(!posted.includes(`D_${failId}`));
+});
+
+/* ── runFromRefresh: event_type is required ───────────────────────────────── */
+test("runFromRefresh ignores payloads without a DatasourceRefreshSucceeded event_type", async () => {
+  const { runFromRefresh } = require("../src/jobs/scrmRiskBrief");
+  const noType = await runFromRefresh({ resource_name: "SCRM Risk Snapshots" });
+  assert.equal(noType.triggered, false);
+  assert.match(noType.reason, /event_type \(missing\)/);
+  const failedRefresh = await runFromRefresh({ event_type: "DatasourceRefreshFailed", resource_name: "SCRM Risk Snapshots" });
+  assert.equal(failedRefresh.triggered, false);
+  assert.match(failedRefresh.reason, /DatasourceRefreshFailed/);
+});

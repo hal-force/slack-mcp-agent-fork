@@ -43,9 +43,22 @@ function securityHeaders() {
   };
 }
 
-/** Best-effort client IP from common proxy headers, falling back to the socket. */
+/**
+ * Client IP for rate limiting. The LEFTMOST X-Forwarded-For entry is whatever the
+ * caller sent and is trivially spoofable (rotate it per request and the limiter
+ * never trips). Each trusted proxy APPENDS the address it saw, so the entry
+ * TRUST_PROXY_HOPS from the right is the one the platform vouches for. Heroku's
+ * router (and App Runner's front end) is one hop → default 1 → the rightmost entry.
+ * TRUST_PROXY_HOPS=0 ignores X-Forwarded-For entirely (direct exposure, no proxy).
+ */
 function clientIp(req) {
-  const xff = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  const raw = Number(process.env.TRUST_PROXY_HOPS);
+  const hops = Number.isInteger(raw) && raw >= 0 ? raw : 1;
+  const chain = String(req.headers["x-forwarded-for"] || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const xff = hops > 0 && chain.length ? chain[Math.max(0, chain.length - hops)] : "";
   return xff || req.ip || req.socket?.remoteAddress || "unknown";
 }
 

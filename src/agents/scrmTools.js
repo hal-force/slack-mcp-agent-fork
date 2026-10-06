@@ -57,6 +57,30 @@ const DERIVE_NAMES = [
 // answer key.
 const CONCENTRATED_REGIONS = new Set(["china", "taiwan"]);
 
+// Hard cap on groups returned by scrm_query, requested limit or not. Keeps a
+// many-dimension group_by from flooding the model's context; `truncated` flags it.
+const MAX_QUERY_LIMIT = 500;
+
+/**
+ * Canonical boolean text. The CSV fixture mixes "true"/"TRUE"/"FALSE" and the Tableau
+ * backend stringifies VDS booleans as "true"/"false"; the agent may also pass a JSON
+ * true. Lower-casing boolean-looking values on both sides makes eq/ne/in and group_by
+ * behave identically on either backend. Anything else is returned unchanged.
+ */
+function normBool(v) {
+  if (typeof v === "boolean") return String(v);
+  if (typeof v === "string" && /^(true|false)$/i.test(v.trim())) return v.trim().toLowerCase();
+  return v;
+}
+
+/** A 0/1 flag value as a number (true/yes/1 → 1, false/no/0 → 0), else null. */
+function flagValue(v) {
+  const s = String(v == null ? "" : v).trim().toLowerCase();
+  if (s === "true" || s === "yes" || s === "1") return 1;
+  if (s === "false" || s === "no" || s === "0") return 0;
+  return null;
+}
+
 // ── derived-column helpers ──────────────────────────────────────────────────
 
 /** Latest snapshot month value (max snapshot_date) across the snapshots table. */
@@ -104,8 +128,14 @@ function suppliersByKey(tables) {
  * @param {string[]} derive
  * @param {object} tables  full table set (needed for cross-table derives)
  */
+function normRow(r) {
+  const out = {};
+  for (const [k, v] of Object.entries(r)) out[k] = normBool(v);
+  return out;
+}
+
 function applyDerives(table, rows, derive, tables) {
-  if (!derive || derive.length === 0) return rows.map((r) => ({ ...r }));
+  if (!derive || derive.length === 0) return rows.map(normRow);
   const want = new Set(derive);
   const latest = want.has("is_latest_month") ? latestSnapshotDate(tables) : null;
   const ssConc = want.has("ss_concentrated") ? ssConcentratedMap(tables) : null;
@@ -114,7 +144,7 @@ function applyDerives(table, rows, derive, tables) {
   const supMap = needSupplierAttr ? suppliersByKey(tables) : null;
 
   return rows.map((r) => {
-    const row = { ...r };
+    const row = normRow(r);
     if (latest != null && "snapshot_date" in r) {
       row.is_latest_month = String(r.snapshot_date || "") === latest ? "yes" : "no";
     }
@@ -126,7 +156,7 @@ function applyDerives(table, rows, derive, tables) {
       // Only attach when the row doesn't already carry the native column, so we never
       // clobber the suppliers table's own values.
       if (s) {
-        if (want.has("small_business") && !("small_business" in r)) row.small_business = s.small_business;
+        if (want.has("small_business") && !("small_business" in r)) row.small_business = normBool(s.small_business);
         if (want.has("established_year") && !("established_year" in r)) row.established_year = s.established_year;
         if (want.has("contract_count") && !("contract_count" in r)) row.contract_count = s.contract_count;
       }
@@ -137,6 +167,9 @@ function applyDerives(table, rows, derive, tables) {
 
 // ── filtering ───────────────────────────────────────────────────────────────
 
+const FILTER_OPS = ["eq", "ne", "gt", "gte", "lt", "lte", "in"];
+
+// Rows are already normBool'd by applyDerives; normalize the filter value the same way.
 function passesFilter(row, f) {
   const raw = row[f.field];
   const lv = num(raw);
@@ -144,9 +177,9 @@ function passesFilter(row, f) {
   const bothNum = typeof lv === "number" && typeof rv === "number";
   switch (f.op) {
     case "eq":
-      return String(raw) === String(f.value);
+      return String(raw) === String(normBool(f.value));
     case "ne":
-      return String(raw) !== String(f.value);
+      return String(raw) !== String(normBool(f.value));
     case "gt":
       return bothNum && lv > rv;
     case "gte":
@@ -156,9 +189,10 @@ function passesFilter(row, f) {
     case "lte":
       return bothNum && lv <= rv;
     case "in":
-      return Array.isArray(f.value) && f.value.map(String).includes(String(raw));
+      return Array.isArray(f.value) && f.value.map((v) => String(normBool(v))).includes(String(raw));
     default:
-      return true;
+      // runQuery rejects unknown ops before filtering; never silently pass a row.
+      return false;
   }
 }
 
@@ -177,6 +211,13 @@ function computeMeasure(rowsInGroup, m) {
   if (agg === "count_distinct") {
     return new Set(rowsInGroup.map((r) => String(r[m.field]))).size;
   }
+  if (agg === "rate") {
+    // % of rows whose 0/1 (true/false, yes/no) flag is set. Non-flag values are
+    // ignored; null only when the group has no flag values at all.
+    const flags = rowsInGroup.map((r) => flagValue(r[m.field])).filter((v) => v != null);
+    if (flags.length === 0) return null;
+    return round1((flags.reduce((s, x) => s + x, 0) / flags.length) * 100);
+  }
   const values = rowsInGroup.map((r) => num(r[m.field])).filter((v) => typeof v === "number");
   if (values.length === 0) return null;
   switch (agg) {
@@ -184,9 +225,6 @@ function computeMeasure(rowsInGroup, m) {
       return round1(values.reduce((s, x) => s + x, 0));
     case "mean":
       return round1(values.reduce((s, x) => s + x, 0) / values.length);
-    case "rate":
-      // mean of a 0/1 flag, expressed as a percentage (1 decimal).
-      return round1((values.reduce((s, x) => s + x, 0) / values.length) * 100);
     case "min":
       return values.reduce((a, x) => (x < a ? x : a), values[0]);
     case "max":
@@ -214,12 +252,36 @@ function runQuery(input, tables) {
   let rows = applyDerives(table, base, input.derive || [], tables);
 
   const filters = Array.isArray(input.filters) ? input.filters : [];
-  for (const f of filters) rows = rows.filter((r) => passesFilter(r, f));
-  const rowsScanned = rows.length;
-
   const groupBy = Array.isArray(input.group_by) ? input.group_by : [];
   const measures =
     Array.isArray(input.measures) && input.measures.length ? input.measures : [{ agg: "count" }];
+
+  const badOp = filters.find((f) => !f || !FILTER_OPS.includes(f.op));
+  if (badOp) {
+    return { error: `unsupported filter op "${badOp && badOp.op}". Valid ops: ${FILTER_OPS.join(", ")}.` };
+  }
+
+  // Reject references to columns the table doesn't have (a typo, or a column the
+  // published Tableau datasource didn't return) instead of grouping/filtering on
+  // undefined. Skipped when the table is empty — there is nothing to check against.
+  if (rows.length) {
+    const known = new Set();
+    for (const r of rows) for (const k of Object.keys(r)) known.add(k);
+    const referenced = [
+      ...groupBy,
+      ...filters.map((f) => f.field),
+      ...measures.filter((m) => m && m.agg !== "count").map((m) => m.field),
+    ];
+    const unknown = [...new Set(referenced.filter((c) => !known.has(c)))];
+    if (unknown.length) {
+      return {
+        error: `unknown column(s) ${unknown.map((c) => `"${c}"`).join(", ")} on ${table}. Available: ${[...known].sort().join(", ")}.`,
+      };
+    }
+  }
+
+  for (const f of filters) rows = rows.filter((r) => passesFilter(r, f));
+  const rowsScanned = rows.length;
 
   const groups = new Map();
   for (const r of rows) {
@@ -249,8 +311,9 @@ function runQuery(input, tables) {
     return 0;
   });
 
-  const limit = Number(input.limit) || 0;
-  const limited = limit > 0 ? outRows.slice(0, limit) : outRows;
+  const requested = Number(input.limit) || 0;
+  const limit = requested > 0 ? Math.min(requested, MAX_QUERY_LIMIT) : MAX_QUERY_LIMIT;
+  const limited = outRows.slice(0, limit);
   return {
     table,
     group_by: groupBy,
@@ -558,14 +621,14 @@ const SCRM_TOOL_SPECS = [
               agg: {
                 type: "string",
                 enum: ["count", "count_distinct", "mean", "sum", "rate", "min", "max"],
-                description: "mean/sum/min/max over `field`; rate = mean of a 0/1 flag as a percentage; count_distinct = distinct values of `field`.",
+                description: "mean/sum/min/max over `field`; rate = % of rows where a true/false (0/1, yes/no) flag `field` is true (null if the group has no flag values); count_distinct = distinct values of `field`.",
               },
               field: { type: "string", description: "Column to aggregate (not needed for count). Usually risk_score." },
             },
             required: ["agg"],
           },
         },
-        limit: { type: "number", description: "Max groups to return." },
+        limit: { type: "number", description: `Max groups to return (capped at ${MAX_QUERY_LIMIT}).` },
       },
       required: ["table"],
     },
@@ -649,4 +712,7 @@ module.exports = {
   TABLE_NAMES,
   DERIVE_NAMES,
   CONCENTRATED_REGIONS,
+  FILTER_OPS,
+  MAX_QUERY_LIMIT,
+  normBool,
 };

@@ -113,8 +113,27 @@ const USE_ROSTER = process.env.SCRM_BRIEF_USE_ROSTER === "1" || DRY_RUN;
 
 /* ────────────────────────────── data loading ───────────────────────────── */
 
-function loadDims() {
-  const tables = loadTables(DATA_DIR);
+/**
+ * Where the brief reads SCRM data from. With SCRM_MCP_DATASOURCES set, the published
+ * Tableau datasources (via the MCP) — so a refresh webhook re-briefs on the refreshed
+ * data. Otherwise the bundled CSVs under DATA_DIR, which do NOT change when Tableau
+ * refreshes: a refresh-triggered scan then re-reads the same snapshot and dedupe
+ * suppresses it. That's fine for the demo fixture, but it's logged so nobody mistakes
+ * it for a live re-brief.
+ * @returns {Promise<Record<string, object[]>>}
+ */
+async function loadBriefTables() {
+  if (String(process.env.SCRM_MCP_DATASOURCES || "").trim()) {
+    const { loadTablesFromMcp } = require("../agents/scrmMcpData");
+    console.log("[scrm-brief] data source: published Tableau datasources (SCRM_MCP_DATASOURCES)");
+    return loadTablesFromMcp();
+  }
+  console.log(`[scrm-brief] data source: bundled CSVs (${DATA_DIR}) — static; a Tableau refresh does not change them`);
+  return loadTables(DATA_DIR);
+}
+
+/** Index the SCRM tables for brief selection. Defaults to the bundled CSVs. */
+function loadDims(tables = loadTables(DATA_DIR)) {
   const snapshots = tables.risk_snapshots || [];
   const suppliers = tables.suppliers || [];
   const registry = tables.risk_registry || [];
@@ -609,11 +628,12 @@ function targetUserIds(roster, portfolios, boundUserIds = []) {
  * @param {boolean} [opts.ignoreHour] bypass the local-hour gate
  * @param {boolean} [opts.dedupe]     consult the durable store (send only new/worsened)
  * @param {string}  [opts.reason]     label for logs
+ * @param {object}  [opts.deps]       test seam: { ctx, tables } override buildCtx / loadBriefTables
  */
-async function run({ ignoreHour = IGNORE_HOUR, dedupe = false, reason = "scheduled scan" } = {}) {
-  const dims = loadDims();
+async function run({ ignoreHour = IGNORE_HOUR, dedupe = false, reason = "scheduled scan", deps = {} } = {}) {
+  const dims = loadDims(deps.tables || (await loadBriefTables()));
   const roster = USE_ROSTER ? loadRoster() : [];
-  const ctx = await buildCtx();
+  const ctx = deps.ctx || (await buildCtx());
 
   const { boundUserIds, bindingByUserId } = await resolveBindings(ctx);
   const userIds = targetUserIds(roster, dims.portfolios, boundUserIds);
@@ -622,49 +642,57 @@ async function run({ ignoreHour = IGNORE_HOUR, dedupe = false, reason = "schedul
     `hour=${ignoreHour ? "(gate off)" : BRIEF_HOUR_LOCAL}; dedupe=${dedupe}; roster=${USE_ROSTER}; ` +
     `bindings=${boundUserIds.length}; narrate=${!!ctx.narrate}; dryRun=${DRY_RUN}`);
 
-  let sent = 0, skippedHour = 0, skippedDup = 0, skippedNoPortfolio = 0, skippedNoRole = 0, skippedNoAlerts = 0;
+  let sent = 0, failed = 0, skippedHour = 0, skippedDup = 0, skippedNoPortfolio = 0, skippedNoRole = 0, skippedNoAlerts = 0;
+  const teamId = ctx.teamId || process.env.SLACK_TEAM_ID || null;
 
   for (const userId of userIds) {
-    let user = await getUser(userId, ctx, roster);
-    if (!user) continue;
-    if (bindingByUserId.has(userId)) user = applyBindingToUser(user, bindingByUserId.get(userId));
+    // One user's failure (users.info, narration, DM post) must not abort the briefs
+    // for everyone after them in the roster.
+    let claim = null;
+    try {
+      let user = await getUser(userId, ctx, roster);
+      if (!user) continue;
+      if (bindingByUserId.has(userId)) user = applyBindingToUser(user, bindingByUserId.get(userId));
 
-    if (!ignoreHour && localHourInTz(user.tz) !== BRIEF_HOUR_LOCAL) { skippedHour++; continue; }
+      if (!ignoreHour && localHourInTz(user.tz) !== BRIEF_HOUR_LOCAL) { skippedHour++; continue; }
 
-    const sel = selectBriefRows(user, dims, { kind: "scan" });
-    if (sel.skipped) {
-      if (sel.skipped.reason.startsWith("role")) { skippedNoRole++; console.log(`[scrm-brief] ${userId}: ${sel.skipped.reason}`); }
-      else { skippedNoPortfolio++; console.log(`[scrm-brief] ${userId}: ${sel.skipped.reason}`); }
-      continue;
-    }
-    if (sel.rows.length === 0) { skippedNoAlerts++; continue; }
-
-    let rows = sel.rows;
-    let sigByMetric = null;
-    if (dedupe) {
-      const teamId = ctx.teamId || process.env.SLACK_TEAM_ID || null;
-      const filtered = await briefStore.filterUnsent({ teamId, userId, periodMonth: sel.latest, rows: sel.rows });
-      sigByMetric = filtered.sigByMetric;
-      if (filtered.toSend.length === 0) { skippedDup++; continue; }
-      rows = filtered.toSend;
-    }
-
-    const sections = await narrateSections({ rows, role: sel.role, portfolio: sel.portfolio, dims, latest: sel.latest, ctx });
-    const body = composeBriefBody({ role: sel.role, portfolio: sel.portfolio, latest: sel.latest,
-      trigger: { kind: "scan" }, sections, totalBeforeCap: sel.totalBeforeCap, portfoliosTouched: sel.portfoliosTouched });
-    if (await deliver({ userId, body, sections, ctx })) {
-      sent++;
-      if (dedupe) {
-        const teamId = ctx.teamId || process.env.SLACK_TEAM_ID || null;
-        const portfolioName = sel.portfolio.primary ? sel.portfolio.primary.portfolio_name : "Program Office";
-        await briefStore.markBatchSent({ teamId, userId, facilityName: portfolioName, periodMonth: sel.latest, rows, sigByMetric });
+      const sel = selectBriefRows(user, dims, { kind: "scan" });
+      if (sel.skipped) {
+        if (sel.skipped.reason.startsWith("role")) { skippedNoRole++; console.log(`[scrm-brief] ${userId}: ${sel.skipped.reason}`); }
+        else { skippedNoPortfolio++; console.log(`[scrm-brief] ${userId}: ${sel.skipped.reason}`); }
+        continue;
       }
+      if (sel.rows.length === 0) { skippedNoAlerts++; continue; }
+
+      let rows = sel.rows;
+      if (dedupe) {
+        // Claim BEFORE sending (atomic in the ledger) so an overlapping trigger can't
+        // also send; released below if the DM doesn't go out.
+        const portfolioName = sel.portfolio.primary ? sel.portfolio.primary.portfolio_name : "Program Office";
+        claim = await briefStore.claimBatch({ teamId, userId, facilityName: portfolioName, periodMonth: sel.latest, rows: sel.rows });
+        if (claim.toSend.length === 0) { skippedDup++; continue; }
+        rows = claim.toSend;
+      }
+
+      const sections = await narrateSections({ rows, role: sel.role, portfolio: sel.portfolio, dims, latest: sel.latest, ctx });
+      const body = composeBriefBody({ role: sel.role, portfolio: sel.portfolio, latest: sel.latest,
+        trigger: { kind: "scan" }, sections, totalBeforeCap: sel.totalBeforeCap, portfoliosTouched: sel.portfoliosTouched });
+      if (await deliver({ userId, body, sections, ctx })) {
+        sent++;
+      } else {
+        failed++;
+        if (claim) await claim.release();
+      }
+    } catch (err) {
+      failed++;
+      console.error(`[scrm-brief] ${userId}: brief failed, continuing with the rest: ${err?.message || err}`);
+      if (claim) await claim.release();
     }
   }
 
-  console.log(`[scrm-brief] SCAN done — ${sent} brief(s) ${DRY_RUN ? "previewed" : "sent"}; ` +
+  console.log(`[scrm-brief] SCAN done — ${sent} brief(s) ${DRY_RUN ? "previewed" : "sent"}, ${failed} failed; ` +
     `skipped: hour=${skippedHour}, dup=${skippedDup}, no-portfolio=${skippedNoPortfolio}, no-role=${skippedNoRole}, no-alerts=${skippedNoAlerts}.`);
-  return { sent, skippedHour, skippedDup, skippedNoPortfolio, skippedNoRole, skippedNoAlerts };
+  return { sent, failed, skippedHour, skippedDup, skippedNoPortfolio, skippedNoRole, skippedNoAlerts };
 }
 
 /* ─────────────────────── ENTRY POINT 2: ALERT-DRIVEN ────────────────────── */
@@ -677,7 +705,7 @@ async function run({ ignoreHour = IGNORE_HOUR, dedupe = false, reason = "schedul
  */
 async function runFromAlert(alert) {
   if (!alert?.userId) throw new Error("runFromAlert requires alert.userId");
-  const dims = loadDims();
+  const dims = loadDims(await loadBriefTables());
   const roster = USE_ROSTER ? loadRoster() : [];
   const ctx = await buildCtx();
 
@@ -731,12 +759,14 @@ function isTriggeringRefresh(payload) {
  * @returns {Promise<{triggered:boolean, reason?:string, result?:object}>}
  */
 async function runFromRefresh(payload) {
-  const eventType = payload?.event_type || "";
-  if (eventType && eventType !== "DatasourceRefreshSucceeded") {
-    return { triggered: false, reason: `ignored event_type ${eventType}` };
-  }
   if (!payload || Object.keys(payload).length === 0) {
     return { triggered: false, reason: "empty payload (webhook test)" };
+  }
+  // Require the event type explicitly: a payload that merely names the trigger
+  // datasource (no event_type, or a refresh FAILURE) must not fan out DMs.
+  const eventType = payload.event_type || "";
+  if (eventType !== "DatasourceRefreshSucceeded") {
+    return { triggered: false, reason: `ignored event_type ${eventType || "(missing)"}` };
   }
   if (!isTriggeringRefresh(payload)) {
     return { triggered: false, reason: `resource not a trigger source (${payload?.resource_name || payload?.resource_luid || "?"})` };
@@ -794,6 +824,7 @@ module.exports = {
   parseBindings,
   applyBindingToUser,
   loadDims,
+  loadBriefTables,
   loadRoster,
   REFRESH_TRIGGER_SOURCES,
 };

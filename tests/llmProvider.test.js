@@ -805,6 +805,39 @@ test("generateWithCohere safety valve nudges for a final answer at the round cap
   const lastUserTurn = [...last.messages].reverse().find((m) => m.role === "user");
   assert.match(lastUserTurn.content, /final answer now/i);
   assert.equal(result.finishReason, "TOOL_CALL"); // broke out at the cap
+  assert.equal(sent.length, 3, "COHERE_MAX_TOOL_ROUNDS=2 → 2 tool rounds + 1 nudge (read at call time)");
+});
+
+test("generateWithCohere: a non-numeric COHERE_MAX_TOOL_ROUNDS falls back to 10, not 'no cap'", async (t) => {
+  configureCohere();
+  process.env.COHERE_MAX_TOOL_ROUNDS = "ten";
+  let n = 0;
+  const realFetch = global.fetch;
+  global.fetch = async () => {
+    n += 1;
+    if (n > 50) throw new Error("runaway tool loop — cap not enforced");
+    return {
+      ok: true,
+      status: 200,
+      async text() {
+        return JSON.stringify({
+          finish_reason: "TOOL_CALL",
+          message: { role: "assistant", tool_calls: [{ id: `call_${n}`, type: "function", function: { name: "t", arguments: "{}" } }] },
+        });
+      },
+    };
+  };
+  t.after(() => { global.fetch = realFetch; });
+
+  await generateWithCohere({
+    systemInstruction: "sys",
+    contents: [{ role: "user", parts: [{ text: "loop" }] }],
+    maxOutputTokens: 64,
+    temperature: 0,
+    tools: [{ name: "t", description: "q", inputSchema: { type: "object", properties: {} } }],
+    dispatchTool: async () => ({ ok: false, error: "timeout" }),
+  });
+  assert.equal(n, 11, "10 tool rounds + 1 nudge");
 });
 
 test("generateWithCohere retries once for a plain-text answer when the final turn has no text", async (t) => {

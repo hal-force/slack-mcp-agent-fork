@@ -310,6 +310,7 @@ Add these in the dashboard (or via CLI). **Do not commit secrets to git.**
 | `MCP_HTTP_RETRY_BASE_MS` | No | Base backoff between MCP retries in ms (default `300`, linear) |
 | `RATE_LIMIT_MAX` | No | Per-IP request cap per window on the secret-in-path trigger routes (Tableau refresh, daily brief, triage admission) — default `30`. Throttles online guessing of a path secret; real callers (EventBridge/Tableau) fire a handful a day. |
 | `RATE_LIMIT_WINDOW_MS` | No | Rate-limit window length in ms (default `60000`). |
+| `TRUST_PROXY_HOPS` | No | Number of proxies that append to `X-Forwarded-For`; the limiter keys on the entry that many from the right (default `1` = Heroku/App Runner; `0` ignores the header). |
 | `RATE_LIMIT_DISABLED` | No | `1` bypasses the trigger-route rate limiter entirely (e.g. a load test). |
 | `TABLEAU_MCP_SERVER` | No | Tableau MCP streamable HTTP URL when you want Tableau context |
 | `TABLEAU_MCP_ALLOW_PRIVATE` | No | `1` lets the **deployment-default** Tableau MCP URL point at a private/internal host (SSRF guard is relaxed for the env URL only). User-supplied App-Home URLs are still blocked. Use only when the MCP server is network-isolated. |

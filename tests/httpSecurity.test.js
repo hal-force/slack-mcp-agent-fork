@@ -134,12 +134,33 @@ test("rateLimiter reads env defaults for max/window when opts omitted", async (t
 // clientIp()
 // ---------------------------------------------------------------------------
 
-test("clientIp prefers the first x-forwarded-for hop, else falls back", () => {
-  assert.equal(clientIp({ headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" } }), "1.2.3.4");
+test("clientIp uses the proxy-appended (rightmost) x-forwarded-for hop, else falls back", () => {
+  // The leftmost entry is caller-controlled; Heroku appends the real client IP last.
+  assert.equal(clientIp({ headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" } }), "5.6.7.8");
   assert.equal(clientIp({ headers: {}, ip: "9.9.9.9" }), "9.9.9.9");
   assert.equal(
     clientIp({ headers: {}, socket: { remoteAddress: "10.0.0.5" } }),
     "10.0.0.5",
   );
   assert.equal(clientIp({ headers: {} }), "unknown");
+});
+
+test("clientIp: a spoofed leftmost x-forwarded-for can't dodge the limiter", () => {
+  const a = clientIp({ headers: { "x-forwarded-for": "6.6.6.1, 203.0.113.50" } });
+  const b = clientIp({ headers: { "x-forwarded-for": "6.6.6.2, 203.0.113.50" } });
+  assert.equal(a, b);
+});
+
+test("clientIp honors TRUST_PROXY_HOPS (2 = two appending proxies; 0 = ignore the header)", (t) => {
+  const prev = process.env.TRUST_PROXY_HOPS;
+  t.after(() => {
+    if (prev === undefined) delete process.env.TRUST_PROXY_HOPS; else process.env.TRUST_PROXY_HOPS = prev;
+  });
+  const req = { headers: { "x-forwarded-for": "6.6.6.6, 203.0.113.50, 10.0.0.1" }, ip: "10.0.0.2" };
+  process.env.TRUST_PROXY_HOPS = "2";
+  assert.equal(clientIp(req), "203.0.113.50");
+  process.env.TRUST_PROXY_HOPS = "0";
+  assert.equal(clientIp(req), "10.0.0.2");
+  process.env.TRUST_PROXY_HOPS = "9"; // more hops than entries → the furthest available
+  assert.equal(clientIp(req), "6.6.6.6");
 });

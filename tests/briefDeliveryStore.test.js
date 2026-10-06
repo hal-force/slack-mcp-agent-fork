@@ -101,3 +101,87 @@ test("fail-open when the DB throws: lookup returns deliver, mark swallows error"
   assert.deepEqual(r, { alreadySent: false, changed: false });
   assert.equal(await store.markSent({ teamId: "T1", userId: "U", metricKey: "SMR30", periodMonth: "2026-07", sig: "x" }), false);
 });
+
+/** fakePrisma + the atomic primitives claimBatch uses (create w/ P2002, CAS updateMany, deleteMany). */
+function fakeAtomicPrisma() {
+  const p = fakePrisma();
+  const rows = p._rows;
+  const matches = (r, where) => r && Object.entries(where).every(([k, v]) => r[k] === v);
+  Object.assign(p.briefDelivery, {
+    async create({ data }) {
+      await new Promise((r) => setImmediate(r)); // let a concurrent claim interleave
+      if (rows.has(data.id)) {
+        const err = new Error("Unique constraint failed on the fields: (`id`)");
+        err.code = "P2002";
+        throw err;
+      }
+      rows.set(data.id, { ...data });
+      return data;
+    },
+    async updateMany({ where, data }) {
+      const r = rows.get(where.id);
+      if (!matches(r, where)) return { count: 0 };
+      rows.set(where.id, { ...r, ...data });
+      return { count: 1 };
+    },
+    async deleteMany({ where }) {
+      const r = rows.get(where.id);
+      if (!matches(r, where)) return { count: 0 };
+      rows.delete(where.id);
+      return { count: 1 };
+    },
+  });
+  return p;
+}
+
+test("claimBatch: two concurrent triggers for the same state → exactly one sends", async (t) => {
+  const p = fakeAtomicPrisma();
+  store.__setPrismaForTest(p);
+  t.after(() => store.__setPrismaForTest(undefined));
+  const base = { teamId: "T1", userId: "U1", periodMonth: "2026-08", rows: [snap()] };
+
+  const [a, b] = await Promise.all([store.claimBatch(base), store.claimBatch(base)]);
+  assert.equal(a.toSend.length + b.toSend.length, 1, "only one run may own the brief");
+  assert.equal(a.suppressed.length + b.suppressed.length, 1);
+});
+
+test("claimBatch: same state suppresses, worsened state re-claims via compare-and-swap", async (t) => {
+  const p = fakeAtomicPrisma();
+  store.__setPrismaForTest(p);
+  t.after(() => store.__setPrismaForTest(undefined));
+  const base = { teamId: "T1", userId: "U1", periodMonth: "2026-08" };
+
+  assert.equal((await store.claimBatch({ ...base, rows: [snap()] })).toSend.length, 1);
+  assert.equal((await store.claimBatch({ ...base, rows: [snap()] })).toSend.length, 0);
+  const worse = snap({ value: "1.20" });
+  const [x, y] = await Promise.all([store.claimBatch({ ...base, rows: [worse] }), store.claimBatch({ ...base, rows: [worse] })]);
+  assert.equal(x.toSend.length + y.toSend.length, 1);
+});
+
+test("claimBatch: release() after a failed DM lets the next run send again", async (t) => {
+  const p = fakeAtomicPrisma();
+  store.__setPrismaForTest(p);
+  t.after(() => store.__setPrismaForTest(undefined));
+  const base = { teamId: "T1", userId: "U1", periodMonth: "2026-08" };
+
+  // new row: release deletes it
+  let c = await store.claimBatch({ ...base, rows: [snap()] });
+  await c.release();
+  c = await store.claimBatch({ ...base, rows: [snap()] });
+  assert.equal(c.toSend.length, 1);
+
+  // changed row: release restores the previous signature
+  const prevSig = store.contentSignature(snap());
+  c = await store.claimBatch({ ...base, rows: [snap({ value: "1.30" })] });
+  assert.equal(c.toSend.length, 1);
+  await c.release();
+  assert.equal([...p._rows.values()][0].contentSig, prevSig);
+});
+
+test("claimBatch: no DB → sends everything (fail-open)", async (t) => {
+  store.__setPrismaForTest(null);
+  t.after(() => store.__setPrismaForTest(undefined));
+  const c = await store.claimBatch({ teamId: "T1", userId: "U1", periodMonth: "2026-08", rows: [snap(), snap({ metric_key: "X" })] });
+  assert.equal(c.toSend.length, 2);
+  await c.release(); // no-op, no throw
+});

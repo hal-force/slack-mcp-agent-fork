@@ -338,7 +338,17 @@ function toolSpecsToConverseToolConfig(tools) {
   };
 }
 
-const BEDROCK_MAX_TOOL_ROUNDS = Number(process.env.BEDROCK_MAX_TOOL_ROUNDS || 10);
+/**
+ * Tool-round cap for an agentic loop, read at CALL time (so a deploy-time or test
+ * override takes effect) and guarded: a non-numeric or non-positive value would make
+ * `rounds >= cap` never true — i.e. no cap at all — so it falls back to the default.
+ * @param {string} envName
+ * @returns {number}
+ */
+function maxToolRounds(envName, fallback = 10) {
+  const n = Math.floor(Number(process.env[envName]));
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
 
 /**
  * @param {object} req
@@ -460,7 +470,7 @@ async function generateWithBedrock({
     messages.push({ role: "user", content: toolResults });
 
     rounds += 1;
-    if (rounds >= BEDROCK_MAX_TOOL_ROUNDS) {
+    if (rounds >= maxToolRounds("BEDROCK_MAX_TOOL_ROUNDS")) {
       // Safety valve: nudge for a final answer so we don't loop forever if the
       // model keeps requesting tools (e.g. a tool that repeatedly errors/times
       // out). Bedrock REQUIRES toolConfig to stay defined whenever the message
@@ -542,8 +552,6 @@ async function generateWithGateway({ systemInstruction, contents, maxOutputToken
 }
 
 // ----- Cohere (v2 Chat API, serving Command models natively) -----
-
-const COHERE_MAX_TOOL_ROUNDS = Number(process.env.COHERE_MAX_TOOL_ROUNDS || 10);
 
 /**
  * Convert provider-neutral tool specs to Cohere v2 tools. The inputSchema is
@@ -657,7 +665,7 @@ async function generateWithCohere({ systemInstruction, contents, maxOutputTokens
     }
 
     rounds += 1;
-    if (rounds >= COHERE_MAX_TOOL_ROUNDS) {
+    if (rounds >= maxToolRounds("COHERE_MAX_TOOL_ROUNDS")) {
       // Safety valve: nudge for a final answer so a tool that keeps erroring
       // can't loop forever (mirrors the Bedrock round cap).
       messages.push({ role: "user", content: "Provide your final answer now in plain text. Do not call any more tools." });

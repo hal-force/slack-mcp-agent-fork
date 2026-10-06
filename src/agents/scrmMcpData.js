@@ -34,14 +34,16 @@ const { FORBIDDEN_COLUMNS } = require("./scrmData");
 // fields from VDS and to re-key returned rows back to canonical names. This is a
 // curated-but-sufficient subset of each published datasource (the analytically useful
 // columns) — enough for every scrm_query / scrm_correlation / scrm_supplier_profile
-// path. composite_risk_pct is intentionally absent from `suppliers`.
+// path, plus the few snapshot columns the risk brief renders (as_of_date, direction,
+// prev_rag_status) so scrmRiskBrief can read from the MCP too. composite_risk_pct is
+// intentionally absent from `suppliers`.
 const TABLE_COLUMNS = {
   risk_snapshots: [
-    "snapshot_date", "period_month", "supplier_key", "supplier_name", "sector", "portfolio",
-    "agency", "country_of_ownership", "criticality", "foci_flag", "risk_category", "risk_caption",
-    "risk_score", "threshold", "variance_to_threshold", "rag_status", "prev_score", "mom_delta",
-    "direction_of_change", "status_change", "alert_flag", "alert_reason", "vs_sector_median",
-    "vs_all_median",
+    "snapshot_date", "as_of_date", "period_month", "supplier_key", "supplier_name", "sector",
+    "portfolio", "agency", "country_of_ownership", "criticality", "foci_flag", "risk_category",
+    "risk_caption", "direction", "risk_score", "threshold", "variance_to_threshold", "rag_status",
+    "prev_score", "prev_rag_status", "mom_delta", "direction_of_change", "status_change",
+    "alert_flag", "alert_reason", "vs_sector_median", "vs_all_median",
   ],
   suppliers: [
     "supplier_key", "supplier_name", "cage_code", "uei", "sector", "portfolio", "agency",
@@ -223,7 +225,21 @@ async function fetchTable({ table, luid, callTool, limit = DEFAULT_ROW_LIMIT }) 
   }
 
   const resolver = buildCaptionResolver(canonicalColumns, captions);
-  if (resolver.size === 0) return [];
+  if (resolver.size === 0) {
+    throw new Error(
+      `[scrmMcpData] ${table}: none of the expected columns resolved to a field on datasource ${luid} — check the published field captions.`,
+    );
+  }
+
+  // Columns the tools expect that the datasource didn't expose. Not fatal (scrm_query
+  // rejects any query that references one), but say so rather than leave them silently
+  // undefined.
+  const missingCols = canonicalColumns.filter((c) => !FORBIDDEN_COLUMNS.has(c) && !resolver.has(c));
+  if (missingCols.length) {
+    console.warn(
+      `[scrmMcpData] ${table}: column(s) [${missingCols.join(", ")}] not found on the published datasource; queries that reference them will be rejected.`,
+    );
+  }
 
   // Guard the distinct-combination assumption: warn if the unique key didn't resolve.
   const uniqueKey = TABLE_UNIQUE_KEYS[table] || [];
@@ -239,6 +255,12 @@ async function fetchTable({ table, luid, callTool, limit = DEFAULT_ROW_LIMIT }) 
   const fields = [...resolver.values()].map((caption) => ({ fieldCaption: caption }));
   const query = { fields };
   const res = await callTool("query-datasource", { datasourceLuid: luid, query, limit });
+  // A tool-level failure (bad field, auth, VDS 4xx) comes back as a normal result with
+  // isError set and the message in the text — surface it, don't read it as zero rows.
+  if (res && res.result && res.result.isError) {
+    const detail = String(res.text || "").trim().slice(0, 500) || "no detail";
+    throw new Error(`[scrmMcpData] ${table}: query-datasource failed: ${detail}`);
+  }
   const rawRows = parseVdsData(res && res.text);
 
   // 3. Re-key caption→canonical, stringify, strip forbidden.
@@ -316,7 +338,15 @@ function makeMcpDispatchTool(opts = {}) {
   const { dispatchScrmTool } = require("./scrmTools");
   let tablesPromise = null;
   return async function dispatch(name, input) {
-    if (!tablesPromise) tablesPromise = loadTablesFromMcp(opts);
+    if (!tablesPromise) {
+      tablesPromise = loadTablesFromMcp(opts);
+      // Don't cache a failure: evict so the next tool call retries the load. The
+      // rejection itself still propagates to this call (the tool loop turns it into a
+      // tool error the model can see).
+      tablesPromise.catch(() => {
+        tablesPromise = null;
+      });
+    }
     const tables = await tablesPromise;
     return dispatchScrmTool(name, input, { tables });
   };

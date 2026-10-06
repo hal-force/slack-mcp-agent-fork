@@ -58,7 +58,10 @@ function getPrismaOrNull() {
   return _prisma;
 }
 
-/** Test seam: inject a fake Prisma client (must expose briefDelivery.{findUnique,upsert}). */
+/**
+ * Test seam: inject a fake Prisma client (briefDelivery.{findUnique,upsert}; claimBatch
+ * also uses create/updateMany/deleteMany).
+ */
 function __setPrismaForTest(client) {
   _prisma = client === undefined ? undefined : client;
 }
@@ -135,6 +138,95 @@ async function markBatchSent({ teamId, userId, facilityName, periodMonth, rows, 
   }
 }
 
+/**
+ * Atomically CLAIM one metric's brief state before sending, so two concurrent
+ * triggers (webhook retry + scheduler tick) can't both pass a read-then-write check
+ * and double-DM. The primary key on `id` is the lock:
+ *   • no row        → create(); a unique violation (P2002) means another run just
+ *                     claimed it → re-check once against the row it wrote.
+ *   • same sig      → already delivered → suppress.
+ *   • different sig → compare-and-swap updateMany({ id, contentSig: <seen> }); a
+ *                     count of 0 means another run moved it first → suppress.
+ * Fail-open on DB errors (deliver), matching wasSent.
+ * @returns {Promise<{claimed:boolean, prevSig:string|null}>}
+ *   prevSig is the signature we replaced (null if we created the row) — release()
+ *   needs it to undo the claim if the DM then fails.
+ */
+async function claimOne(prisma, { id, teamId, userId, facilityName, metricKey, periodMonth, sig }, retried = false) {
+  const existing = await prisma.briefDelivery.findUnique({ where: { id } });
+  if (!existing) {
+    try {
+      await prisma.briefDelivery.create({
+        data: { id, teamId: teamId || null, userId, facilityName: facilityName || null, metricKey, periodMonth, contentSig: sig },
+      });
+      return { claimed: true, prevSig: null };
+    } catch (err) {
+      if (err && err.code === "P2002" && !retried) {
+        return claimOne(prisma, { id, teamId, userId, facilityName, metricKey, periodMonth, sig }, true);
+      }
+      throw err;
+    }
+  }
+  if (existing.contentSig === sig) return { claimed: false, prevSig: existing.contentSig };
+  const { count } = await prisma.briefDelivery.updateMany({
+    where: { id, contentSig: existing.contentSig },
+    data: { contentSig: sig, facilityName: facilityName || null },
+  });
+  return { claimed: count === 1, prevSig: existing.contentSig };
+}
+
+/**
+ * Claim-before-send replacement for filterUnsent + markBatchSent. Splits rows into
+ * those this run now OWNS (send them) and those to suppress, and returns a
+ * release() that rolls the claims back if delivery fails, so a failed DM retries on
+ * the next run instead of being permanently suppressed.
+ *
+ * @returns {Promise<{toSend: object[], suppressed: object[], release: () => Promise<void>}>}
+ */
+async function claimBatch({ teamId, userId, facilityName, periodMonth, rows }) {
+  const prisma = getPrismaOrNull();
+  if (!prisma) return { toSend: rows.slice(), suppressed: [], release: async () => {} };
+
+  const toSend = [];
+  const suppressed = [];
+  const claims = []; // { id, sig, prevSig } for rows we wrote
+  for (const snap of rows) {
+    const sig = contentSignature(snap);
+    const id = keyFor({ teamId, userId, metricKey: snap.metric_key, periodMonth });
+    try {
+      const { claimed, prevSig } = await claimOne(prisma, {
+        id, teamId, userId, facilityName, metricKey: snap.metric_key, periodMonth, sig,
+      });
+      if (claimed) {
+        toSend.push(snap);
+        claims.push({ id, sig, prevSig });
+      } else {
+        suppressed.push(snap);
+      }
+    } catch (err) {
+      console.warn(`[brief-store] claim failed (fail-open): ${err?.message || err}`);
+      toSend.push(snap);
+    }
+  }
+
+  async function release() {
+    for (const c of claims) {
+      try {
+        // Guarded on our own sig so we never clobber a newer claim by another run.
+        if (c.prevSig == null) {
+          await prisma.briefDelivery.deleteMany({ where: { id: c.id, contentSig: c.sig } });
+        } else {
+          await prisma.briefDelivery.updateMany({ where: { id: c.id, contentSig: c.sig }, data: { contentSig: c.prevSig } });
+        }
+      } catch (err) {
+        console.warn(`[brief-store] release failed for ${c.id}: ${err?.message || err}`);
+      }
+    }
+  }
+
+  return { toSend, suppressed, release };
+}
+
 module.exports = {
   contentSignature,
   keyFor,
@@ -142,5 +234,6 @@ module.exports = {
   markSent,
   filterUnsent,
   markBatchSent,
+  claimBatch,
   __setPrismaForTest,
 };
