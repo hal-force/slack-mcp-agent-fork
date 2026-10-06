@@ -360,22 +360,25 @@ async function getAiResponse({
     // Only the credential-specific errors should blame expired creds — the old
     // catch-all mislabeled unrelated Bedrock failures (e.g. an unsupported
     // inference param) as "credentials may have expired", which sent debugging
-    // the wrong way. Match the actual AWS auth error names/messages.
+    // the wrong way. Match the actual AWS auth error names/messages — and only on
+    // Bedrock, so a Cohere/gateway error mentioning "credential" isn't blamed on AWS.
+    const isBedrock = provider === "bedrock" || msg.includes("Bedrock");
     if (
+      isBedrock && (
       msg.includes("ExpiredToken") ||
       msg.includes("ExpiredTokenException") ||
       msg.includes("UnrecognizedClient") ||
       msg.includes("InvalidSignature") ||
       msg.includes("AccessDenied") ||
       msg.includes("security token") ||
-      msg.includes("credential")
+      msg.includes("credential"))
     ) {
       return aiReply(
         "The AI service (AWS Bedrock) is unavailable right now — its credentials may have expired. Please try again shortly.",
         uploads,
       );
     }
-    if (provider === "bedrock" || msg.includes("Bedrock")) {
+    if (isBedrock) {
       // Non-credential Bedrock failure — surface a generic message but log the
       // real error above so it's diagnosable from the logs.
       return aiReply(
@@ -387,7 +390,7 @@ async function getAiResponse({
       // A 401 / invalid-key from Cohere is the one actionable case (bad or
       // expired COHERE_API_KEY); everything else gets a generic message while
       // the real error is logged above.
-      if (msg.includes("401") || /invalid api|unauthor|invalid token/i.test(msg)) {
+      if (/\b401\b/.test(msg) || /invalid api|unauthor|invalid token/i.test(msg)) {
         return aiReply(
           "The AI service (Cohere) rejected its API key — it may be invalid or expired. Please try again once it's fixed.",
           uploads,
