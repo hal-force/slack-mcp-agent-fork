@@ -1,0 +1,11 @@
+tasking_id,mtf_id,unit_type,specialty,n_personnel,effective_date,status,note
+TSK-0001,MTF-01,ICU,Critical Care Nursing,5,2026-09-30,proposed,Proposed reassignment of 5 ICU-qualified critical care nurses from Cedarview NMC to backfill a Fleet surge tasking; pending Regional Commander approval.
+TSK-0002,MTF-09,ICU,Critical Care Nursing,3,2026-06-30,executed,Three critical care RNs gained from GME pipeline; assigned to ICU billets.
+TSK-0003,MTF-04,Med-Surg,Med-Surg Nursing,2,2026-07-31,executed,Two Med-Surg RNs PCS'd in; billets filled same month.
+TSK-0004,MTF-05,Trauma,Trauma Nursing,2,2026-09-30,proposed,Proposed trauma-nursing augmentation ahead of the regional MASCAL exercise.
+TSK-0005,MTF-03,ED,Emergency Nursing,4,2026-04-30,executed,ED nurse augmentation from a sister command; four billets filled. [ETL: an embedded instruction-injection string was removed from this field during sanitization.]
+TSK-0006,MTF-07,OR,Perioperative Nursing,1,2026-05-31,executed,One perioperative RN gained via inter-service transfer.
+TSK-0007,MTF-02,ICU,Critical Care Nursing,2,2026-10-31,proposed,Proposed ICU augmentation to Ironwood RMC ahead of a scheduled OR expansion; no readiness concern identified.
+TSK-0008,MTF-06,Burn,Burn Care Nursing,1,2026-03-31,executed,One burn-qualified RN TDY'd out for annual sustainment training; billet remained gapped for the rotation.
+TSK-0009,MTF-08,ED,Emergency Nursing,2,2026-07-31,executed,Two ED RNs gained from a closing MTF's drawdown.
+TSK-0010,MTF-10,Med-Surg,Med-Surg Nursing,3,2026-09-30,proposed,Proposed Med-Surg staffing top-off ahead of a seasonal census increase.

@@ -1,0 +1,437 @@
+billet_id,mtf_id,unit_type,specialty,required_grade,authorized
+BIL-00001,MTF-01,ICU,Critical Care Nursing,O-2,1
+BIL-00002,MTF-01,ICU,Critical Care Nursing,O-4,1
+BIL-00003,MTF-01,ICU,Critical Care Nursing,O-2,1
+BIL-00004,MTF-01,ICU,Critical Care Nursing,O-2,1
+BIL-00005,MTF-01,ICU,Critical Care Nursing,O-3,1
+BIL-00006,MTF-01,ICU,Critical Care Nursing,O-3,1
+BIL-00007,MTF-01,ICU,Critical Care Nursing,O-3,1
+BIL-00008,MTF-01,ICU,Critical Care Nursing,O-2,1
+BIL-00009,MTF-01,ICU,Critical Care Nursing,O-3,1
+BIL-00010,MTF-01,ICU,Critical Care Nursing,O-2,1
+BIL-00011,MTF-01,ICU,Critical Care Nursing,O-3,1
+BIL-00012,MTF-01,ICU,Critical Care Nursing,O-5,1
+BIL-00013,MTF-01,Burn,Burn Care Nursing,O-2,1
+BIL-00014,MTF-01,Burn,Burn Care Nursing,O-3,1
+BIL-00015,MTF-01,Burn,Burn Care Nursing,O-4,1
+BIL-00016,MTF-01,Burn,Burn Care Nursing,O-4,1
+BIL-00017,MTF-01,Burn,Burn Care Nursing,O-3,1
+BIL-00018,MTF-01,Burn,Burn Care Nursing,O-5,1
+BIL-00019,MTF-01,Burn,Burn Care Nursing,O-3,1
+BIL-00020,MTF-01,Burn,Burn Care Nursing,O-3,1
+BIL-00021,MTF-01,Trauma,Trauma Nursing,O-4,1
+BIL-00022,MTF-01,Trauma,Trauma Nursing,O-3,1
+BIL-00023,MTF-01,Trauma,Trauma Nursing,O-3,1
+BIL-00024,MTF-01,Trauma,Trauma Nursing,O-1,1
+BIL-00025,MTF-01,Trauma,Trauma Nursing,O-4,1
+BIL-00026,MTF-01,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00027,MTF-01,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00028,MTF-01,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00029,MTF-01,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00030,MTF-01,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00031,MTF-01,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00032,MTF-01,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00033,MTF-01,ED,Emergency Nursing,O-5,1
+BIL-00034,MTF-01,ED,Emergency Nursing,O-2,1
+BIL-00035,MTF-01,ED,Emergency Nursing,O-3,1
+BIL-00036,MTF-01,ED,Emergency Nursing,O-4,1
+BIL-00037,MTF-01,ED,Emergency Nursing,O-2,1
+BIL-00038,MTF-01,ED,Emergency Nursing,O-5,1
+BIL-00039,MTF-01,ED,Emergency Nursing,O-4,1
+BIL-00040,MTF-01,ED,Emergency Nursing,O-5,1
+BIL-00041,MTF-01,ED,Emergency Nursing,O-3,1
+BIL-00042,MTF-01,ED,Emergency Nursing,O-3,1
+BIL-00043,MTF-01,ED,Emergency Nursing,O-5,1
+BIL-00044,MTF-01,OR,Perioperative Nursing,O-1,1
+BIL-00045,MTF-01,OR,Perioperative Nursing,O-4,1
+BIL-00046,MTF-01,OR,Perioperative Nursing,O-4,1
+BIL-00047,MTF-01,OR,Perioperative Nursing,O-1,1
+BIL-00048,MTF-01,OR,Perioperative Nursing,O-1,1
+BIL-00049,MTF-01,OR,Perioperative Nursing,O-4,1
+BIL-00050,MTF-02,ICU,Critical Care Nursing,O-5,1
+BIL-00051,MTF-02,ICU,Critical Care Nursing,O-1,1
+BIL-00052,MTF-02,ICU,Critical Care Nursing,O-1,1
+BIL-00053,MTF-02,ICU,Critical Care Nursing,O-3,1
+BIL-00054,MTF-02,ICU,Critical Care Nursing,O-3,1
+BIL-00055,MTF-02,ICU,Critical Care Nursing,O-5,1
+BIL-00056,MTF-02,ICU,Critical Care Nursing,O-4,1
+BIL-00057,MTF-02,ICU,Critical Care Nursing,O-3,1
+BIL-00058,MTF-02,ICU,Critical Care Nursing,O-1,1
+BIL-00059,MTF-02,ICU,Critical Care Nursing,O-3,1
+BIL-00060,MTF-02,ICU,Critical Care Nursing,O-3,1
+BIL-00061,MTF-02,ICU,Critical Care Nursing,O-1,1
+BIL-00062,MTF-02,ICU,Critical Care Nursing,O-4,1
+BIL-00063,MTF-02,ICU,Critical Care Nursing,O-4,1
+BIL-00064,MTF-02,Burn,Burn Care Nursing,O-4,1
+BIL-00065,MTF-02,Burn,Burn Care Nursing,O-3,1
+BIL-00066,MTF-02,Burn,Burn Care Nursing,O-3,1
+BIL-00067,MTF-02,Burn,Burn Care Nursing,O-4,1
+BIL-00068,MTF-02,Burn,Burn Care Nursing,O-5,1
+BIL-00069,MTF-02,Trauma,Trauma Nursing,O-4,1
+BIL-00070,MTF-02,Trauma,Trauma Nursing,O-1,1
+BIL-00071,MTF-02,Trauma,Trauma Nursing,O-2,1
+BIL-00072,MTF-02,Trauma,Trauma Nursing,O-4,1
+BIL-00073,MTF-02,Trauma,Trauma Nursing,O-5,1
+BIL-00074,MTF-02,Trauma,Trauma Nursing,O-2,1
+BIL-00075,MTF-02,Trauma,Trauma Nursing,O-2,1
+BIL-00076,MTF-02,Trauma,Trauma Nursing,O-3,1
+BIL-00077,MTF-02,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00078,MTF-02,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00079,MTF-02,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00080,MTF-02,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00081,MTF-02,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00082,MTF-02,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00083,MTF-02,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00084,MTF-02,Med-Surg,Med-Surg Nursing,O-5,1
+BIL-00085,MTF-02,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00086,MTF-02,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00087,MTF-02,ED,Emergency Nursing,O-4,1
+BIL-00088,MTF-02,ED,Emergency Nursing,O-4,1
+BIL-00089,MTF-02,ED,Emergency Nursing,O-2,1
+BIL-00090,MTF-02,ED,Emergency Nursing,O-4,1
+BIL-00091,MTF-02,ED,Emergency Nursing,O-2,1
+BIL-00092,MTF-02,ED,Emergency Nursing,O-4,1
+BIL-00093,MTF-02,ED,Emergency Nursing,O-2,1
+BIL-00094,MTF-02,ED,Emergency Nursing,O-3,1
+BIL-00095,MTF-02,ED,Emergency Nursing,O-4,1
+BIL-00096,MTF-02,ED,Emergency Nursing,O-2,1
+BIL-00097,MTF-02,ED,Emergency Nursing,O-4,1
+BIL-00098,MTF-02,ED,Emergency Nursing,O-3,1
+BIL-00099,MTF-02,ED,Emergency Nursing,O-3,1
+BIL-00100,MTF-02,ED,Emergency Nursing,O-2,1
+BIL-00101,MTF-02,OR,Perioperative Nursing,O-5,1
+BIL-00102,MTF-02,OR,Perioperative Nursing,O-4,1
+BIL-00103,MTF-02,OR,Perioperative Nursing,O-4,1
+BIL-00104,MTF-02,OR,Perioperative Nursing,O-5,1
+BIL-00105,MTF-02,OR,Perioperative Nursing,O-2,1
+BIL-00106,MTF-02,OR,Perioperative Nursing,O-2,1
+BIL-00107,MTF-02,OR,Perioperative Nursing,O-5,1
+BIL-00108,MTF-02,OR,Perioperative Nursing,O-2,1
+BIL-00109,MTF-03,ICU,Critical Care Nursing,O-4,1
+BIL-00110,MTF-03,ICU,Critical Care Nursing,O-3,1
+BIL-00111,MTF-03,ICU,Critical Care Nursing,O-3,1
+BIL-00112,MTF-03,ICU,Critical Care Nursing,O-4,1
+BIL-00113,MTF-03,ICU,Critical Care Nursing,O-4,1
+BIL-00114,MTF-03,ICU,Critical Care Nursing,O-5,1
+BIL-00115,MTF-03,ICU,Critical Care Nursing,O-3,1
+BIL-00116,MTF-03,ICU,Critical Care Nursing,O-5,1
+BIL-00117,MTF-03,ICU,Critical Care Nursing,O-5,1
+BIL-00118,MTF-03,ICU,Critical Care Nursing,O-3,1
+BIL-00119,MTF-03,ICU,Critical Care Nursing,O-1,1
+BIL-00120,MTF-03,ICU,Critical Care Nursing,O-3,1
+BIL-00121,MTF-03,ICU,Critical Care Nursing,O-1,1
+BIL-00122,MTF-03,Burn,Burn Care Nursing,O-3,1
+BIL-00123,MTF-03,Burn,Burn Care Nursing,O-3,1
+BIL-00124,MTF-03,Burn,Burn Care Nursing,O-3,1
+BIL-00125,MTF-03,Burn,Burn Care Nursing,O-2,1
+BIL-00126,MTF-03,Burn,Burn Care Nursing,O-3,1
+BIL-00127,MTF-03,Trauma,Trauma Nursing,O-3,1
+BIL-00128,MTF-03,Trauma,Trauma Nursing,O-3,1
+BIL-00129,MTF-03,Trauma,Trauma Nursing,O-2,1
+BIL-00130,MTF-03,Trauma,Trauma Nursing,O-4,1
+BIL-00131,MTF-03,Trauma,Trauma Nursing,O-1,1
+BIL-00132,MTF-03,Trauma,Trauma Nursing,O-5,1
+BIL-00133,MTF-03,Trauma,Trauma Nursing,O-4,1
+BIL-00134,MTF-03,Trauma,Trauma Nursing,O-4,1
+BIL-00135,MTF-03,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00136,MTF-03,Med-Surg,Med-Surg Nursing,O-1,1
+BIL-00137,MTF-03,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00138,MTF-03,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00139,MTF-03,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00140,MTF-03,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00141,MTF-03,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00142,MTF-03,Med-Surg,Med-Surg Nursing,O-1,1
+BIL-00143,MTF-03,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00144,MTF-03,Med-Surg,Med-Surg Nursing,O-1,1
+BIL-00145,MTF-03,ED,Emergency Nursing,O-1,1
+BIL-00146,MTF-03,ED,Emergency Nursing,O-4,1
+BIL-00147,MTF-03,ED,Emergency Nursing,O-5,1
+BIL-00148,MTF-03,ED,Emergency Nursing,O-5,1
+BIL-00149,MTF-03,ED,Emergency Nursing,O-3,1
+BIL-00150,MTF-03,ED,Emergency Nursing,O-4,1
+BIL-00151,MTF-03,ED,Emergency Nursing,O-3,1
+BIL-00152,MTF-03,ED,Emergency Nursing,O-3,1
+BIL-00153,MTF-03,ED,Emergency Nursing,O-3,1
+BIL-00154,MTF-03,ED,Emergency Nursing,O-3,1
+BIL-00155,MTF-03,ED,Emergency Nursing,O-5,1
+BIL-00156,MTF-03,ED,Emergency Nursing,O-4,1
+BIL-00157,MTF-03,ED,Emergency Nursing,O-3,1
+BIL-00158,MTF-03,ED,Emergency Nursing,O-3,1
+BIL-00159,MTF-03,OR,Perioperative Nursing,O-2,1
+BIL-00160,MTF-03,OR,Perioperative Nursing,O-4,1
+BIL-00161,MTF-03,OR,Perioperative Nursing,O-2,1
+BIL-00162,MTF-03,OR,Perioperative Nursing,O-4,1
+BIL-00163,MTF-03,OR,Perioperative Nursing,O-5,1
+BIL-00164,MTF-03,OR,Perioperative Nursing,O-3,1
+BIL-00165,MTF-03,OR,Perioperative Nursing,O-5,1
+BIL-00166,MTF-04,ICU,Critical Care Nursing,O-2,1
+BIL-00167,MTF-04,ICU,Critical Care Nursing,O-1,1
+BIL-00168,MTF-04,ICU,Critical Care Nursing,O-3,1
+BIL-00169,MTF-04,ICU,Critical Care Nursing,O-1,1
+BIL-00170,MTF-04,ICU,Critical Care Nursing,O-2,1
+BIL-00171,MTF-04,Burn,Burn Care Nursing,O-2,1
+BIL-00172,MTF-04,Burn,Burn Care Nursing,O-3,1
+BIL-00173,MTF-04,Burn,Burn Care Nursing,O-3,1
+BIL-00174,MTF-04,Trauma,Trauma Nursing,O-3,1
+BIL-00175,MTF-04,Trauma,Trauma Nursing,O-3,1
+BIL-00176,MTF-04,Trauma,Trauma Nursing,O-4,1
+BIL-00177,MTF-04,Trauma,Trauma Nursing,O-2,1
+BIL-00178,MTF-04,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00179,MTF-04,Med-Surg,Med-Surg Nursing,O-5,1
+BIL-00180,MTF-04,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00181,MTF-04,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00182,MTF-04,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00183,MTF-04,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00184,MTF-04,ED,Emergency Nursing,O-4,1
+BIL-00185,MTF-04,ED,Emergency Nursing,O-1,1
+BIL-00186,MTF-04,ED,Emergency Nursing,O-2,1
+BIL-00187,MTF-04,ED,Emergency Nursing,O-3,1
+BIL-00188,MTF-04,ED,Emergency Nursing,O-4,1
+BIL-00189,MTF-04,ED,Emergency Nursing,O-3,1
+BIL-00190,MTF-04,ED,Emergency Nursing,O-2,1
+BIL-00191,MTF-04,ED,Emergency Nursing,O-4,1
+BIL-00192,MTF-04,OR,Perioperative Nursing,O-3,1
+BIL-00193,MTF-04,OR,Perioperative Nursing,O-4,1
+BIL-00194,MTF-04,OR,Perioperative Nursing,O-3,1
+BIL-00195,MTF-04,OR,Perioperative Nursing,O-1,1
+BIL-00196,MTF-05,ICU,Critical Care Nursing,O-2,1
+BIL-00197,MTF-05,ICU,Critical Care Nursing,O-4,1
+BIL-00198,MTF-05,ICU,Critical Care Nursing,O-3,1
+BIL-00199,MTF-05,ICU,Critical Care Nursing,O-5,1
+BIL-00200,MTF-05,ICU,Critical Care Nursing,O-1,1
+BIL-00201,MTF-05,ICU,Critical Care Nursing,O-3,1
+BIL-00202,MTF-05,ICU,Critical Care Nursing,O-3,1
+BIL-00203,MTF-05,ICU,Critical Care Nursing,O-3,1
+BIL-00204,MTF-05,ICU,Critical Care Nursing,O-3,1
+BIL-00205,MTF-05,Burn,Burn Care Nursing,O-4,1
+BIL-00206,MTF-05,Burn,Burn Care Nursing,O-4,1
+BIL-00207,MTF-05,Burn,Burn Care Nursing,O-5,1
+BIL-00208,MTF-05,Burn,Burn Care Nursing,O-3,1
+BIL-00209,MTF-05,Burn,Burn Care Nursing,O-2,1
+BIL-00210,MTF-05,Burn,Burn Care Nursing,O-3,1
+BIL-00211,MTF-05,Trauma,Trauma Nursing,O-1,1
+BIL-00212,MTF-05,Trauma,Trauma Nursing,O-2,1
+BIL-00213,MTF-05,Trauma,Trauma Nursing,O-2,1
+BIL-00214,MTF-05,Trauma,Trauma Nursing,O-3,1
+BIL-00215,MTF-05,Trauma,Trauma Nursing,O-3,1
+BIL-00216,MTF-05,Trauma,Trauma Nursing,O-2,1
+BIL-00217,MTF-05,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00218,MTF-05,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00219,MTF-05,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00220,MTF-05,Med-Surg,Med-Surg Nursing,O-5,1
+BIL-00221,MTF-05,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00222,MTF-05,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00223,MTF-05,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00224,MTF-05,ED,Emergency Nursing,O-2,1
+BIL-00225,MTF-05,ED,Emergency Nursing,O-3,1
+BIL-00226,MTF-05,ED,Emergency Nursing,O-3,1
+BIL-00227,MTF-05,ED,Emergency Nursing,O-3,1
+BIL-00228,MTF-05,ED,Emergency Nursing,O-4,1
+BIL-00229,MTF-05,ED,Emergency Nursing,O-3,1
+BIL-00230,MTF-05,ED,Emergency Nursing,O-2,1
+BIL-00231,MTF-05,ED,Emergency Nursing,O-4,1
+BIL-00232,MTF-05,ED,Emergency Nursing,O-3,1
+BIL-00233,MTF-05,ED,Emergency Nursing,O-2,1
+BIL-00234,MTF-05,ED,Emergency Nursing,O-1,1
+BIL-00235,MTF-05,ED,Emergency Nursing,O-3,1
+BIL-00236,MTF-05,OR,Perioperative Nursing,O-3,1
+BIL-00237,MTF-05,OR,Perioperative Nursing,O-3,1
+BIL-00238,MTF-05,OR,Perioperative Nursing,O-3,1
+BIL-00239,MTF-05,OR,Perioperative Nursing,O-3,1
+BIL-00240,MTF-06,ICU,Critical Care Nursing,O-2,1
+BIL-00241,MTF-06,ICU,Critical Care Nursing,O-5,1
+BIL-00242,MTF-06,ICU,Critical Care Nursing,O-3,1
+BIL-00243,MTF-06,ICU,Critical Care Nursing,O-4,1
+BIL-00244,MTF-06,ICU,Critical Care Nursing,O-1,1
+BIL-00245,MTF-06,ICU,Critical Care Nursing,O-3,1
+BIL-00246,MTF-06,ICU,Critical Care Nursing,O-2,1
+BIL-00247,MTF-06,ICU,Critical Care Nursing,O-4,1
+BIL-00248,MTF-06,ICU,Critical Care Nursing,O-1,1
+BIL-00249,MTF-06,ICU,Critical Care Nursing,O-2,1
+BIL-00250,MTF-06,Burn,Burn Care Nursing,O-4,1
+BIL-00251,MTF-06,Burn,Burn Care Nursing,O-3,1
+BIL-00252,MTF-06,Burn,Burn Care Nursing,O-4,1
+BIL-00253,MTF-06,Burn,Burn Care Nursing,O-3,1
+BIL-00254,MTF-06,Burn,Burn Care Nursing,O-2,1
+BIL-00255,MTF-06,Trauma,Trauma Nursing,O-3,1
+BIL-00256,MTF-06,Trauma,Trauma Nursing,O-3,1
+BIL-00257,MTF-06,Trauma,Trauma Nursing,O-2,1
+BIL-00258,MTF-06,Trauma,Trauma Nursing,O-3,1
+BIL-00259,MTF-06,Trauma,Trauma Nursing,O-4,1
+BIL-00260,MTF-06,Trauma,Trauma Nursing,O-1,1
+BIL-00261,MTF-06,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00262,MTF-06,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00263,MTF-06,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00264,MTF-06,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00265,MTF-06,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00266,MTF-06,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00267,MTF-06,ED,Emergency Nursing,O-3,1
+BIL-00268,MTF-06,ED,Emergency Nursing,O-3,1
+BIL-00269,MTF-06,ED,Emergency Nursing,O-2,1
+BIL-00270,MTF-06,ED,Emergency Nursing,O-5,1
+BIL-00271,MTF-06,ED,Emergency Nursing,O-4,1
+BIL-00272,MTF-06,ED,Emergency Nursing,O-4,1
+BIL-00273,MTF-06,ED,Emergency Nursing,O-1,1
+BIL-00274,MTF-06,ED,Emergency Nursing,O-3,1
+BIL-00275,MTF-06,ED,Emergency Nursing,O-2,1
+BIL-00276,MTF-06,ED,Emergency Nursing,O-2,1
+BIL-00277,MTF-06,ED,Emergency Nursing,O-3,1
+BIL-00278,MTF-06,OR,Perioperative Nursing,O-2,1
+BIL-00279,MTF-06,OR,Perioperative Nursing,O-3,1
+BIL-00280,MTF-06,OR,Perioperative Nursing,O-2,1
+BIL-00281,MTF-06,OR,Perioperative Nursing,O-2,1
+BIL-00282,MTF-06,OR,Perioperative Nursing,O-3,1
+BIL-00283,MTF-06,OR,Perioperative Nursing,O-4,1
+BIL-00284,MTF-07,ICU,Critical Care Nursing,O-1,1
+BIL-00285,MTF-07,ICU,Critical Care Nursing,O-3,1
+BIL-00286,MTF-07,ICU,Critical Care Nursing,O-3,1
+BIL-00287,MTF-07,ICU,Critical Care Nursing,O-3,1
+BIL-00288,MTF-07,ICU,Critical Care Nursing,O-5,1
+BIL-00289,MTF-07,Burn,Burn Care Nursing,O-2,1
+BIL-00290,MTF-07,Burn,Burn Care Nursing,O-3,1
+BIL-00291,MTF-07,Trauma,Trauma Nursing,O-3,1
+BIL-00292,MTF-07,Trauma,Trauma Nursing,O-2,1
+BIL-00293,MTF-07,Trauma,Trauma Nursing,O-3,1
+BIL-00294,MTF-07,Trauma,Trauma Nursing,O-3,1
+BIL-00295,MTF-07,Med-Surg,Med-Surg Nursing,O-5,1
+BIL-00296,MTF-07,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00297,MTF-07,Med-Surg,Med-Surg Nursing,O-1,1
+BIL-00298,MTF-07,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00299,MTF-07,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00300,MTF-07,ED,Emergency Nursing,O-3,1
+BIL-00301,MTF-07,ED,Emergency Nursing,O-3,1
+BIL-00302,MTF-07,ED,Emergency Nursing,O-5,1
+BIL-00303,MTF-07,ED,Emergency Nursing,O-4,1
+BIL-00304,MTF-07,ED,Emergency Nursing,O-5,1
+BIL-00305,MTF-07,ED,Emergency Nursing,O-1,1
+BIL-00306,MTF-07,ED,Emergency Nursing,O-4,1
+BIL-00307,MTF-07,OR,Perioperative Nursing,O-3,1
+BIL-00308,MTF-07,OR,Perioperative Nursing,O-2,1
+BIL-00309,MTF-07,OR,Perioperative Nursing,O-2,1
+BIL-00310,MTF-07,OR,Perioperative Nursing,O-2,1
+BIL-00311,MTF-07,OR,Perioperative Nursing,O-3,1
+BIL-00312,MTF-08,ICU,Critical Care Nursing,O-3,1
+BIL-00313,MTF-08,ICU,Critical Care Nursing,O-4,1
+BIL-00314,MTF-08,ICU,Critical Care Nursing,O-4,1
+BIL-00315,MTF-08,ICU,Critical Care Nursing,O-3,1
+BIL-00316,MTF-08,ICU,Critical Care Nursing,O-4,1
+BIL-00317,MTF-08,ICU,Critical Care Nursing,O-1,1
+BIL-00318,MTF-08,ICU,Critical Care Nursing,O-1,1
+BIL-00319,MTF-08,ICU,Critical Care Nursing,O-2,1
+BIL-00320,MTF-08,Burn,Burn Care Nursing,O-3,1
+BIL-00321,MTF-08,Burn,Burn Care Nursing,O-4,1
+BIL-00322,MTF-08,Burn,Burn Care Nursing,O-4,1
+BIL-00323,MTF-08,Burn,Burn Care Nursing,O-2,1
+BIL-00324,MTF-08,Trauma,Trauma Nursing,O-3,1
+BIL-00325,MTF-08,Trauma,Trauma Nursing,O-2,1
+BIL-00326,MTF-08,Trauma,Trauma Nursing,O-3,1
+BIL-00327,MTF-08,Trauma,Trauma Nursing,O-1,1
+BIL-00328,MTF-08,Trauma,Trauma Nursing,O-3,1
+BIL-00329,MTF-08,Trauma,Trauma Nursing,O-1,1
+BIL-00330,MTF-08,Med-Surg,Med-Surg Nursing,O-5,1
+BIL-00331,MTF-08,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00332,MTF-08,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00333,MTF-08,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00334,MTF-08,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00335,MTF-08,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00336,MTF-08,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00337,MTF-08,ED,Emergency Nursing,O-4,1
+BIL-00338,MTF-08,ED,Emergency Nursing,O-4,1
+BIL-00339,MTF-08,ED,Emergency Nursing,O-1,1
+BIL-00340,MTF-08,ED,Emergency Nursing,O-2,1
+BIL-00341,MTF-08,ED,Emergency Nursing,O-2,1
+BIL-00342,MTF-08,ED,Emergency Nursing,O-2,1
+BIL-00343,MTF-08,ED,Emergency Nursing,O-4,1
+BIL-00344,MTF-08,ED,Emergency Nursing,O-2,1
+BIL-00345,MTF-08,ED,Emergency Nursing,O-3,1
+BIL-00346,MTF-08,ED,Emergency Nursing,O-2,1
+BIL-00347,MTF-08,ED,Emergency Nursing,O-4,1
+BIL-00348,MTF-08,OR,Perioperative Nursing,O-4,1
+BIL-00349,MTF-08,OR,Perioperative Nursing,O-2,1
+BIL-00350,MTF-08,OR,Perioperative Nursing,O-5,1
+BIL-00351,MTF-08,OR,Perioperative Nursing,O-2,1
+BIL-00352,MTF-09,ICU,Critical Care Nursing,O-4,1
+BIL-00353,MTF-09,ICU,Critical Care Nursing,O-2,1
+BIL-00354,MTF-09,ICU,Critical Care Nursing,O-2,1
+BIL-00355,MTF-09,ICU,Critical Care Nursing,O-3,1
+BIL-00356,MTF-09,ICU,Critical Care Nursing,O-4,1
+BIL-00357,MTF-09,ICU,Critical Care Nursing,O-4,1
+BIL-00358,MTF-09,ICU,Critical Care Nursing,O-3,1
+BIL-00359,MTF-09,ICU,Critical Care Nursing,O-5,1
+BIL-00360,MTF-09,ICU,Critical Care Nursing,O-4,1
+BIL-00361,MTF-09,ICU,Critical Care Nursing,O-2,1
+BIL-00362,MTF-09,ICU,Critical Care Nursing,O-1,1
+BIL-00363,MTF-09,Burn,Burn Care Nursing,O-1,1
+BIL-00364,MTF-09,Burn,Burn Care Nursing,O-1,1
+BIL-00365,MTF-09,Burn,Burn Care Nursing,O-2,1
+BIL-00366,MTF-09,Burn,Burn Care Nursing,O-1,1
+BIL-00367,MTF-09,Burn,Burn Care Nursing,O-1,1
+BIL-00368,MTF-09,Burn,Burn Care Nursing,O-3,1
+BIL-00369,MTF-09,Burn,Burn Care Nursing,O-3,1
+BIL-00370,MTF-09,Trauma,Trauma Nursing,O-3,1
+BIL-00371,MTF-09,Trauma,Trauma Nursing,O-2,1
+BIL-00372,MTF-09,Trauma,Trauma Nursing,O-4,1
+BIL-00373,MTF-09,Trauma,Trauma Nursing,O-3,1
+BIL-00374,MTF-09,Trauma,Trauma Nursing,O-4,1
+BIL-00375,MTF-09,Trauma,Trauma Nursing,O-3,1
+BIL-00376,MTF-09,Trauma,Trauma Nursing,O-2,1
+BIL-00377,MTF-09,Trauma,Trauma Nursing,O-2,1
+BIL-00378,MTF-09,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00379,MTF-09,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00380,MTF-09,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00381,MTF-09,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00382,MTF-09,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00383,MTF-09,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00384,MTF-09,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00385,MTF-09,Med-Surg,Med-Surg Nursing,O-4,1
+BIL-00386,MTF-09,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00387,MTF-09,Med-Surg,Med-Surg Nursing,O-2,1
+BIL-00388,MTF-09,ED,Emergency Nursing,O-5,1
+BIL-00389,MTF-09,ED,Emergency Nursing,O-4,1
+BIL-00390,MTF-09,ED,Emergency Nursing,O-2,1
+BIL-00391,MTF-09,ED,Emergency Nursing,O-2,1
+BIL-00392,MTF-09,ED,Emergency Nursing,O-4,1
+BIL-00393,MTF-09,ED,Emergency Nursing,O-4,1
+BIL-00394,MTF-09,ED,Emergency Nursing,O-5,1
+BIL-00395,MTF-09,ED,Emergency Nursing,O-3,1
+BIL-00396,MTF-09,ED,Emergency Nursing,O-4,1
+BIL-00397,MTF-09,ED,Emergency Nursing,O-4,1
+BIL-00398,MTF-09,ED,Emergency Nursing,O-4,1
+BIL-00399,MTF-09,ED,Emergency Nursing,O-1,1
+BIL-00400,MTF-09,ED,Emergency Nursing,O-5,1
+BIL-00401,MTF-09,OR,Perioperative Nursing,O-3,1
+BIL-00402,MTF-09,OR,Perioperative Nursing,O-3,1
+BIL-00403,MTF-09,OR,Perioperative Nursing,O-2,1
+BIL-00404,MTF-09,OR,Perioperative Nursing,O-3,1
+BIL-00405,MTF-09,OR,Perioperative Nursing,O-3,1
+BIL-00406,MTF-09,OR,Perioperative Nursing,O-2,1
+BIL-00407,MTF-09,OR,Perioperative Nursing,O-3,1
+BIL-00408,MTF-10,ICU,Critical Care Nursing,O-5,1
+BIL-00409,MTF-10,ICU,Critical Care Nursing,O-4,1
+BIL-00410,MTF-10,ICU,Critical Care Nursing,O-3,1
+BIL-00411,MTF-10,ICU,Critical Care Nursing,O-3,1
+BIL-00412,MTF-10,ICU,Critical Care Nursing,O-1,1
+BIL-00413,MTF-10,ICU,Critical Care Nursing,O-4,1
+BIL-00414,MTF-10,ICU,Critical Care Nursing,O-1,1
+BIL-00415,MTF-10,Burn,Burn Care Nursing,O-3,1
+BIL-00416,MTF-10,Burn,Burn Care Nursing,O-2,1
+BIL-00417,MTF-10,Trauma,Trauma Nursing,O-4,1
+BIL-00418,MTF-10,Trauma,Trauma Nursing,O-5,1
+BIL-00419,MTF-10,Trauma,Trauma Nursing,O-2,1
+BIL-00420,MTF-10,Trauma,Trauma Nursing,O-4,1
+BIL-00421,MTF-10,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00422,MTF-10,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00423,MTF-10,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00424,MTF-10,Med-Surg,Med-Surg Nursing,O-5,1
+BIL-00425,MTF-10,Med-Surg,Med-Surg Nursing,O-3,1
+BIL-00426,MTF-10,ED,Emergency Nursing,O-5,1
+BIL-00427,MTF-10,ED,Emergency Nursing,O-3,1
+BIL-00428,MTF-10,ED,Emergency Nursing,O-5,1
+BIL-00429,MTF-10,ED,Emergency Nursing,O-3,1
+BIL-00430,MTF-10,ED,Emergency Nursing,O-3,1
+BIL-00431,MTF-10,ED,Emergency Nursing,O-3,1
+BIL-00432,MTF-10,ED,Emergency Nursing,O-3,1
+BIL-00433,MTF-10,ED,Emergency Nursing,O-3,1
+BIL-00434,MTF-10,OR,Perioperative Nursing,O-3,1
+BIL-00435,MTF-10,OR,Perioperative Nursing,O-3,1
+BIL-00436,MTF-10,OR,Perioperative Nursing,O-3,1

@@ -1,0 +1,11 @@
+mtf_id,mtf_name,market,region,command,sole_regional_role
+MTF-01,Cedarview Naval Medical Center,Gulf Coast,South,Navy,Burn
+MTF-02,Ironwood Regional Medical Center,Southwest,West,Army,
+MTF-03,Ashford Army Medical Center,Atlantic Coast,East,Army,
+MTF-04,Blackwood Naval Hospital,Atlantic Coast,East,Navy,
+MTF-05,Fairhaven Regional Medical Center,Midwest,Central,Air Force,Trauma
+MTF-06,Deerpark Army Medical Center,Midwest,Central,Army,
+MTF-07,Garrison Air Force Medical Center,Pacific Northwest,West,Air Force,
+MTF-08,Highland Naval Hospital,Pacific Northwest,West,Navy,
+MTF-09,Eastridge Army Medical Center,Southwest,West,Army,
+MTF-10,Juniper Regional Medical Center,Gulf Coast,South,Air Force,

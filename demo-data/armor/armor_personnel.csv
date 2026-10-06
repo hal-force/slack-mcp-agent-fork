@@ -1,0 +1,385 @@
+person_id,billet_id,mtf_id,specialty,grade,availability_status
+PER-00001,BIL-00001,MTF-01,Critical Care Nursing,O-2,on_station
+PER-00002,BIL-00002,MTF-01,Critical Care Nursing,O-4,on_station
+PER-00003,BIL-00003,MTF-01,Critical Care Nursing,O-2,on_station
+PER-00004,BIL-00004,MTF-01,Critical Care Nursing,O-3,on_station
+PER-00005,BIL-00005,MTF-01,Critical Care Nursing,O-2,on_station
+PER-00006,BIL-00006,MTF-01,Critical Care Nursing,O-1,on_station
+PER-00007,BIL-00007,MTF-01,Critical Care Nursing,O-4,on_station
+PER-00008,BIL-00008,MTF-01,Critical Care Nursing,O-2,on_station
+PER-00009,BIL-00009,MTF-01,Critical Care Nursing,O-2,on_station
+PER-00010,BIL-00013,MTF-01,Burn Care Nursing,O-3,on_station
+PER-00011,BIL-00014,MTF-01,Burn Care Nursing,O-4,on_station
+PER-00012,BIL-00015,MTF-01,Burn Care Nursing,O-5,on_station
+PER-00013,BIL-00016,MTF-01,Burn Care Nursing,O-3,on_station
+PER-00014,BIL-00017,MTF-01,Burn Care Nursing,O-2,on_station
+PER-00015,BIL-00018,MTF-01,Burn Care Nursing,O-3,on_station
+PER-00016,BIL-00019,MTF-01,Burn Care Nursing,O-2,on_station
+PER-00017,BIL-00021,MTF-01,Trauma Nursing,O-3,on_station
+PER-00018,BIL-00022,MTF-01,Trauma Nursing,O-2,on_station
+PER-00019,BIL-00023,MTF-01,Trauma Nursing,O-3,on_station
+PER-00020,BIL-00024,MTF-01,Trauma Nursing,O-4,on_station
+PER-00021,BIL-00026,MTF-01,Med-Surg Nursing,O-4,on_station
+PER-00022,BIL-00027,MTF-01,Med-Surg Nursing,O-4,on_station
+PER-00023,BIL-00028,MTF-01,Med-Surg Nursing,O-4,on_station
+PER-00024,BIL-00029,MTF-01,Med-Surg Nursing,O-1,on_station
+PER-00025,BIL-00030,MTF-01,Med-Surg Nursing,O-3,on_station
+PER-00026,BIL-00031,MTF-01,Med-Surg Nursing,O-4,on_station
+PER-00027,BIL-00032,MTF-01,Med-Surg Nursing,O-3,on_station
+PER-00028,BIL-00033,MTF-01,Emergency Nursing,O-2,on_station
+PER-00029,BIL-00034,MTF-01,Emergency Nursing,O-4,on_station
+PER-00030,BIL-00035,MTF-01,Emergency Nursing,O-4,on_station
+PER-00031,BIL-00036,MTF-01,Emergency Nursing,O-5,on_station
+PER-00032,BIL-00037,MTF-01,Emergency Nursing,O-1,on_station
+PER-00033,BIL-00038,MTF-01,Emergency Nursing,O-2,on_station
+PER-00034,BIL-00039,MTF-01,Emergency Nursing,O-1,on_station
+PER-00035,BIL-00040,MTF-01,Emergency Nursing,O-3,on_station
+PER-00036,BIL-00041,MTF-01,Emergency Nursing,O-3,on_station
+PER-00037,BIL-00042,MTF-01,Emergency Nursing,O-1,on_station
+PER-00038,BIL-00044,MTF-01,Perioperative Nursing,O-3,on_station
+PER-00039,BIL-00045,MTF-01,Perioperative Nursing,O-3,on_station
+PER-00040,BIL-00046,MTF-01,Perioperative Nursing,O-3,on_station
+PER-00041,BIL-00047,MTF-01,Perioperative Nursing,O-3,on_station
+PER-00042,BIL-00048,MTF-01,Perioperative Nursing,O-2,on_station
+PER-00043,BIL-00050,MTF-02,Critical Care Nursing,O-3,leave
+PER-00044,BIL-00051,MTF-02,Critical Care Nursing,O-3,on_station
+PER-00045,BIL-00052,MTF-02,Critical Care Nursing,O-3,on_station
+PER-00046,BIL-00053,MTF-02,Critical Care Nursing,O-5,on_station
+PER-00047,BIL-00054,MTF-02,Critical Care Nursing,O-2,on_station
+PER-00048,BIL-00055,MTF-02,Critical Care Nursing,O-1,on_station
+PER-00049,BIL-00056,MTF-02,Critical Care Nursing,O-3,on_station
+PER-00050,BIL-00057,MTF-02,Critical Care Nursing,O-4,on_station
+PER-00051,BIL-00058,MTF-02,Critical Care Nursing,O-2,on_station
+PER-00052,BIL-00059,MTF-02,Critical Care Nursing,O-4,on_station
+PER-00053,BIL-00060,MTF-02,Critical Care Nursing,O-3,on_station
+PER-00054,BIL-00061,MTF-02,Critical Care Nursing,O-3,on_station
+PER-00055,BIL-00062,MTF-02,Critical Care Nursing,O-3,on_station
+PER-00056,BIL-00064,MTF-02,Burn Care Nursing,O-1,on_station
+PER-00057,BIL-00065,MTF-02,Burn Care Nursing,O-2,on_station
+PER-00058,BIL-00066,MTF-02,Burn Care Nursing,O-3,on_station
+PER-00059,BIL-00067,MTF-02,Burn Care Nursing,O-3,on_station
+PER-00060,BIL-00069,MTF-02,Trauma Nursing,O-5,on_station
+PER-00061,BIL-00070,MTF-02,Trauma Nursing,O-3,on_station
+PER-00062,BIL-00071,MTF-02,Trauma Nursing,O-3,on_station
+PER-00063,BIL-00072,MTF-02,Trauma Nursing,O-3,on_station
+PER-00064,BIL-00073,MTF-02,Trauma Nursing,O-5,on_station
+PER-00065,BIL-00074,MTF-02,Trauma Nursing,O-4,on_station
+PER-00066,BIL-00075,MTF-02,Trauma Nursing,O-5,on_station
+PER-00067,BIL-00077,MTF-02,Med-Surg Nursing,O-2,on_station
+PER-00068,BIL-00078,MTF-02,Med-Surg Nursing,O-2,on_station
+PER-00069,BIL-00079,MTF-02,Med-Surg Nursing,O-4,on_station
+PER-00070,BIL-00080,MTF-02,Med-Surg Nursing,O-3,on_station
+PER-00071,BIL-00081,MTF-02,Med-Surg Nursing,O-3,on_station
+PER-00072,BIL-00082,MTF-02,Med-Surg Nursing,O-2,on_station
+PER-00073,BIL-00083,MTF-02,Med-Surg Nursing,O-2,on_station
+PER-00074,BIL-00084,MTF-02,Med-Surg Nursing,O-3,on_station
+PER-00075,BIL-00085,MTF-02,Med-Surg Nursing,O-2,on_station
+PER-00076,BIL-00087,MTF-02,Emergency Nursing,O-1,deployed
+PER-00077,BIL-00088,MTF-02,Emergency Nursing,O-2,on_station
+PER-00078,BIL-00089,MTF-02,Emergency Nursing,O-3,on_station
+PER-00079,BIL-00090,MTF-02,Emergency Nursing,O-2,on_station
+PER-00080,BIL-00091,MTF-02,Emergency Nursing,O-2,on_station
+PER-00081,BIL-00092,MTF-02,Emergency Nursing,O-3,on_station
+PER-00082,BIL-00093,MTF-02,Emergency Nursing,O-3,on_station
+PER-00083,BIL-00094,MTF-02,Emergency Nursing,O-5,on_station
+PER-00084,BIL-00095,MTF-02,Emergency Nursing,O-3,on_station
+PER-00085,BIL-00096,MTF-02,Emergency Nursing,O-3,on_station
+PER-00086,BIL-00097,MTF-02,Emergency Nursing,O-2,on_station
+PER-00087,BIL-00098,MTF-02,Emergency Nursing,O-2,on_station
+PER-00088,BIL-00101,MTF-02,Perioperative Nursing,O-4,on_station
+PER-00089,BIL-00102,MTF-02,Perioperative Nursing,O-5,on_station
+PER-00090,BIL-00103,MTF-02,Perioperative Nursing,O-1,on_station
+PER-00091,BIL-00104,MTF-02,Perioperative Nursing,O-3,on_station
+PER-00092,BIL-00105,MTF-02,Perioperative Nursing,O-3,on_station
+PER-00093,BIL-00106,MTF-02,Perioperative Nursing,O-2,on_station
+PER-00094,BIL-00107,MTF-02,Perioperative Nursing,O-1,on_station
+PER-00095,BIL-00109,MTF-03,Critical Care Nursing,O-2,on_station
+PER-00096,BIL-00110,MTF-03,Critical Care Nursing,O-5,on_station
+PER-00097,BIL-00111,MTF-03,Critical Care Nursing,O-2,on_station
+PER-00098,BIL-00112,MTF-03,Critical Care Nursing,O-2,on_station
+PER-00099,BIL-00113,MTF-03,Critical Care Nursing,O-4,on_station
+PER-00100,BIL-00114,MTF-03,Critical Care Nursing,O-3,on_station
+PER-00101,BIL-00115,MTF-03,Critical Care Nursing,O-2,on_station
+PER-00102,BIL-00116,MTF-03,Critical Care Nursing,O-4,on_station
+PER-00103,BIL-00117,MTF-03,Critical Care Nursing,O-3,on_station
+PER-00104,BIL-00118,MTF-03,Critical Care Nursing,O-5,on_station
+PER-00105,BIL-00122,MTF-03,Burn Care Nursing,O-5,on_station
+PER-00106,BIL-00123,MTF-03,Burn Care Nursing,O-4,on_station
+PER-00107,BIL-00124,MTF-03,Burn Care Nursing,O-3,on_station
+PER-00108,BIL-00125,MTF-03,Burn Care Nursing,O-3,on_station
+PER-00109,BIL-00127,MTF-03,Trauma Nursing,O-2,on_station
+PER-00110,BIL-00128,MTF-03,Trauma Nursing,O-5,on_station
+PER-00111,BIL-00129,MTF-03,Trauma Nursing,O-1,on_station
+PER-00112,BIL-00130,MTF-03,Trauma Nursing,O-4,on_station
+PER-00113,BIL-00131,MTF-03,Trauma Nursing,O-1,on_station
+PER-00114,BIL-00132,MTF-03,Trauma Nursing,O-3,on_station
+PER-00115,BIL-00133,MTF-03,Trauma Nursing,O-2,on_station
+PER-00116,BIL-00135,MTF-03,Med-Surg Nursing,O-2,on_station
+PER-00117,BIL-00136,MTF-03,Med-Surg Nursing,O-4,on_station
+PER-00118,BIL-00137,MTF-03,Med-Surg Nursing,O-2,on_station
+PER-00119,BIL-00138,MTF-03,Med-Surg Nursing,O-1,on_station
+PER-00120,BIL-00139,MTF-03,Med-Surg Nursing,O-4,on_station
+PER-00121,BIL-00140,MTF-03,Med-Surg Nursing,O-5,on_station
+PER-00122,BIL-00141,MTF-03,Med-Surg Nursing,O-3,on_station
+PER-00123,BIL-00142,MTF-03,Med-Surg Nursing,O-3,on_station
+PER-00124,BIL-00143,MTF-03,Med-Surg Nursing,O-2,on_station
+PER-00125,BIL-00144,MTF-03,Med-Surg Nursing,O-2,on_station
+PER-00126,BIL-00145,MTF-03,Emergency Nursing,O-2,on_station
+PER-00127,BIL-00146,MTF-03,Emergency Nursing,O-3,on_station
+PER-00128,BIL-00147,MTF-03,Emergency Nursing,O-3,on_station
+PER-00129,BIL-00148,MTF-03,Emergency Nursing,O-3,on_station
+PER-00130,BIL-00149,MTF-03,Emergency Nursing,O-3,on_station
+PER-00131,BIL-00150,MTF-03,Emergency Nursing,O-4,on_station
+PER-00132,BIL-00151,MTF-03,Emergency Nursing,O-5,on_station
+PER-00133,BIL-00152,MTF-03,Emergency Nursing,O-4,on_station
+PER-00134,BIL-00153,MTF-03,Emergency Nursing,O-4,on_station
+PER-00135,BIL-00154,MTF-03,Emergency Nursing,O-2,on_station
+PER-00136,BIL-00155,MTF-03,Emergency Nursing,O-3,on_station
+PER-00137,BIL-00156,MTF-03,Emergency Nursing,O-2,on_station
+PER-00138,BIL-00157,MTF-03,Emergency Nursing,O-4,on_station
+PER-00139,BIL-00159,MTF-03,Perioperative Nursing,O-3,deployed
+PER-00140,BIL-00160,MTF-03,Perioperative Nursing,O-3,on_station
+PER-00141,BIL-00161,MTF-03,Perioperative Nursing,O-4,on_station
+PER-00142,BIL-00162,MTF-03,Perioperative Nursing,O-3,on_station
+PER-00143,BIL-00163,MTF-03,Perioperative Nursing,O-2,on_station
+PER-00144,BIL-00164,MTF-03,Perioperative Nursing,O-3,on_station
+PER-00145,BIL-00166,MTF-04,Critical Care Nursing,O-2,on_station
+PER-00146,BIL-00167,MTF-04,Critical Care Nursing,O-3,on_station
+PER-00147,BIL-00168,MTF-04,Critical Care Nursing,O-4,on_station
+PER-00148,BIL-00169,MTF-04,Critical Care Nursing,O-1,on_station
+PER-00149,BIL-00171,MTF-04,Burn Care Nursing,O-1,on_station
+PER-00150,BIL-00172,MTF-04,Burn Care Nursing,O-4,on_station
+PER-00151,BIL-00173,MTF-04,Burn Care Nursing,O-3,on_station
+PER-00152,BIL-00174,MTF-04,Trauma Nursing,O-3,on_station
+PER-00153,BIL-00175,MTF-04,Trauma Nursing,O-3,on_station
+PER-00154,BIL-00176,MTF-04,Trauma Nursing,O-5,on_station
+PER-00155,BIL-00178,MTF-04,Med-Surg Nursing,O-3,on_station
+PER-00156,BIL-00179,MTF-04,Med-Surg Nursing,O-4,on_station
+PER-00157,BIL-00180,MTF-04,Med-Surg Nursing,O-3,on_station
+PER-00158,BIL-00181,MTF-04,Med-Surg Nursing,O-3,on_station
+PER-00159,BIL-00182,MTF-04,Med-Surg Nursing,O-2,on_station
+PER-00160,BIL-00183,MTF-04,Med-Surg Nursing,O-4,on_station
+PER-00161,BIL-00184,MTF-04,Emergency Nursing,O-2,on_station
+PER-00162,BIL-00185,MTF-04,Emergency Nursing,O-1,on_station
+PER-00163,BIL-00186,MTF-04,Emergency Nursing,O-3,on_station
+PER-00164,BIL-00187,MTF-04,Emergency Nursing,O-4,on_station
+PER-00165,BIL-00188,MTF-04,Emergency Nursing,O-4,on_station
+PER-00166,BIL-00189,MTF-04,Emergency Nursing,O-1,on_station
+PER-00167,BIL-00190,MTF-04,Emergency Nursing,O-3,on_station
+PER-00168,BIL-00192,MTF-04,Perioperative Nursing,O-5,on_station
+PER-00169,BIL-00193,MTF-04,Perioperative Nursing,O-2,on_station
+PER-00170,BIL-00194,MTF-04,Perioperative Nursing,O-1,on_station
+PER-00171,BIL-00195,MTF-04,Perioperative Nursing,O-3,on_station
+PER-00172,BIL-00196,MTF-05,Critical Care Nursing,O-3,on_station
+PER-00173,BIL-00197,MTF-05,Critical Care Nursing,O-3,on_station
+PER-00174,BIL-00198,MTF-05,Critical Care Nursing,O-4,on_station
+PER-00175,BIL-00199,MTF-05,Critical Care Nursing,O-4,on_station
+PER-00176,BIL-00200,MTF-05,Critical Care Nursing,O-5,on_station
+PER-00177,BIL-00201,MTF-05,Critical Care Nursing,O-5,on_station
+PER-00178,BIL-00202,MTF-05,Critical Care Nursing,O-2,on_station
+PER-00179,BIL-00205,MTF-05,Burn Care Nursing,O-4,on_station
+PER-00180,BIL-00206,MTF-05,Burn Care Nursing,O-5,on_station
+PER-00181,BIL-00207,MTF-05,Burn Care Nursing,O-2,on_station
+PER-00182,BIL-00208,MTF-05,Burn Care Nursing,O-4,on_station
+PER-00183,BIL-00209,MTF-05,Burn Care Nursing,O-3,on_station
+PER-00184,BIL-00211,MTF-05,Trauma Nursing,O-3,on_station
+PER-00185,BIL-00212,MTF-05,Trauma Nursing,O-4,on_station
+PER-00186,BIL-00213,MTF-05,Trauma Nursing,O-2,on_station
+PER-00187,BIL-00214,MTF-05,Trauma Nursing,O-4,on_station
+PER-00188,BIL-00215,MTF-05,Trauma Nursing,O-1,on_station
+PER-00189,BIL-00217,MTF-05,Med-Surg Nursing,O-3,on_station
+PER-00190,BIL-00218,MTF-05,Med-Surg Nursing,O-2,on_station
+PER-00191,BIL-00219,MTF-05,Med-Surg Nursing,O-3,on_station
+PER-00192,BIL-00220,MTF-05,Med-Surg Nursing,O-3,on_station
+PER-00193,BIL-00221,MTF-05,Med-Surg Nursing,O-2,on_station
+PER-00194,BIL-00222,MTF-05,Med-Surg Nursing,O-5,on_station
+PER-00195,BIL-00223,MTF-05,Med-Surg Nursing,O-5,on_station
+PER-00196,BIL-00224,MTF-05,Emergency Nursing,O-3,on_station
+PER-00197,BIL-00225,MTF-05,Emergency Nursing,O-4,on_station
+PER-00198,BIL-00226,MTF-05,Emergency Nursing,O-3,on_station
+PER-00199,BIL-00227,MTF-05,Emergency Nursing,O-4,on_station
+PER-00200,BIL-00228,MTF-05,Emergency Nursing,O-2,on_station
+PER-00201,BIL-00229,MTF-05,Emergency Nursing,O-3,on_station
+PER-00202,BIL-00230,MTF-05,Emergency Nursing,O-3,on_station
+PER-00203,BIL-00231,MTF-05,Emergency Nursing,O-5,on_station
+PER-00204,BIL-00232,MTF-05,Emergency Nursing,O-2,on_station
+PER-00205,BIL-00233,MTF-05,Emergency Nursing,O-2,on_station
+PER-00206,BIL-00234,MTF-05,Emergency Nursing,O-3,on_station
+PER-00207,BIL-00236,MTF-05,Perioperative Nursing,O-4,on_station
+PER-00208,BIL-00237,MTF-05,Perioperative Nursing,O-2,on_station
+PER-00209,BIL-00238,MTF-05,Perioperative Nursing,O-5,on_station
+PER-00210,BIL-00240,MTF-06,Critical Care Nursing,O-2,TDY
+PER-00211,BIL-00241,MTF-06,Critical Care Nursing,O-4,on_station
+PER-00212,BIL-00242,MTF-06,Critical Care Nursing,O-3,on_station
+PER-00213,BIL-00243,MTF-06,Critical Care Nursing,O-5,on_station
+PER-00214,BIL-00244,MTF-06,Critical Care Nursing,O-4,on_station
+PER-00215,BIL-00245,MTF-06,Critical Care Nursing,O-4,on_station
+PER-00216,BIL-00246,MTF-06,Critical Care Nursing,O-3,on_station
+PER-00217,BIL-00247,MTF-06,Critical Care Nursing,O-3,on_station
+PER-00218,BIL-00250,MTF-06,Burn Care Nursing,O-4,on_station
+PER-00219,BIL-00251,MTF-06,Burn Care Nursing,O-2,on_station
+PER-00220,BIL-00252,MTF-06,Burn Care Nursing,O-2,on_station
+PER-00221,BIL-00253,MTF-06,Burn Care Nursing,O-3,on_station
+PER-00222,BIL-00255,MTF-06,Trauma Nursing,O-4,on_station
+PER-00223,BIL-00256,MTF-06,Trauma Nursing,O-5,on_station
+PER-00224,BIL-00257,MTF-06,Trauma Nursing,O-3,on_station
+PER-00225,BIL-00258,MTF-06,Trauma Nursing,O-3,on_station
+PER-00226,BIL-00259,MTF-06,Trauma Nursing,O-1,on_station
+PER-00227,BIL-00261,MTF-06,Med-Surg Nursing,O-2,on_station
+PER-00228,BIL-00262,MTF-06,Med-Surg Nursing,O-3,on_station
+PER-00229,BIL-00263,MTF-06,Med-Surg Nursing,O-4,on_station
+PER-00230,BIL-00264,MTF-06,Med-Surg Nursing,O-1,on_station
+PER-00231,BIL-00265,MTF-06,Med-Surg Nursing,O-3,on_station
+PER-00232,BIL-00266,MTF-06,Med-Surg Nursing,O-3,on_station
+PER-00233,BIL-00267,MTF-06,Emergency Nursing,O-4,TDY
+PER-00234,BIL-00268,MTF-06,Emergency Nursing,O-2,on_station
+PER-00235,BIL-00269,MTF-06,Emergency Nursing,O-3,on_station
+PER-00236,BIL-00270,MTF-06,Emergency Nursing,O-3,on_station
+PER-00237,BIL-00271,MTF-06,Emergency Nursing,O-3,on_station
+PER-00238,BIL-00272,MTF-06,Emergency Nursing,O-2,on_station
+PER-00239,BIL-00273,MTF-06,Emergency Nursing,O-2,on_station
+PER-00240,BIL-00274,MTF-06,Emergency Nursing,O-3,on_station
+PER-00241,BIL-00275,MTF-06,Emergency Nursing,O-2,on_station
+PER-00242,BIL-00278,MTF-06,Perioperative Nursing,O-4,on_station
+PER-00243,BIL-00279,MTF-06,Perioperative Nursing,O-4,on_station
+PER-00244,BIL-00280,MTF-06,Perioperative Nursing,O-5,on_station
+PER-00245,BIL-00281,MTF-06,Perioperative Nursing,O-2,on_station
+PER-00246,BIL-00282,MTF-06,Perioperative Nursing,O-4,on_station
+PER-00247,BIL-00284,MTF-07,Critical Care Nursing,O-3,on_station
+PER-00248,BIL-00285,MTF-07,Critical Care Nursing,O-4,on_station
+PER-00249,BIL-00286,MTF-07,Critical Care Nursing,O-2,on_station
+PER-00250,BIL-00287,MTF-07,Critical Care Nursing,O-4,on_station
+PER-00251,BIL-00289,MTF-07,Burn Care Nursing,O-3,on_station
+PER-00252,BIL-00290,MTF-07,Burn Care Nursing,O-2,on_station
+PER-00253,BIL-00291,MTF-07,Trauma Nursing,O-4,on_station
+PER-00254,BIL-00292,MTF-07,Trauma Nursing,O-4,on_station
+PER-00255,BIL-00293,MTF-07,Trauma Nursing,O-5,on_station
+PER-00256,BIL-00295,MTF-07,Med-Surg Nursing,O-3,on_station
+PER-00257,BIL-00296,MTF-07,Med-Surg Nursing,O-5,on_station
+PER-00258,BIL-00297,MTF-07,Med-Surg Nursing,O-4,on_station
+PER-00259,BIL-00298,MTF-07,Med-Surg Nursing,O-3,on_station
+PER-00260,BIL-00299,MTF-07,Med-Surg Nursing,O-3,on_station
+PER-00261,BIL-00300,MTF-07,Emergency Nursing,O-2,on_station
+PER-00262,BIL-00301,MTF-07,Emergency Nursing,O-2,on_station
+PER-00263,BIL-00302,MTF-07,Emergency Nursing,O-2,on_station
+PER-00264,BIL-00303,MTF-07,Emergency Nursing,O-1,on_station
+PER-00265,BIL-00304,MTF-07,Emergency Nursing,O-3,on_station
+PER-00266,BIL-00305,MTF-07,Emergency Nursing,O-2,on_station
+PER-00267,BIL-00307,MTF-07,Perioperative Nursing,O-2,on_station
+PER-00268,BIL-00308,MTF-07,Perioperative Nursing,O-1,on_station
+PER-00269,BIL-00309,MTF-07,Perioperative Nursing,O-2,on_station
+PER-00270,BIL-00310,MTF-07,Perioperative Nursing,O-4,on_station
+PER-00271,BIL-00311,MTF-07,Perioperative Nursing,O-4,on_station
+PER-00272,BIL-00312,MTF-08,Critical Care Nursing,O-5,TDY
+PER-00273,BIL-00313,MTF-08,Critical Care Nursing,O-1,on_station
+PER-00274,BIL-00314,MTF-08,Critical Care Nursing,O-5,on_station
+PER-00275,BIL-00315,MTF-08,Critical Care Nursing,O-3,on_station
+PER-00276,BIL-00316,MTF-08,Critical Care Nursing,O-2,on_station
+PER-00277,BIL-00317,MTF-08,Critical Care Nursing,O-3,on_station
+PER-00278,BIL-00320,MTF-08,Burn Care Nursing,O-4,on_station
+PER-00279,BIL-00321,MTF-08,Burn Care Nursing,O-4,on_station
+PER-00280,BIL-00322,MTF-08,Burn Care Nursing,O-3,on_station
+PER-00281,BIL-00323,MTF-08,Burn Care Nursing,O-1,on_station
+PER-00282,BIL-00324,MTF-08,Trauma Nursing,O-2,on_station
+PER-00283,BIL-00325,MTF-08,Trauma Nursing,O-2,on_station
+PER-00284,BIL-00326,MTF-08,Trauma Nursing,O-2,on_station
+PER-00285,BIL-00327,MTF-08,Trauma Nursing,O-1,on_station
+PER-00286,BIL-00328,MTF-08,Trauma Nursing,O-2,on_station
+PER-00287,BIL-00330,MTF-08,Med-Surg Nursing,O-5,on_station
+PER-00288,BIL-00331,MTF-08,Med-Surg Nursing,O-3,on_station
+PER-00289,BIL-00332,MTF-08,Med-Surg Nursing,O-3,on_station
+PER-00290,BIL-00333,MTF-08,Med-Surg Nursing,O-3,on_station
+PER-00291,BIL-00334,MTF-08,Med-Surg Nursing,O-5,on_station
+PER-00292,BIL-00335,MTF-08,Med-Surg Nursing,O-2,on_station
+PER-00293,BIL-00336,MTF-08,Med-Surg Nursing,O-4,on_station
+PER-00294,BIL-00337,MTF-08,Emergency Nursing,O-2,TDY
+PER-00295,BIL-00338,MTF-08,Emergency Nursing,O-3,on_station
+PER-00296,BIL-00339,MTF-08,Emergency Nursing,O-4,on_station
+PER-00297,BIL-00340,MTF-08,Emergency Nursing,O-2,on_station
+PER-00298,BIL-00341,MTF-08,Emergency Nursing,O-2,on_station
+PER-00299,BIL-00342,MTF-08,Emergency Nursing,O-4,on_station
+PER-00300,BIL-00343,MTF-08,Emergency Nursing,O-2,on_station
+PER-00301,BIL-00344,MTF-08,Emergency Nursing,O-3,on_station
+PER-00302,BIL-00345,MTF-08,Emergency Nursing,O-2,on_station
+PER-00303,BIL-00346,MTF-08,Emergency Nursing,O-1,on_station
+PER-00304,BIL-00348,MTF-08,Perioperative Nursing,O-5,on_station
+PER-00305,BIL-00349,MTF-08,Perioperative Nursing,O-5,on_station
+PER-00306,BIL-00350,MTF-08,Perioperative Nursing,O-2,on_station
+PER-00307,BIL-00351,MTF-08,Perioperative Nursing,O-2,on_station
+PER-00308,BIL-00352,MTF-09,Critical Care Nursing,O-3,deployed
+PER-00309,BIL-00353,MTF-09,Critical Care Nursing,O-4,on_station
+PER-00310,BIL-00354,MTF-09,Critical Care Nursing,O-3,on_station
+PER-00311,BIL-00355,MTF-09,Critical Care Nursing,O-3,on_station
+PER-00312,BIL-00356,MTF-09,Critical Care Nursing,O-5,on_station
+PER-00313,BIL-00357,MTF-09,Critical Care Nursing,O-2,on_station
+PER-00314,BIL-00358,MTF-09,Critical Care Nursing,O-3,on_station
+PER-00315,BIL-00359,MTF-09,Critical Care Nursing,O-2,on_station
+PER-00316,BIL-00360,MTF-09,Critical Care Nursing,O-3,on_station
+PER-00317,BIL-00363,MTF-09,Burn Care Nursing,O-2,on_station
+PER-00318,BIL-00364,MTF-09,Burn Care Nursing,O-3,on_station
+PER-00319,BIL-00365,MTF-09,Burn Care Nursing,O-3,on_station
+PER-00320,BIL-00366,MTF-09,Burn Care Nursing,O-2,on_station
+PER-00321,BIL-00367,MTF-09,Burn Care Nursing,O-3,on_station
+PER-00322,BIL-00368,MTF-09,Burn Care Nursing,O-2,on_station
+PER-00323,BIL-00370,MTF-09,Trauma Nursing,O-4,on_station
+PER-00324,BIL-00371,MTF-09,Trauma Nursing,O-1,on_station
+PER-00325,BIL-00372,MTF-09,Trauma Nursing,O-5,on_station
+PER-00326,BIL-00373,MTF-09,Trauma Nursing,O-4,on_station
+PER-00327,BIL-00374,MTF-09,Trauma Nursing,O-4,on_station
+PER-00328,BIL-00375,MTF-09,Trauma Nursing,O-4,on_station
+PER-00329,BIL-00376,MTF-09,Trauma Nursing,O-4,on_station
+PER-00330,BIL-00378,MTF-09,Med-Surg Nursing,O-2,on_station
+PER-00331,BIL-00379,MTF-09,Med-Surg Nursing,O-2,on_station
+PER-00332,BIL-00380,MTF-09,Med-Surg Nursing,O-1,on_station
+PER-00333,BIL-00381,MTF-09,Med-Surg Nursing,O-3,on_station
+PER-00334,BIL-00382,MTF-09,Med-Surg Nursing,O-2,on_station
+PER-00335,BIL-00383,MTF-09,Med-Surg Nursing,O-2,on_station
+PER-00336,BIL-00384,MTF-09,Med-Surg Nursing,O-2,on_station
+PER-00337,BIL-00385,MTF-09,Med-Surg Nursing,O-1,on_station
+PER-00338,BIL-00386,MTF-09,Med-Surg Nursing,O-4,on_station
+PER-00339,BIL-00387,MTF-09,Med-Surg Nursing,O-2,on_station
+PER-00340,BIL-00388,MTF-09,Emergency Nursing,O-4,on_station
+PER-00341,BIL-00389,MTF-09,Emergency Nursing,O-3,on_station
+PER-00342,BIL-00390,MTF-09,Emergency Nursing,O-5,on_station
+PER-00343,BIL-00391,MTF-09,Emergency Nursing,O-3,on_station
+PER-00344,BIL-00392,MTF-09,Emergency Nursing,O-4,on_station
+PER-00345,BIL-00393,MTF-09,Emergency Nursing,O-3,on_station
+PER-00346,BIL-00394,MTF-09,Emergency Nursing,O-3,on_station
+PER-00347,BIL-00395,MTF-09,Emergency Nursing,O-2,on_station
+PER-00348,BIL-00396,MTF-09,Emergency Nursing,O-4,on_station
+PER-00349,BIL-00397,MTF-09,Emergency Nursing,O-2,on_station
+PER-00350,BIL-00398,MTF-09,Emergency Nursing,O-3,on_station
+PER-00351,BIL-00399,MTF-09,Emergency Nursing,O-2,on_station
+PER-00352,BIL-00401,MTF-09,Perioperative Nursing,O-5,on_station
+PER-00353,BIL-00402,MTF-09,Perioperative Nursing,O-2,on_station
+PER-00354,BIL-00403,MTF-09,Perioperative Nursing,O-1,on_station
+PER-00355,BIL-00404,MTF-09,Perioperative Nursing,O-3,on_station
+PER-00356,BIL-00405,MTF-09,Perioperative Nursing,O-1,on_station
+PER-00357,BIL-00406,MTF-09,Perioperative Nursing,O-3,on_station
+PER-00358,BIL-00408,MTF-10,Critical Care Nursing,O-3,leave
+PER-00359,BIL-00409,MTF-10,Critical Care Nursing,O-3,on_station
+PER-00360,BIL-00410,MTF-10,Critical Care Nursing,O-3,on_station
+PER-00361,BIL-00411,MTF-10,Critical Care Nursing,O-2,on_station
+PER-00362,BIL-00412,MTF-10,Critical Care Nursing,O-3,on_station
+PER-00363,BIL-00413,MTF-10,Critical Care Nursing,O-2,on_station
+PER-00364,BIL-00415,MTF-10,Burn Care Nursing,O-3,on_station
+PER-00365,BIL-00416,MTF-10,Burn Care Nursing,O-2,on_station
+PER-00366,BIL-00417,MTF-10,Trauma Nursing,O-5,on_station
+PER-00367,BIL-00418,MTF-10,Trauma Nursing,O-4,on_station
+PER-00368,BIL-00419,MTF-10,Trauma Nursing,O-4,on_station
+PER-00369,BIL-00420,MTF-10,Trauma Nursing,O-2,on_station
+PER-00370,BIL-00421,MTF-10,Med-Surg Nursing,O-3,on_station
+PER-00371,BIL-00422,MTF-10,Med-Surg Nursing,O-2,on_station
+PER-00372,BIL-00423,MTF-10,Med-Surg Nursing,O-2,on_station
+PER-00373,BIL-00424,MTF-10,Med-Surg Nursing,O-3,on_station
+PER-00374,BIL-00425,MTF-10,Med-Surg Nursing,O-1,on_station
+PER-00375,BIL-00426,MTF-10,Emergency Nursing,O-5,on_station
+PER-00376,BIL-00427,MTF-10,Emergency Nursing,O-4,on_station
+PER-00377,BIL-00428,MTF-10,Emergency Nursing,O-2,on_station
+PER-00378,BIL-00429,MTF-10,Emergency Nursing,O-4,on_station
+PER-00379,BIL-00430,MTF-10,Emergency Nursing,O-3,on_station
+PER-00380,BIL-00431,MTF-10,Emergency Nursing,O-3,on_station
+PER-00381,BIL-00432,MTF-10,Emergency Nursing,O-5,on_station
+PER-00382,BIL-00434,MTF-10,Perioperative Nursing,O-5,on_station
+PER-00383,BIL-00435,MTF-10,Perioperative Nursing,O-5,on_station
+PER-00384,BIL-00436,MTF-10,Perioperative Nursing,O-4,on_station

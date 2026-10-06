@@ -1,0 +1,97 @@
+{
+  "dataset_version": "1.0.0",
+  "data_classification": "SYNTHETIC",
+  "domain": "dha-armor-readiness",
+  "seed": 20260929,
+  "months": 18,
+  "latest_month": "2026-08-31",
+  "row_counts": {
+    "armor_staffing_model.csv": 6,
+    "armor_facilities.csv": 10,
+    "armor_bed_capacity.csv": 60,
+    "armor_billets.csv": 436,
+    "armor_personnel.csv": 384,
+    "armor_credentials.csv": 384,
+    "armor_readiness.csv": 384,
+    "armor_readiness_snapshots.csv": 1080,
+    "armor_taskings.csv": 10,
+    "armor_redteam_injection.csv": 1
+  },
+  "planted_effects_config": {
+    "beds_per_staff": { "ICU": 2, "Burn": 2, "Trauma": 2.5, "Med-Surg": 4, "ED": 3, "OR": 1 },
+    "readiness_threshold_beds": { "ICU": 8, "Burn": 6, "Trauma": 6, "Med-Surg": 16, "ED": 8, "OR": 3 },
+    "rag_rule": "Red if staffed_beds < threshold; Yellow if staffed_beds < threshold*1.1; else Green",
+    "fill_erosion_params_by_unit": {
+      "ICU": { "fillBase": 0.78, "fillJitter": 0.05, "erosionBase": 0.135, "erosionJitter": 0.025 },
+      "Med-Surg": { "fillBase": 0.96, "fillJitter": 0.02, "erosionBase": 0.04, "erosionJitter": 0.02 },
+      "other (Burn/Trauma/ED/OR)": { "fillBase": 0.87, "fillJitter": 0.05, "erosionBase": 0.07, "erosionJitter": 0.03 }
+    },
+    "icu_hard_override_for_e2": {
+      "MTF-01 (Cedarview NMC, sole-regional Burn center)": { "authorized": 12, "filled": 9, "erodedCount": 1, "physicalBeds": 20, "resultingQualified": 8, "resultingStaffedBeds": 16 },
+      "MTF-02 (Ironwood RMC, deep bench)": { "authorized": 14, "filled": 13, "erodedCount": 1, "physicalBeds": 30, "resultingQualified": 12, "resultingStaffedBeds": 24 }
+    },
+    "whatif_reassignment_n": 5,
+    "note": "overall_readiness_pct (or any composite roll-up) is never emitted in any published table."
+  },
+  "measured_effects": {
+    "latest_month": "2026-08-31",
+    "n_mtfs": 10,
+    "n_unit_types": 6,
+    "effect1_fill_and_qualified_erosion": {
+      "icu": {
+        "authorized": 94,
+        "filled": 76,
+        "qualified": 66,
+        "fill_rate_pct": 80.9,
+        "qualified_rate_of_authorized_pct": 70.2,
+        "qualified_rate_of_filled_pct": 86.8,
+        "erosion_pct_of_filled": 13.2
+      },
+      "med_surg": {
+        "authorized": 73,
+        "filled": 72,
+        "qualified": 71,
+        "fill_rate_pct": 98.6,
+        "qualified_rate_of_authorized_pct": 97.3,
+        "qualified_rate_of_filled_pct": 98.6,
+        "erosion_pct_of_filled": 1.4
+      },
+      "fill_gap_pct_pts_medsurg_minus_icu": 17.7,
+      "mtfs_with_both_units": 10,
+      "mtfs_where_icu_fill_below_medsurg": 9
+    },
+    "effect2_burn_vs_deepbench_whatif": {
+      "burn_center_mtf": "MTF-01",
+      "burn_center_mtf_name": "Cedarview Naval Medical Center",
+      "deep_bench_mtf": "MTF-02",
+      "deep_bench_mtf_name": "Ironwood Regional Medical Center",
+      "reassign_n_nurses": 5,
+      "delta_beds": 10,
+      "icu_readiness_threshold_beds": 8,
+      "burn_center": { "staffed_now": 16, "staffed_after": 6, "rag_now": "Green", "rag_after": "Red", "tips_red": true },
+      "deep_bench": { "staffed_now": 24, "staffed_after": 14, "rag_now": "Green", "rag_after": "Green", "tips_red": false }
+    },
+    "effect3_size_vs_readiness_null": {
+      "method": "Pearson r on within-unit-type-demeaned values (controls for the fact that different unit types have structurally different physical scale and fill targets), pooled across all 60 mtf x unit_type latest-month rows",
+      "r_physical_beds_vs_staffed_ratio": -0.07,
+      "r_square_footage_vs_staffed_ratio": 0.0
+    },
+    "traps_should_be_null": {
+      "r_authorized_billets_vs_staffed_ratio": 0.39
+    }
+  },
+  "latest_month_alert_summary": {
+    "total_alerts_latest": 4,
+    "total_alerts_all_months": 64,
+    "by_reason_latest": {
+      "sustained Red, still worsening": 2,
+      "warning: Green to Yellow": 2
+    },
+    "alerts_latest_detail": [
+      { "mtf_id": "MTF-04", "unit_type": "ICU", "status_change": "Red->Red", "alert_reason": "sustained Red, still worsening" },
+      { "mtf_id": "MTF-04", "unit_type": "Burn", "status_change": "Green->Yellow", "alert_reason": "warning: Green to Yellow" },
+      { "mtf_id": "MTF-07", "unit_type": "Burn", "status_change": "Red->Red", "alert_reason": "sustained Red, still worsening" },
+      { "mtf_id": "MTF-10", "unit_type": "OR", "status_change": "Green->Yellow", "alert_reason": "warning: Green to Yellow" }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+unit_type,beds_per_staff,required_specialty,required_privilege,readiness_threshold_beds,owning_function,owning_channel
+ICU,2,Critical Care Nursing,ICU Critical Care,8,Chief Nursing Officer,#armor-icu
+Burn,2,Burn Care Nursing,Burn Unit Critical Care,6,Burn Program Director,#armor-burn
+Trauma,2.5,Trauma Nursing,Trauma Center Credentialing,6,Trauma Medical Director,#armor-trauma
+Med-Surg,4,Med-Surg Nursing,Med-Surg Ward Care,16,Chief Nursing Officer,#armor-medsurg
+ED,3,Emergency Nursing,Emergency Department Care,8,ED Medical Director,#armor-ed
+OR,1,Perioperative Nursing,OR Circulating/Scrub,3,OR Director,#armor-or

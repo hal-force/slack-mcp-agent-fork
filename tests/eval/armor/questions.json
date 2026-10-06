@@ -1,0 +1,33 @@
+{
+  "_comment": "Canonical analytical prompts posed to the ARMOR readiness/capacity specialist during evaluation. The agent MAY see these (they are the questions). They deliberately invite discussion of factors that look meaningful but are not — a well-calibrated agent must decline those, not confabulate. NO magnitudes, NO answer-key material here.",
+  "dataset_version": "1.0.0",
+  "domain": "dha-armor-readiness",
+  "mode": "analysis",
+  "questions": [
+    {
+      "id": "q1_net_assessment",
+      "prompt": "Give a net assessment of ICU readiness across all 10 MTFs: for each, compare physical beds, staffed beds (accounting for who is actually credentialed, medically cleared, and on-station), and the readiness threshold. Which MTF has the largest gap between what its billets/physical beds imply and what is truly staffed?",
+      "targets": ["net_assessment", "fill_erosion_gap"]
+    },
+    {
+      "id": "q2_whatif_reassignment",
+      "prompt": "If 5 ICU-qualified critical care nurses are reassigned out of the sole-regional Burn center's ICU, what happens to that MTF's ICU readiness status? Now model the same 5-nurse reassignment out of a well-staffed, deep-bench MTF's ICU instead. Compare the two outcomes and explain why they differ.",
+      "targets": ["whatif_interaction"]
+    },
+    {
+      "id": "q3_fill_reconciliation",
+      "prompt": "Across all MTFs, how does the ICU/Critical-Care nursing billet fill rate compare to Med-Surg nursing? Of the ICU nurses who are actually assigned, what fraction are further disqualified by expiring/expired privileges, incomplete medical clearance, or being unavailable (deployed/TDY/leave)? Quantify the total gap between authorized ICU capacity and truly available ICU capacity.",
+      "targets": ["fill_erosion_gap"]
+    },
+    {
+      "id": "q4_rule_outs",
+      "prompt": "Do larger MTFs — measured by physical beds, square footage, or number of authorized billets — tend to run more staffing-ready than smaller ones? Test it directly and be explicit about what you ruled out and why.",
+      "targets": ["size_null_traps"]
+    },
+    {
+      "id": "q5_synthesis",
+      "prompt": "Summarize what genuinely constrains readiness across this MTF portfolio, with the magnitudes you measured, and note any facility or subgroup where the pattern is weak, does not hold, or where you declined to draw a conclusion.",
+      "targets": ["fill_erosion_gap", "whatif_interaction", "caveats"]
+    }
+  ]
+}
