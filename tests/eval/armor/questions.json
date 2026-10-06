@@ -21,7 +21,7 @@
     },
     {
       "id": "q4_rule_outs",
-      "prompt": "Do larger MTFs — measured by physical beds, square footage, or number of authorized billets — tend to run more staffing-ready than smaller ones? Test it directly and be explicit about what you ruled out and why.",
+      "prompt": "Do larger MTFs tend to run more staffing-ready than smaller ones? Choose how to measure size, test it directly, and be explicit about what you ruled out and why.",
       "targets": ["size_null_traps"]
     },
     {

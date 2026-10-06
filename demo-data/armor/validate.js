@@ -248,8 +248,11 @@ const e3 = {
   r_square_footage_vs_staffed_ratio: r2(pearson(withinUnitTypeResiduals(sizeReadinessRows, "sqft"), withinUnitTypeResiduals(sizeReadinessRows, "ratio"))),
 };
 
-// -- secondary decoy: high billet AUTHORIZATION != readiness (same within-unit-type control) --
-const traps = {
+// -- informational, NOT a trap: billet authorization vs staffed ratio (same control). More
+// authorized billets -> more qualified staff -> more staffed beds against an independently
+// drawn physical plant, so a moderate positive r is a REAL mechanical link. An agent that
+// reports it is correct; it is recorded here only so the number is reproducible.
+const informational = {
   r_authorized_billets_vs_staffed_ratio: r2(pearson(withinUnitTypeResiduals(sizeReadinessRows, "authorized"), withinUnitTypeResiduals(sizeReadinessRows, "ratio"))),
 };
 
@@ -260,7 +263,7 @@ const measured = {
   effect1_fill_and_qualified_erosion: e1,
   effect2_burn_vs_deepbench_whatif: e2,
   effect3_size_vs_readiness_null: e3,
-  traps_should_be_null: traps,
+  informational_not_scored: informational,
 };
 console.log(JSON.stringify(measured, null, 2));
 
@@ -283,7 +286,6 @@ ok("E2 burn-center slack < deep-bench slack (interaction)", (e2.burn_center.staf
 
 ok("E3 |r| physical_beds vs staffed ratio < 0.25", Math.abs(e3.r_physical_beds_vs_staffed_ratio) < 0.25);
 ok("E3 |r| square_footage vs staffed ratio < 0.25", Math.abs(e3.r_square_footage_vs_staffed_ratio) < 0.25);
-ok("TRAP |r| authorized billets vs staffed ratio < 0.4", Math.abs(traps.r_authorized_billets_vs_staffed_ratio) < 0.4);
 
 console.error("\nplanted-effect checks:");
 let allPass = true;

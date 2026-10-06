@@ -48,6 +48,8 @@ test("system prompt carries methodology but NOT planted-effect magnitudes", () =
   // tests/eval/triage. A regex guard so a future edit can't leak them.
   assert.doesNotMatch(p, /75\.0|33\.1|17\.1|27\.9|0\.12/, "no realized magnitudes in the prompt");
   assert.doesNotMatch(p, /planted|ground.?truth/i, "prompt must not reference the answer key");
+  assert.doesNotMatch(p, /night.?shift|nurse_experience|diagnosis_independent|Moderate subgroup/i, "no trap list or expected caveat");
+  assert.doesNotMatch(p, /ai_vs_manual|skill_match_to_outcome|comorbidity_risk/, "no enumerated effect keys");
 });
 
 // ── composeTriageReply (pure) ───────────────────────────────────────────────

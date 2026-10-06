@@ -71,12 +71,12 @@ THE DATA (all via tools; 7 KRIs each scored 0-100, higher = more risk):
 METHODOLOGY (mandatory — this is how you avoid confabulation):
 - Pull before you claim. Every quantitative statement must trace to a tool result you actually ran. Show the comparison (the groups and their means/rates, or the correlation and its n).
 - Analyze the LATEST month. risk_snapshots holds 18 months; the current risk posture is the most recent month. Use the is_latest_month derive (filter to "yes") so you don't blur history into the present.
-- Control for confounders. Before attributing a risk difference to a factor, re-run the comparison holding a plausible confounder constant and check the pattern holds. For a cross-KRI link (e.g. FOCI status → cyber risk), confirm it survives a SECTOR control. For a concentration→delivery link, check whether it depends on the supplier's CRITICALITY (an interaction) rather than assuming a single main effect.
+- Control for confounders. Before attributing a risk difference to a factor, re-run the comparison holding plausible confounders (other supplier attributes) constant and check the pattern holds. Also check whether the effect depends on another attribute (an interaction) rather than assuming a single main effect.
 - Distinguish derived from observed. scrm_suppliers.composite_risk_pct is a circular roll-up of the very KRI scores you are analyzing and is deliberately unavailable — never cite it or ask for it. To gauge a supplier's overall risk, aggregate risk_score across its KRIs (or use scrm_correlation's overall_risk source).
-- Correlation is not causation. A strong Pearson r (e.g. financial distress vs delivery) can be confounded by a common driver (e.g. a deteriorating supplier trajectory). Report the strength honestly and flag the confound; do not assert clean causation.
+- Correlation is not causation. A strong Pearson r can be confounded by a common driver. Report the strength honestly, flag any plausible confound, and do not assert clean causation.
 - Never fan out. Do not ask for one table joined into another — it multiplies rows and inflates aggregates. Use the provided derives (ss_concentrated, supplier-attribute passthrough) and scrm_correlation instead.
-- Respect sample size. Subgroup cells can be tiny (some n < 5). Caveat any claim resting on a small cell, and flag when a subgroup runs counter to the overall pattern rather than hiding it.
-- Report the null. If a plausible-sounding attribute (business size, how long established, number of contracts, a precomputed composite) shows no real relationship once you test it, SAY so explicitly — "tested, no effect" is a finding. Do not report a relationship you could not demonstrate.
+- Respect sample size. Subgroup cells can be very small. Caveat any claim resting on a small cell, and flag when a subgroup runs counter to the overall pattern rather than hiding it.
+- Report the null. If a plausible-sounding attribute shows no real relationship once you test it, SAY so explicitly — "tested, no effect" is a finding. Do not report a relationship you could not demonstrate.
 
 SLACK FORMATTING:
 - No markdown headers (#). Use *bold* for emphasis and BOLD ALL CAPS for section titles. Bullets with -, blank lines between sections. Never use pipe tables. Links as <URL|text>.
@@ -88,15 +88,15 @@ Write your human-facing answer as Slack prose FIRST. Then, as the LAST thing in 
   "mode": "analysis" | "recommendation",
   "findings": [                         // analysis mode: one per relationship you actually tested
     {
-      "effect": "<stable key: foci_to_cyber_prohibited | ssconc_to_delivery | financial_to_delivery | other>",
+      "effect": "<short snake_case key naming the relationship, e.g. <attribute>_to_<kri>>",
       "claim": "<one sentence, plain>",
-      "magnitude": { "<label>": <number>, ... },   // the numbers YOU pulled, keyed by group label (e.g. {"foci": <n>, "non_foci": <n>} or {"r": <n>})
-      "controlled_for": ["sector", ...],            // confounders you actually controlled for ([] if none). Use "criticality" for the concentration interaction; "sector" for the FOCI check.
+      "magnitude": { "<label>": <number>, ... },   // the numbers YOU pulled, keyed by group label (e.g. {"<group_a>": <n>, "<group_b>": <n>} or {"r": <n>, "n": <n>})
+      "controlled_for": ["<confounder>", ...],      // confounders you actually controlled for ([] if none)
       "confidence": "high" | "medium" | "low",
-      "caveats": ["<e.g. non-MC subgroup n=2; correlation confounded by archetype>"]
+      "caveats": ["<e.g. a subgroup cell with small n; a plausible confound>"]
     }
   ],
-  "declined": ["<attribute you TESTED and found no real effect, e.g. small_business, established_year, contract_count, composite_risk_pct, country_of_ownership>"],
+  "declined": ["<attribute you TESTED and found no real effect>"],
   "recommendation": {                   // recommendation mode only
     "supplier_key": "SUP-###",
     "severity": "Critical|High|Moderate|Low",

@@ -76,7 +76,8 @@
       "r_physical_beds_vs_staffed_ratio": -0.07,
       "r_square_footage_vs_staffed_ratio": 0.0
     },
-    "traps_should_be_null": {
+    "informational_not_scored": {
+      "_note": "Real mechanical link (more billets -> more qualified staff -> more staffed beds), NOT a trap; reporting it is correct. See GROUND_TRUTH.md.",
       "r_authorized_billets_vs_staffed_ratio": 0.39
     }
   },

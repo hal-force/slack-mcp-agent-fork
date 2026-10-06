@@ -287,6 +287,120 @@ test("E1 without a sector control earns 20 (gap only)", () => {
   assert.equal(c.points, 20, "gap + direction without sector confirmation → 20/30");
 });
 
+// ── Regression: the scorer must not credit reversed, negated or vacuous claims (code
+// review 2026-10-06). Each case is a WRONG answer that the old scorer passed.
+const one = (findings, declined) => [{ structured: { mode: "analysis", findings, declined } }];
+const crit = (r, key) => r.criteria.find((x) => x.key === key);
+
+test("E1 reversed direction (FOCI LOWER) earns nothing even with the right numbers", () => {
+  const r = scoreTranscript(
+    one([{ effect: "foci_to_cyber", claim: "FOCI suppliers score lower on cyber risk.", magnitude: { cyber_foci: E1.cyber_non_foci, cyber_non_foci: E1.cyber_foci } }]),
+    KEY,
+  );
+  assert.equal(crit(r, "effect1_foci_cyber_prohibited").points, 0);
+});
+
+test("E1 unlabeled numbers + a 'lower' claim earn nothing", () => {
+  const r = scoreTranscript(
+    one([{ effect: "foci_to_cyber", claim: `FOCI suppliers are lower on cyber (${E1.cyber_foci} vs ${E1.cyber_non_foci}).` }]),
+    KEY,
+  );
+  assert.equal(crit(r, "effect1_foci_cyber_prohibited").points, 0);
+});
+
+test("E1 'does not hold within sector' earns no sector credit", () => {
+  const r = scoreTranscript(
+    one([{
+      effect: "foci_to_cyber",
+      claim: "FOCI suppliers score higher on cyber, but the gap does not hold within sector.",
+      magnitude: { cyber_foci: E1.cyber_foci, cyber_non_foci: E1.cyber_non_foci },
+      controlled_for: ["sector"],
+    }]),
+    KEY,
+  );
+  assert.equal(crit(r, "effect1_foci_cyber_prohibited").points, 20);
+});
+
+test("E1 an overall-risk mean that merely sits near a true GAP is not a hit", () => {
+  // Live Cohere run 2026-10-06: overall risk 53.8 vs 27.4 once scored 20/30 because 53.8
+  // is within ±8 of the 50.6 prohibited-source gap.
+  const r = scoreTranscript(
+    one([{ effect: "foci_flag_to_overall_risk", claim: "FOCI suppliers have 26.4 points higher average risk.", magnitude: { foci_true: 53.8, foci_false: 27.4 } }]),
+    KEY,
+  );
+  assert.equal(crit(r, "effect1_foci_cyber_prohibited").points, 0);
+});
+
+test("E1 sector control reported as a SIBLING FOCI finding earns full marks", () => {
+  const r = scoreTranscript(
+    one([
+      { effect: "foci_flag_to_cyber_risk", claim: "FOCI suppliers have much higher CYBER risk.", magnitude: { foci_true: E1.cyber_foci, foci_false: E1.cyber_non_foci }, controlled_for: [] },
+      { effect: "foci_flag_to_risk_controlled_by_sector", claim: "FOCI suppliers outscore non-FOCI suppliers within every sector containing both groups.", controlled_for: ["sector"] },
+    ]),
+    KEY,
+  );
+  assert.equal(crit(r, "effect1_foci_cyber_prohibited").points, 30);
+});
+
+test("E2 'no interaction with criticality' earns only the partial", () => {
+  const r = scoreTranscript(
+    one([{
+      effect: "ssconc_to_delivery",
+      claim: "Concentrated suppliers have higher delivery risk; there is no interaction with criticality.",
+      magnitude: { mc_ssconc: E2.delivery_mc_ssconc },
+      controlled_for: ["criticality"],
+    }]),
+    KEY,
+  );
+  assert.equal(crit(r, "effect2_ssconc_delivery_interaction").points, 12);
+});
+
+test("E3 a NEGATIVE r is not a hit, and no blanket [0.5,1] credit", () => {
+  const neg = scoreTranscript(one([{ effect: "financial_to_delivery", claim: `Financial and delivery risk: r = -${E3.r_financial_delivery}.` }]), KEY);
+  assert.equal(crit(neg, "effect3_financial_delivery").points, 0, "r = -0.76 is the wrong relationship");
+  const far = scoreTranscript(one([{ effect: "financial_to_delivery", claim: "Financial vs delivery.", magnitude: { r: 0.51 } }]), KEY);
+  assert.equal(crit(far, "effect3_financial_delivery").points, 0, "0.51 is outside ±0.2 of 0.76");
+});
+
+test("E3 'no strong correlation' is not recovery; a confound caveat is not an over-claim", () => {
+  const none = scoreTranscript(one([{ effect: "financial_to_delivery", claim: "There is no strong correlation between financial and delivery risk." }]), KEY);
+  assert.equal(crit(none, "effect3_financial_delivery").points, 0);
+  const ok = scoreTranscript(
+    one([{
+      effect: "financial_to_delivery",
+      claim: "Financial and delivery risk are strongly correlated, but this is not causal.",
+      magnitude: { r: E3.r_financial_delivery },
+      caveats: ["a deteriorating trajectory drives both"],
+    }]),
+    KEY,
+  );
+  assert.equal(crit(ok, "effect3_financial_delivery").points, 15);
+});
+
+test("traps: 'riskier, independent of sector' is a positive claim, and 'sme' doesn't match 'assessment'", () => {
+  const r = scoreTranscript(
+    one(
+      [{ effect: "small_business_risk", claim: "Small-business suppliers are riskier, independent of sector." }],
+      ["assessment of the contract portfolio"],
+    ),
+    KEY,
+  );
+  // small_business reported real (−5); the other three silent (+2.5 each) → 2.5.
+  assert.equal(crit(r, "traps_avoided").points, 2.5);
+});
+
+test("an ordinary 'established' verb in a claim is not the established_year trap", () => {
+  const r = scoreTranscript(one([{ effect: "foci_to_cyber", claim: "We established that FOCI suppliers are riskier." }]), KEY);
+  assert.match(crit(r, "traps_avoided").note, /established_year: silent/);
+});
+
+test("caveat credit needs a SMALL cited n, not any n", () => {
+  const big = scoreTranscript(one([{ effect: "x", claim: "y", caveats: ["based on n=40 suppliers"] }]), KEY);
+  assert.equal(crit(big, "thin_subgroup_caveat").points, 0);
+  const small = scoreTranscript(one([{ effect: "x", claim: "y", caveats: ["that cell has n=2"] }]), KEY);
+  assert.equal(crit(small, "thin_subgroup_caveat").points, 10);
+});
+
 test("collectStructured merges findings/declined across turns and ignores null structured", () => {
   const { findings, declined } = collectStructured([
     { structured: { findings: [{ effect: "a" }], declined: ["x"] } },

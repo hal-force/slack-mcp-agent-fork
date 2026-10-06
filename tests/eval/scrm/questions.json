@@ -21,7 +21,7 @@
     },
     {
       "id": "q4_rule_outs",
-      "prompt": "Which supplier attributes — business size, how long the supplier has been established, number of contracts, or any precomputed composite score — look like they might drive risk but actually do not once you test them? Be explicit about what you ruled out and why.",
+      "prompt": "Which supplier attributes look like they might drive risk but actually do not once you test them? Test the plausible candidates in the supplier data and be explicit about what you ruled out and why.",
       "targets": ["traps"]
     },
     {

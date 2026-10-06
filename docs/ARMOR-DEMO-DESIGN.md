@@ -1,6 +1,6 @@
 # ARMOR 2.0 — Integrated Workforce & Readiness Demo — Design
 
-**Status:** M0 (design) + **M1 (synthetic data, validator 20/20 green) complete.** M2 publish pending go-ahead. Target:
+**Status:** M0 (design) + **M1 (synthetic data, validator 19/19 green) complete.** M2 publish pending go-ahead. Target:
 Full **Use Case 5** end-to-end, including the multi-agent flow (specialist + **adversarial
 reviewer** + notifier).
 **Runs on:** the Cohere **Mosaic** deploy (`pathfinder-mcp`, `AI_PROVIDER=cohere`,
@@ -263,7 +263,7 @@ the `armor_whatif` tool), the ARMOR prompts/rubric, and the **adversarial review
 
 - **M0 — design doc.** ✅ (this file)
 - **M1 — generator + CSVs + validate + quarantined answer key** (`demo-data/armor/`,
-  `tests/eval/armor/`). ✅ **DONE 2026-09-29** — 20/20 checks; ICU fill 80.9% vs Med-Surg
+  `tests/eval/armor/`). ✅ **DONE 2026-09-29** — 19/19 checks (authorized-billet decoy reclassified as informational 2026-10-06 — a real mechanical link, not a null); ICU fill 80.9% vs Med-Surg
   98.6%; MTF-01 ICU 16→6 (Red) vs MTF-02 24→14 (Green) on a 5-nurse tasking; size r≈0.
 - **M2 — publish** to `usfederaldemos` via `tableau-prep-etl` + live VizQL verification of
   every planted effect; capture `ARMOR_MCP_DATASOURCES`.

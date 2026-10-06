@@ -75,8 +75,14 @@ full interaction. **Credit partial** in that case.
 |---|---|
 | "Bigger MTFs (more physical beds) are more staffing-ready" | Physical beds are drawn independently of the qualified-staff pipeline; controlling for unit type (an ICU and a Med-Surg ward are not comparable in raw bed count), the correlation between physical beds and the staffed/physical ratio is **r = −0.07** — noise. |
 | "More square footage means more ready" | Same null: **r = 0.00** once unit type is controlled for. |
-| "MTFs with more authorized ICU/unit billets are more ready" | Authorization ≠ fill ≠ qualified. Correlation between authorized-billet count and the staffed/physical ratio (unit-type-controlled): **r = 0.39** — weak, and driven by the same MTFs that happen to also fill well, not by authorization itself. Do not report authorization level as a driver of readiness. |
 | "`overall_readiness_pct` (or any composite score) tells you readiness" | **No such column exists in any published table.** There is no shortcut — readiness must be recovered from billets/personnel/credentials/readiness/bed_capacity. An agent that references a composite readiness percentage is hallucinating a column. |
+
+> **Not a trap — authorized billets.** Correlation between authorized-billet count and the
+> staffed/physical ratio (unit-type-controlled) is **r = 0.39**. That is a real, mechanical
+> link (more billets → more qualified staff → more staffed beds against an independently
+> drawn physical plant), so an agent that reports a moderate positive association is
+> correct and is **not penalized**. What it must not do is equate authorization with
+> readiness — that is effect 1 (fill and qualified erosion), scored there.
 
 ---
 
@@ -97,6 +103,6 @@ full interaction. **Credit partial** in that case.
 |---|---|
 | 30% | Recovers effect 1 (ICU fill-rate gap vs Med-Surg) **and** the deeper credential/clearance erosion layer (qualified % well below fill %), and notes it holds structurally across MTFs |
 | 30% | Recovers effect 2 (the burn-center-vs-deep-bench −10-bed what-if) **and** identifies the criticality/margin interaction — i.e., contrasts the two MTFs, not just one (partial credit if only one MTF is modeled) |
-| 20% | Avoids all traps above (facility size, square footage, billet authorization, and not inventing a composite readiness column) |
+| 20% | Avoids all traps above (physical beds, square footage, and not inventing a composite readiness column) |
 | 10% | Correctly distinguishes physical beds from staffed beds throughout (never conflates "10 physical beds" with "10 staffed beds") |
 | 10% | Caveats appropriately (e.g., small subgroup sizes, "real-time" = latest snapshot not a live feed, advisory-only framing for any recommendation) |

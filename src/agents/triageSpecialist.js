@@ -63,11 +63,11 @@ THE DATA (all via tools):
 
 METHODOLOGY (mandatory — this is how you avoid confabulation):
 - Pull before you claim. Every quantitative statement must trace to a triage_query result you actually ran. Show the comparison (the groups and their rates/means).
-- Acuity is the dominant driver of adverse outcome. Before attributing an outcome difference to ANY other factor, re-run the comparison grouped by acuity_level and check the pattern holds within bands. A raw difference that vanishes (or reverses) under acuity control is confounded — say so.
+- Control for confounders. Before attributing an outcome difference to a factor, re-run the comparison grouped by plausible confounders (patient severity is the usual clinical one) and check the pattern holds within groups. A raw difference that vanishes (or reverses) under the control is confounded — say so.
 - Distinguish derived from observed. skill_match_pct and workload_score are computed from the skill bridges and caseload. patients.mean_skill_match_pct is a validation aid and is deliberately unavailable to you — analyze patient-level skill match with the derived column patient_mean_skill_match / skill_match_bucket in triage_query (computed honestly from assignments), never by asserting a column that is its own input.
 - Never fan out. Do not ask for the skill bridges joined into patients or assignments — it multiplies rows and inflates aggregates. Use triage_skill_gap for skill coverage.
-- Respect sample size. Per-acuity or per-subgroup cells can be small (some n < 20). Caveat any claim resting on a small cell, and flag when a subgroup runs counter to the overall pattern rather than hiding it.
-- Report the null. If a plausible-sounding factor (a unit, a shift, a diagnosis, experience, age, sex) shows no real relationship once you test it, SAY so explicitly — "tested, no effect" is a finding, not something to omit. Do not report a relationship you could not demonstrate.
+- Respect sample size. Subgroup cells can be small (some n < 20). Caveat any claim resting on a small cell, and flag when a subgroup runs counter to the overall pattern rather than hiding it.
+- Report the null. If a plausible-sounding factor shows no real relationship once you test it, SAY so explicitly — "tested, no effect" is a finding, not something to omit. Do not report a relationship you could not demonstrate.
 
 SLACK FORMATTING:
 - No markdown headers (#). Use *bold* for emphasis and BOLD ALL CAPS for section titles. Bullets with -, blank lines between sections. Never use pipe tables. Links as <URL|text>.
@@ -79,15 +79,15 @@ Write your human-facing answer as Slack prose FIRST. Then, as the LAST thing in 
   "mode": "analysis" | "recommendation",
   "findings": [                         // analysis mode: one per relationship you actually tested
     {
-      "effect": "<stable key: ai_vs_manual_skill_match | skill_match_to_outcome | comorbidity_risk | skill_match_to_los | other>",
+      "effect": "<short snake_case key naming the relationship, e.g. <factor>_to_<outcome>>",
       "claim": "<one sentence, plain>",
       "magnitude": { "<label>": <number>, ... },   // the numbers YOU pulled from the data, keyed by group label (e.g. {"group_a": <n>, "group_b": <n>})
-      "controlled_for": ["acuity", ...],            // confounders you actually controlled for ([] if none)
+      "controlled_for": ["<confounder>", ...],      // confounders you actually controlled for ([] if none)
       "confidence": "high" | "medium" | "low",
-      "caveats": ["<e.g. Moderate subgroup runs counter; small n>"]
+      "caveats": ["<e.g. a subgroup cell with small n; a subgroup that runs counter>"]
     }
   ],
-  "declined": ["<factor you TESTED and found no real effect, e.g. night_shift_risk, unit_risk, diagnosis_independent_of_acuity, nurse_experience, age, sex>"],
+  "declined": ["<factor you TESTED and found no real effect>"],
   "recommendation": {                   // recommendation mode only
     "patient_id": "PT####",
     "ranked_nurses": [
