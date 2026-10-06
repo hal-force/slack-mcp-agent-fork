@@ -23,3 +23,16 @@ demo-data/vha/prep-flow/
 demo-data/vha/**/*.hyper
 demo-data/vha/*.log
 .secrets-scratch/
+
+# SCRM / ARMOR demos — red-team injection fixtures must NEVER be committed (same rule as VHA;
+# each generate.js recreates them deterministically for local injection-fencing tests)
+demo-data/scrm/scrm_redteam_injection.csv
+demo-data/armor/armor_redteam_injection.csv
+
+# Terraform — state and var files can hold secrets / resource IDs
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+crash.log
